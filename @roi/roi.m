@@ -1,6 +1,7 @@
 classdef roi
 %roi class. Stores roi mask, squared area mask around roi, number of pixels
 %used to create square mask and more
+% part of HELIOS
     properties
         roi_mask
         N_pixels_for_square_mask
