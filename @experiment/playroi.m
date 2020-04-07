@@ -2,6 +2,7 @@ function [IMmovie,frames] = playroi(OB, iroi, istage, Npix)
 % M = playroi(OB, iroi, istage, Npix) - method for experiment object. Generates
 % movie for a specified ROI and day created from stacked squared frames
 % around that ROI
+% part of HELIOS
 if nargin < 4
     Npix = 5;
 end
