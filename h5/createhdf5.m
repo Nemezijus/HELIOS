@@ -8,7 +8,12 @@ function out = createhdf5(hrfloc, hdf5loc, pars)
 if nargin < 3
     pars = [];
 end
-skipbg = 1;
+if isempty(pars) || strcmp(pars.bgmethod,'skip')
+    skipbg = 1;
+else
+    skipbg = 0;
+end
+
 S = load(hrfloc);
 Sfns = fieldnames(S);
 hrf = S.(Sfns{:});
@@ -63,8 +68,18 @@ end
 %STEP 5 pull out experiment from the file
 EXP = experiment(hdf5loc);
 
+%STEP 6 BG extraction
+if ~skipbg
+    EXP = experiment(hdf5loc);
+    EXP = EXP.extractbg('dynamicpixels');%dynamic pixels is much much faster than staticpixels
+    
+    
+    %HERE COMES CODE WHICH ADJUSTS RAW DATA WITH BG
+    
+    
+end
 
-%STEP 6 adding dff method
+%STEP 7 adding dff method
 if isempty(pars)
     method = 'median';
     tostitch = 1;
@@ -75,11 +90,11 @@ end
 
 disp('Calculating dff for the data. Please Wait.');
 tic
-EXP = EXP.dff(method, tostitch);
+EXP = EXP.dff(lowerd(method), tostitch);
 t = toc;
 disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
 
-%STEP 7 add data, motion corrected file and roi mask file locations
+%STEP 8 add data, motion corrected file and roi mask file locations
 locs = extractlocations(hrf.imaging, 'data');
 for idl = 1:numel(data_locations)
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'DATAPATH', locs{idl});
@@ -95,21 +110,7 @@ for idl = 1:numel(data_locations)
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', locs{idl});
 end
 
-%STEP 8 BG extraction
-if ~skipbg
-    EXP = experiment(hdf5loc);
-    EXP = EXP.extractbg('dynamicpixels');%dynamic pixels is much much faster than staticpixels
-end
 
-%STEP 9 add ROIBOX
-% N = 5;
-% for istage = 1:EXP.N_stages
-%     for iroi = 1:EXP.N_roi
-%         mask = h5read(EXP.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
-%         R = roi(mask,N);
-%         img = h5read(EXP.file_loc, ['/DATA/STAGE]);
-%     end
-% end
 out = 1;
 
 
