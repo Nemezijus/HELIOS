@@ -90,7 +90,7 @@ end
 
 disp('Calculating dff for the data. Please Wait.');
 tic
-EXP = EXP.dff(lowerd(method), tostitch);
+EXP = EXP.dff(lower(method), tostitch);
 t = toc;
 disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
 
