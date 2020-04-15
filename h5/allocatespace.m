@@ -19,5 +19,7 @@ for idata = 1:Ndata
     else
         cdata = data(idata,:);
     end
-    h5create(fl,paths{idata},size(cdata),'ChunkSize',size(cdata), 'Deflate', 9);
+    if ~isempty(cdata)
+        h5create(fl,paths{idata},size(cdata),'ChunkSize',size(cdata), 'Deflate', 9);
+    end
 end

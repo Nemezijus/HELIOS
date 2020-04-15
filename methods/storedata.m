@@ -19,5 +19,7 @@ for idata = 1:Ndata
     else
         cdata = data(idata,:);
     end
-    h5write(fl, paths{idata}, cdata);
+    if ~isempty(cdata)
+        h5write(fl, paths{idata}, cdata);
+    end
 end

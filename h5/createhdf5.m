@@ -68,13 +68,13 @@ end
 %STEP 5 pull out experiment from the file
 EXP = experiment(hdf5loc);
 
-%STEP 6 BG extraction
+%STEP 6 BG extraction and subtraction
 if ~skipbg
-    EXP = experiment(hdf5loc);
+%     EXP = experiment(hdf5loc);
     EXP = EXP.extractbg('dynamicpixels');%dynamic pixels is much much faster than staticpixels
     
-    
-    %HERE COMES CODE WHICH ADJUSTS RAW DATA WITH BG
+    %subtract bg and estimate dff
+    EXP = subtractbg(EXP, pars);
     
     
 end
@@ -87,12 +87,15 @@ else
     method = pars.dffmethod;
     tostitch = pars.tostitch;
 end
-
-disp('Calculating dff for the data. Please Wait.');
-tic
-EXP = EXP.dff(lower(method), tostitch);
-t = toc;
-disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+%if BG was subtracted then dff does not have to be calculated, otherwise it
+%is done here
+if skipbg
+    disp('Calculating dff for the data. Please Wait.');
+    tic
+    EXP = EXP.dff(lower(method), tostitch);
+    t = toc;
+    disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+end
 
 %STEP 8 add data, motion corrected file and roi mask file locations
 locs = extractlocations(hrf.imaging, 'data');
