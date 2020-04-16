@@ -65,39 +65,7 @@ for idl = 1:numel(data_locations)
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', pars.stimtype);
 end
 
-%STEP 5 pull out experiment from the file
-EXP = experiment(hdf5loc);
-
-%STEP 6 BG extraction and subtraction
-if ~skipbg
-%     EXP = experiment(hdf5loc);
-    EXP = EXP.extractbg('dynamicpixels');%dynamic pixels is much much faster than staticpixels
-    
-    %subtract bg and estimate dff
-    EXP = subtractbg(EXP, pars);
-    
-    
-end
-
-%STEP 7 adding dff method
-if isempty(pars)
-    method = 'median';
-    tostitch = 1;
-else
-    method = pars.dffmethod;
-    tostitch = pars.tostitch;
-end
-%if BG was subtracted then dff does not have to be calculated, otherwise it
-%is done here
-if skipbg
-    disp('Calculating dff for the data. Please Wait.');
-    tic
-    EXP = EXP.dff(lower(method), tostitch);
-    t = toc;
-    disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
-end
-
-%STEP 8 add data, motion corrected file and roi mask file locations
+%STEP 5 add data, motion corrected file and roi mask file locations
 locs = extractlocations(hrf.imaging, 'data');
 for idl = 1:numel(data_locations)
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'DATAPATH', locs{idl});
@@ -112,6 +80,54 @@ locs = extractlocations(hrf.imaging, 'roi');
 for idl = 1:numel(data_locations)
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', locs{idl});
 end
+
+%STEP 6 pull out experiment from the file
+EXP = experiment(hdf5loc);
+
+%STEP 7 adding dff method
+if isempty(pars)
+    method = 'median';
+    tostitch = 1;
+else
+    method = pars.dffmethod;
+    tostitch = pars.tostitch;
+end
+
+%STEP 8 BG extraction and subtraction
+if ~skipbg
+%     EXP = experiment(hdf5loc);
+    EXP = EXP.extractbg('dynamicpixels');%dynamic pixels is much much faster than staticpixels
+    
+    %subtract bg and estimate dff
+    disp('Subtracting BG and calculating dff for the data. Please Wait.');
+    tic
+    EXP = subtractbg(EXP, pars);
+    t = toc;
+    disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+    
+    stitchstr = '';
+    if tostitch
+        stitchstr = '_stitched';
+    end
+    root = '/ANALYSIS';
+    h5writeatt(EXP.file_loc,root,'DFFTYPE',[lower(method), stitchstr]);
+    h5writeatt(EXP.file_loc,root,'DFFMODDATE',datenum(now));
+    h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
+    
+end
+
+%STEP 8.5
+%if BG was subtracted then dff does not have to be calculated, otherwise it
+%is done here
+if skipbg
+    disp('Calculating dff for the data. Please Wait.');
+    tic
+    EXP = EXP.dff(lower(method), tostitch);
+    t = toc;
+    disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+end
+
+
 
 
 out = 1;
