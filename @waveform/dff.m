@@ -159,7 +159,7 @@ dff = (Y - smoothBaseline)./smoothBaseline;
 dff = dff';
 [dff, sigma, mu] = visc_dffnoise(dff, catchoutlier);
 
-function [obj, dff] = gauss_dff(obj, E)
+function [obj, dff, sigma] = gauss_dff(obj, E)
 if nargin == 1
     E = [];
 end

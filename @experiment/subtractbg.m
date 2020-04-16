@@ -8,6 +8,7 @@ if nargin < 2
     info.dffmethod = 'median';
     info.tostitch = 1;
 end
+root = '/ANALYSIS';
 E = OB.dffparams; %dff parameter struct
 for istage = 1:OB.N_stages
     disp(['BG correction on stage ', num2str(istage),' in progress...']);
@@ -25,11 +26,21 @@ for istage = 1:OB.N_stages
             stdff = Y.dff(lower(info.dffmethod), E);
             ustdff = stdff.unstitch(OB);
             store(ustdff, OB);
+            
+            Nstim = OB.N_stim(istage);
+            Nreps = OB.N_reps(istage);
+            for istim = 1:Nstim
+                for irep = 1:Nreps
+                    UNIT(irep) = OB.restun{istage}(istim,irep);
+                end
+                path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
+                h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
+            end
         else
             Nstim = OB.N_stim(istage);
             Nreps = OB.N_reps(istage);
             for istim = 1:Nstim
-%                 for irep = 1:Nreps
+%                 
                     Y = traces(OB, {iroi,istage,istim,0},'raw');
                     bg = traces(OB, {iroi,istage,istim,0},'bg');
                     switch info.bgcorrmethod
@@ -43,7 +54,11 @@ for istage = 1:OB.N_stages
                     Y.data = corrected;
                     stdff = Y.dff(lower(info.dffmethod), E);
                     store(stdff, OB);
-%                 end
+                    for irep = 1:Nreps
+                        UNIT(irep) = OB.restun{istage}(istim,irep);
+                    end
+                    path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
+                    h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
             end
         end
     end

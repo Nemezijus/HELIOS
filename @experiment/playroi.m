@@ -73,6 +73,8 @@ for iframe = 1:Nframes
 end
 if nargout == 0
     movie(AX,frames);
+    IMmovie =[];
+    frames =[];
 else
     close (F)
 end
