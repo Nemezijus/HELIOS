@@ -60,17 +60,19 @@ end
 count = 1;
 for is = stages
     Nstim = OB.N_stim(is);
+    Nreps = OB.N_reps(is);
     
     ST = stitch(OB, iroi, is, 'dff');
-    [~, si] = visc_wavenorm(ST.data,ST.time,[],10);
+    [~, si] = visc_wavenorm(ST.data,ST.time,[],10); %to be adapted separately
     for istim = 1:Nstim
         W = OB.traces({iroi, is, istim, 0},'dff');
-
+        for irep = 1:Nreps
+            THR = significant_peaks(W.data(irep,:), W.time(irep,:), si, S, 1, 0);
+            R.peaksinstimwin(count,istim,irep) = THR.stim_peaks;
+            R.peakmask(count,istim,irep,:) = THR.Xmasknan;
+        end
         %HERE REFER TO CODE FOR PEAK DETECTION visc_dffcriteria
         
     end
     count = count+1;
 end
-    
-    
-a=1;
