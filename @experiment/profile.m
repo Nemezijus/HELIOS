@@ -102,23 +102,34 @@ for istage = 1:OB.N_stages
     box off
 end
 
-%5 OSI evolution
+%5 Dominant stimulus evolution
 
-AX_osi = autoaxes(F, 1,1,[0.575 , 0.2, 0, 0.75]);
-axes(AX_osi);
+AX_domstim = autoaxes(F, 1,1,[0.575 , 0.2, 0, 0.75]);
+axes(AX_domstim);
 plot([R.dominantstimulus],'ko-');
 stimuli = R(1).stimulus(2:end);
 hold on
 for istage = 1:OB.N_stages
-    plot(istage, R(istage).dominantstimulus, 'o', 'MarkerFaceColor',C.stim(stimuli==R(istage).dominantstimulus,:));
+    plot(istage, R(istage).dominantstimulus, 'o',...
+        'MarkerFaceColor',C.stim(stimuli==R(istage).dominantstimulus,:),...
+        'MarkerEdgeColor',C.stim(stimuli==R(istage).dominantstimulus,:));
 end
-set(AX_osi,'XTick',[1:numel([R.dominantstimulus])]);
-set(AX_osi, 'XtickLabels',[R.stage]);
-set(AX_osi,'YTick',stimuli);
+set(AX_domstim,'XTick',[1:numel([R.dominantstimulus])]);
+set(AX_domstim, 'XtickLabels',[R.stage]);
+set(AX_domstim,'YTick',stimuli);
 xlim([1,numel([R.dominantstimulus])])
 ylim([0 315]);
 box off;
 
+%6 OSI evolution
+AX_osi = autoaxes(F, 1,1,[0.575 , 0.2, 0.25, 0.5]);
+axes(AX_osi);
+plot([R.osi],'ko-','MarkerFaceColor','k');
+set(AX_osi,'XTick',[1:numel([R.dominantstimulus])]);
+set(AX_osi, 'XtickLabels',[R.stage]);
+xlim([1,numel([R.dominantstimulus])])
+ylim([0 1]);
+box off
 d.F = F;
 guidata(F,d);
 
