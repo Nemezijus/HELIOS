@@ -4,19 +4,17 @@ function info = behave_create_testscript(hdfloc, mouseID)
 % hdf5 file of referenced (mouseID) animal
 % inputs
 % hdfloc -char- location of the h5 file of the animal
-% mouseID -char- identifier of the animal (eg: '36C_1')
+% mouseID -char- identifier of the animal (eg: '36C_1') (v1.0)
+% moudseID -struct- loaded mousedata(v2.0)
 % output
 % info -struct- stores information about updated hd file
 
+%initialize
 % hdf5 location 
 floc = hdfloc;
-
 % open hubroot file
-% now
-[~, cM] = summonHUBroot(mouseID);
-% future
-% fighub = findobj('Tag', 'HUB');
-% hubdata = guidata(fighub);
+% [~, cM] = summonHUBroot(mouseID); %v1.0
+cM = mouseID; %v2.0
 
 % creating a struct called sessiondata containing all the informations
 % about training sessions
