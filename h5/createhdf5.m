@@ -127,8 +127,16 @@ if skipbg
     disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
 end
 
-
-
+%STEP 9 Max Corr 
+% C = bestcorr(OB, iroi)
+h = waitbar(0,'Calculating Max Correlations');
+for iroi = 1:EXP.N_roi
+    waitbar(iroi/EXP.N_roi);
+    C = EXP.bestcorr(iroi);
+    allocatespace(EXP.file_loc, {C}, {['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']});
+    storedata(EXP.file_loc, {C}, {['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']});
+end
+close(h)
 
 out = 1;
 

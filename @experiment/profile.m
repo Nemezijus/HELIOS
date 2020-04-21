@@ -7,7 +7,7 @@ if nargin < 3
     flag = [];
 end
 F = figure;
-set(F,'units', 'normalized', 'position', [0.101 0.1 0.821 0.775],'color','w');
+set(F,'units', 'normalized', 'position', [0.103 0.0528 0.817 0.853],'color','w');
 C = colors;
 
 %1 - traces
@@ -27,7 +27,7 @@ for istage = 1:OB.N_stages
         end
     end
 end
-AX_traces = autoaxes(F,OB.N_stages, 1,[0.105, 0.5, 0.005, 0.005],[0.025 0.025]);
+AX_traces = autoaxes(F,OB.N_stages, 1,[0.105, 0.5, 0.005, 0.02],[0.025 0.025]);
 
 %now plot the averages
 for istage = 1:OB.N_stages
@@ -52,7 +52,7 @@ for istage = 1:OB.N_stages
 end
 
 %2 - images
-AX_images = autoaxes(F, OB.N_stages, 1, [0 0.875 0.005 0.005],[0.025 0.025]);
+AX_images = autoaxes(F, OB.N_stages, 1, [0 0.875 0.005 0.02],[0.025 0.025]);
 for istage = 1:OB.N_stages
     IM = local_image(OB, iroi, istage,AX_images(istage));
     axes(AX_images(istage));
@@ -68,6 +68,16 @@ for istage = 1:OB.N_stages
     R(istage) = response(OB, iroi, istage);
 end
 G = local_stage_grouping([R.stage]);
+
+for istage = 1:OB.N_stages
+    axes(AX_images(istage));
+    for ig = 1:numel(G)
+        if G(ig).logical(istage)
+            Col = C.group(ig,:);
+        end
+    end
+    ylabel(R(istage).stage{:},'Color',Col);
+end
 
 axes(AX_ppl)
 for istage = 1:OB.N_stages
@@ -91,7 +101,7 @@ ppl.RColor = [0 0 0];
 ppl.ThetaDir = 'clockwise';
 
 %4 histogram - number of peaks
-AX_hist = autoaxes(F,OB.N_stages, 1,[0.475, 0.4, 0.005, 0.005],[0.025 0.025]);
+AX_hist = autoaxes(F,OB.N_stages, 1,[0.475, 0.4, 0.005, 0.02],[0.025 0.025]);
 for istage = 1:OB.N_stages
     Nrepswithpeaks = sum(squeeze(R(istage).peaksinstimwin)>0,2);
     axes(AX_hist(istage));
@@ -100,14 +110,22 @@ for istage = 1:OB.N_stages
     bplot.CData = C.stim;
     ylim([0, 1]);
     box off
+    if istage ~= OB.N_stages
+        set(gca,'XTickLabel',[]);
+    else
+        set(gca, 'XtickLabels',R(1).stimulus,'FontSize',8);
+        xtickangle(90)
+    end
 end
 
-%5 Dominant stimulus evolution
+%5 Dominant stimulus evolution & OSI
 
-AX_domstim = autoaxes(F, 1,1,[0.575 , 0.2, 0, 0.75]);
+AX_domstim = autoaxes(F, 1,1,[0.58 , 0.19, 0, 0.75]);
+set(F,'defaultAxesColorOrder',[0.15, 0.15, 0.15; 0.851 0.329 0.102]);
 axes(AX_domstim);
+yyaxis left
 plot([R.dominantstimulus],'ko-');
-stimuli = R(1).stimulus(2:end);
+stimuli = R(1).stimulus;
 hold on
 for istage = 1:OB.N_stages
     plot(istage, R(istage).dominantstimulus, 'o',...
@@ -116,22 +134,143 @@ for istage = 1:OB.N_stages
 end
 set(AX_domstim,'XTick',[1:numel([R.dominantstimulus])]);
 set(AX_domstim, 'XtickLabels',[R.stage]);
-set(AX_domstim,'YTick',stimuli);
-xlim([1,numel([R.dominantstimulus])])
+set(AX_domstim,'YTick',stimuli(2:end));
+xlim([0.9,numel([R.dominantstimulus])+0.1])
 ylim([0 315]);
 box off;
-
-%6 OSI evolution
-AX_osi = autoaxes(F, 1,1,[0.575 , 0.2, 0.25, 0.5]);
-axes(AX_osi);
-plot([R.osi],'ko-','MarkerFaceColor','k');
-set(AX_osi,'XTick',[1:numel([R.dominantstimulus])]);
-set(AX_osi, 'XtickLabels',[R.stage]);
-xlim([1,numel([R.dominantstimulus])])
+ylabel('Stimulus, deg')
+yyaxis right
+plot([R.osi],'*-');
 ylim([0 1]);
-box off
+ylabel('OSI');
+
+
+
+
+%6 MaxCorr
+AX_MC = autoaxes(F, 1,1,[0.58 , 0.19, 0.25, 0.5]);
+axes(AX_MC);
+MC = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']);
+plot([1:numel(MC)],MC,'-','Color',[0.5 0.5 0.5]);
+hold on
+xlim([1, numel(MC)]);
+ylim([0 1]);
+
+stops = cumsum(OB.N_stim.*OB.N_reps);
+% midstages = stops - stops(1)./2;
+for istage = 1:OB.N_stages
+%     midstages(istage) = 
+    cumsamples = cumsum(OB.N_stim(1:istage).*OB.N_reps(1:istage));
+    nsamplestillnow = cumsamples(end) - OB.N_stim(1).*OB.N_reps(1);
+    cwindowsize = OB.N_stim(istage).*OB.N_reps(istage);
+    midstages(istage) = nsamplestillnow + round(cwindowsize./2);
+    meanCC(istage) = mean(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
+    if istage == 1
+        maxCC(istage) = max(MC(2:nsamplestillnow+cwindowsize));
+    else
+        maxCC(istage) = max(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
+    end
+    minCC(istage) = min(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
+    plot([stops(istage), stops(istage)], [0, 1], ':', 'color',[0.4 0.4 0.4]);
+end
+plot(midstages, meanCC, 'ko-');
+plot(midstages, maxCC, 'b*-');
+plot(midstages, minCC, 'r*-');
+set(AX_MC, 'XTick', midstages);
+set(AX_MC, 'XTickLabels', [R.stage]);
+
+
+% 7 Textboxes
+frombottom = 0.6;
+fromleft = 0.825;
+mTextBox(1) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[fromleft frombottom-0 0.15 0.025]);
+set(mTextBox(1),'String',['Experiment: ',OB.id],'FontSize',12,'foregroundcolor','k',...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mTextBox(2) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[fromleft frombottom-0.05 0.15 0.05]);
+set(mTextBox(2),'String',['ROI: ',num2str(iroi),' (',num2str(OB.N_roi),')'],'FontSize',18,'foregroundcolor','k',...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+if ~isempty(OB.bg_corrected)
+    bgmethod = h5readatt(OB.file_loc, '/ANALYSIS','BGCORRMETHOD');
+else
+    bgmethod = 'None';
+end
+mTextBox(3) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[fromleft frombottom-0.1 0.15 0.025]);
+set(mTextBox(3),'String',['BG correction method: ',bgmethod],'FontSize',12,'foregroundcolor',[0.3 0.3 0.3],...
+    'backgroundcolor','w','fontweight','normal','Tag','Unique');
+
+stitch = 'No';
+dfftypecell = strsplit(OB.dff_type,'_');
+if numel(dfftypecell) == 2
+    dfftype = dfftypecell{1};
+    if strcmp(dfftypecell{2},'stitched')
+        stitch = 'Yes';
+    end
+else
+    dfftype = dfftypecell{:};
+end
+mTextBox(4) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[fromleft frombottom-0.13 0.15 0.025]);
+set(mTextBox(4),'String',['DFF method: ',dfftype],'FontSize',12,'foregroundcolor',[0.3 0.3 0.3],...
+    'backgroundcolor','w','fontweight','normal','Tag','Unique');
+
+mTextBox(5) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[fromleft frombottom-0.155 0.15 0.025]);
+set(mTextBox(5),'String',['Stitched? ',stitch],'FontSize',12,'foregroundcolor',[0.3 0.3 0.3],...
+    'backgroundcolor','w','fontweight','normal','Tag','Unique');
+
+mTextBox(6) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[fromleft frombottom-0.2 0.15 0.025]);
+set(mTextBox(6),'String',['Stimuli color code: '],'FontSize',12,'foregroundcolor',[0 0 0],...
+    'backgroundcolor','w','fontweight','normal','Tag','Unique');
+
+colorleft = fromleft+0.05;
+mcol(1) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft frombottom-0.22 0.025 0.025]);
+set(mcol(1),'String',[num2str(stimuli(2))],'FontSize',12,'foregroundcolor',C.stim(2,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mcol(2) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft+0.025 frombottom-0.22 0.025 0.025]);
+set(mcol(2),'String',[num2str(stimuli(6))],'FontSize',12,'foregroundcolor',C.stim(6,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mcol(3) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft frombottom-0.25 0.025 0.025]);
+set(mcol(3),'String',[num2str(stimuli(3))],'FontSize',12,'foregroundcolor',C.stim(3,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mcol(4) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft+0.025 frombottom-0.25 0.025 0.025]);
+set(mcol(4),'String',[num2str(stimuli(7))],'FontSize',12,'foregroundcolor',C.stim(7,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mcol(5) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft frombottom-0.28 0.025 0.025]);
+set(mcol(5),'String',[num2str(stimuli(4))],'FontSize',12,'foregroundcolor',C.stim(4,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mcol(6) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft+0.025 frombottom-0.28 0.025 0.025]);
+set(mcol(6),'String',[num2str(stimuli(8))],'FontSize',12,'foregroundcolor',C.stim(8,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mcol(7) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft frombottom-0.31 0.025 0.025]);
+set(mcol(7),'String',[num2str(stimuli(5))],'FontSize',12,'foregroundcolor',C.stim(5,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mcol(8) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[colorleft+0.025 frombottom-0.31 0.025 0.025]);
+set(mcol(8),'String',[num2str(stimuli(9))],'FontSize',12,'foregroundcolor',C.stim(9,:),...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
 d.F = F;
 guidata(F,d);
+
 
 
 
