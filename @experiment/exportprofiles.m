@@ -9,7 +9,7 @@ end
 
 Nroi = OB.N_roi;
 
-for iroi = 1:3
+for iroi = 1:Nroi
     OB.profile(iroi);
     F = gcf;
     name = [OB.id,'_ROI_number_',num2str(iroi),'_ROI_PROFILE'];

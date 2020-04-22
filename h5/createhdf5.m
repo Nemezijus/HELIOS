@@ -33,6 +33,7 @@ if isempty(pars)
     end
     pars.dffmethod = 'median';
     pars.tostitch = 1;
+    pars.bgmethod = 'dynamicpixels';
 end
 
 %STEP 1 - create empty DATA branch to store ID and setup
@@ -96,7 +97,7 @@ end
 %STEP 8 BG extraction and subtraction
 if ~skipbg
 %     EXP = experiment(hdf5loc);
-    EXP = EXP.extractbg('dynamicpixels');%dynamic pixels is much much faster than staticpixels
+    EXP = EXP.extractbg(pars.bgmethod);%dynamic pixels is much much faster than staticpixels
     
     %subtract bg and estimate dff
     disp('Subtracting BG and calculating dff for the data. Please Wait.');
