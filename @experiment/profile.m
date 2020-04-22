@@ -10,6 +10,13 @@ F = figure;
 set(F,'units', 'normalized', 'position', [0.103 0.0528 0.817 0.853],'color','w');
 C = colors;
 
+%0 - estimate responses
+for istage = 1:OB.N_stages
+    R(istage) = response(OB, iroi, istage);
+end
+G = local_stage_grouping([R.stage]);
+
+
 %1 - traces
 
 %first - get the ylims
@@ -54,20 +61,38 @@ end
 %2 - images
 AX_images = autoaxes(F, OB.N_stages, 1, [0 0.875 0.005 0.02],[0.025 0.025]);
 for istage = 1:OB.N_stages
-    IM = local_image(OB, iroi, istage,AX_images(istage));
+    [IM, ROI] = local_image(OB, iroi, istage,AX_images(istage));
     axes(AX_images(istage));
-    imagesc(IM);
+    imagesc(IM);hold on
     set(gca,'XTickLabel',[]);
     set(gca,'YTickLabel',[]);
+    sqmaskdouble = double(ROI.square_mask);
+    roimasksquare = ROI.roi_mask(any(sqmaskdouble,2),any(sqmaskdouble,1));
+    BW2 = bwboundaries(roimasksquare);
+    if numel(BW2) == 2 %whether there is a hole
+        bwperim1 = BW2{1};
+        bwperim2 = BW2{2};
+        if strcmp(OB.setup,'ao')
+            plot(bwperim1(:,2),bwperim1(:,1),'Linestyle','-','Color','w');hold on
+            plot(bwperim2(:,2),bwperim2(:,1),'Linestyle','-','Color','w');
+        else
+            plot(bwperim1(:,1),bwperim1(:,2),'Linestyle','-','Color','w');hold on;
+            plot(bwperim2(:,1),bwperim2(:,2),'Linestyle','-','Color','w');
+        end
+        
+    else
+        bwperim = BW2{:};
+        if strcmp(OB.setup,'ao')
+            plot(bwperim(:,2),bwperim(:,1),'Linestyle','-','Color','w');
+        else
+            plot(bwperim(:,1),bwperim(:,2),'Linestyle','-','Color','w');
+        end
+    end
 end
-
 
 %3 - polar plot
 AX_ppl = autoaxes(F, 1,1,[0.8 0, 0, 0.6]);
-for istage = 1:OB.N_stages
-    R(istage) = response(OB, iroi, istage);
-end
-G = local_stage_grouping([R.stage]);
+
 
 for istage = 1:OB.N_stages
     axes(AX_images(istage));
@@ -116,6 +141,9 @@ for istage = 1:OB.N_stages
         set(gca, 'XtickLabels',R(1).stimulus,'FontSize',8);
         xtickangle(90)
     end
+    if istage == 1
+        title('Peaks in stimwin');
+    end
 end
 
 %5 Dominant stimulus evolution & OSI
@@ -144,7 +172,7 @@ plot([R.osi],'*-');
 ylim([0 1]);
 ylabel('OSI');
 
-
+title('Dominant stimulus and OSI');
 
 
 %6 MaxCorr
@@ -178,7 +206,8 @@ plot(midstages, maxCC, 'b*-');
 plot(midstages, minCC, 'r*-');
 set(AX_MC, 'XTick', midstages);
 set(AX_MC, 'XTickLabels', [R.stage]);
-
+ylabel('Correlation');
+title('Max corr. evolution');
 
 % 7 Textboxes
 frombottom = 0.6;
@@ -277,9 +306,9 @@ guidata(F,d);
 % function local_playframe(hObject, eventdata)
 % d = guidata(hObject);
 
-function IM = local_image(OB, iroi, istage, AX);
+function [IM, R] = local_image(OB, iroi, istage, AX);
 Npix = 5;
-method = 2;
+method = 1;
 cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/MAXPROJ']);
 clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/MAXPROJLUT']);
 
