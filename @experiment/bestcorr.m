@@ -14,12 +14,21 @@ cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(1),
 cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAME']);
 clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAMELUT']);
 R = roi(cmask,Npix);
+
+if R.close_to_border
+    referenceonborder = 1;
+else
+    referenceonborder = 0;
+end
 refframe = cutframe(cframe, clut, R.square_mask);
 ref_g = refframe(:,:,2);
+refdims = numel(refframe(:,1,1));
+
+
 for istage = 1:Nstages
     cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
     R = roi(cmask,Npix);
-    if ~R.close_to_border
+    if ~R.close_to_border & ~referenceonborder
         shiftsize = 5;
     else
         shiftsize = 0;
@@ -31,7 +40,11 @@ for istage = 1:Nstages
         clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAMELUT']);
         frame = cutframe(cframe, clut, R.square_mask);
         cPOLY_g = frame(:,:,2);
-        POLYdims = numel(cPOLY_g(:,1,1));
+        if numel(frame(:,1,1)) < refdims %this is a bit different from VISC method (see visc_ROIevolution)
+            POLYdims = numel(frame(:,1,1));
+        else
+            POLYdims = refdims;
+        end
         for xshift = 1:numel(shiftwindow)
             for yshift = 1:numel(shiftwindow)
                 CorrData(xshift,yshift,iframe) = corr2((ref_g([1+shiftsize:POLYdims-shiftsize],[1+shiftsize:POLYdims-shiftsize])),...
