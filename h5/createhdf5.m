@@ -134,7 +134,10 @@ h = waitbar(0,'Calculating Max Correlations');
 for iroi = 1:EXP.N_roi
     waitbar(iroi/EXP.N_roi);
     C = EXP.bestcorr(iroi);
-    allocatespace(EXP.file_loc, {C}, {['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']});
+    try
+        allocatespace(EXP.file_loc, {C}, {['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']});
+    catch
+    end
     storedata(EXP.file_loc, {C}, {['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']});
 end
 close(h)
