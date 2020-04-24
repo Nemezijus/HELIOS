@@ -228,7 +228,7 @@ else
     bgmethod = 'None';
 end
 mTextBox(3) = uicontrol(F,'style','text','Units','Normalized',...
-    'Position',[fromleft frombottom-0.1 0.15 0.025]);
+    'Position',[fromleft-0.005 frombottom-0.1 0.175 0.025]);
 set(mTextBox(3),'String',['BG correction method: ',bgmethod],'FontSize',12,'foregroundcolor',[0.3 0.3 0.3],...
     'backgroundcolor','w','fontweight','normal','Tag','Unique');
 

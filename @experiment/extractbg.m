@@ -7,24 +7,82 @@ if nargin < 2
     method = 'staticpixels';
 end
 Npixels = 5;
+
+
+%AO data is not hdf5 readable, thus if the dataset is from AO, it requires
+%the MES to open and extract raw data. The logical check below checks the
+%setup and in case it is AO, it looks whether MES exists
+setup = EX.setup;
+% if strcmp(setup, 'ao')
+%     %initialize MES
+%     W = evalin('caller','whos');
+%     doesExist = ismember('proginfo',{W(:).name});
+%     if ~doesExist
+%         try
+%             mes
+%         catch
+%             warndlg('mes could not be started')
+%             disp('BG was not calculated');
+%             return
+%         end
+%     end
+%     if doesExist
+%         varidx = strcmp({W(:).name},'proginfo');
+%         checkvariable = W(varidx);
+%         if checkvariable.bytes == 0
+%             try
+%                 mes
+%             catch
+%                 warndlg('mes could not be started')
+%                 return
+%             end
+%         end
+%     end
+%     %MES initialized
+% end
+if strcmp(setup, 'ao')
+    hrf = findhrf(EX.id);
+end
+
+
 for istage = 1:EX.N_stages
     disp(['WORKING ON STAGE ',num2str(istage),'/',num2str(EX.N_stages)])
     mcorrfileloc = h5readatt(EX.file_loc,...
         ['/DATA/STAGE_',num2str(istage)],'MOTIONCORRECTEDDATAPATH');
-    err = 1;
-    while err
-        try
-            info = h5info(mcorrfileloc);
-            err = 0;
-        catch
+    
+    
+    if ~strcmp(setup,'ao')%DUAL
+        err = 1;
+        while err
+            try
+                info = h5info(mcorrfileloc);
+                err = 0;
+            catch
+            end
+        end
+        fnames = fieldnames(info);
+        if ismember('GroupHierarchy', fnames)
+            RAWdata = info.GroupHierarchy.Groups.Groups;
+        else
+            RAWdata = info.Groups.Groups;
+        end
+    else %AO
+        d = load(hrf.analysis.imaging.data_matrices.file_path{istage});
+        Nrecs = numel(d.data);
+        Nrois = numel(d.data(1).logicalROI);
+        roiH = d.data(1).attribs(1).TransversePixNum;
+        roiW = d.data(1).attribs(1).AO_collection_usedpixels;%ff width
+        Nsquares = d.data(1).attribs(1).Linelength./roiW;
+        fs(1) = roiH;
+        fs(2) = d.data(1).attribs(1).Width;
+        FS = local_frameset_descript(fs, roiH, roiW, Nsquares, EX, istage);
+        ROIsequence = [FS.containROI];%in which order where they drawn
+        if numel([FS.containROI])~=Nrois
+            error('cant attribute FF to ROI selection');
         end
     end
-    fnames = fieldnames(info);
-    if ismember('GroupHierarchy', fnames)
-        RAWdata = info.GroupHierarchy.Groups.Groups;
-    else
-        RAWdata = info.Groups.Groups;
-    end
+        %CONTINUE HERE
+
     switch method
         case 'staticpixels'
             %--------------------------------STATIC-PIXELS--------------------------------------------%
@@ -235,7 +293,7 @@ for istage = 1:EX.N_stages
     
 end
 h5writeatt(EX.file_loc,['/ANALYSIS'], 'BGCORRMETHOD', method);
-h5writeatt(EX.file_loc,['/ANALYSIS'], 'ISBGCORRMETHOD', 1);
+h5writeatt(EX.file_loc,['/ANALYSIS'], 'ISBGCORRECTED', 1);
 EX = experiment(EX.file_loc);
 
 
@@ -249,5 +307,36 @@ for ii = 1:numel(inStruct)
     end
     if strcmp(name,str)
         value = inStruct(ii).Value;
+    end
+end
+
+function FS = local_frameset_descript(fs, H, W, Nsq, EX, Nstage);
+%Nsq - number of squares
+N = EX.N_roi;%number of ROIs
+blankframe = zeros(fs);
+
+Nroicols = fs(2)/W;
+Nroirows = fs(1)/H;
+colcount = 0;
+for iN = 1:Nsq
+    roisqmask = blankframe;
+    roisqmask(:,(iN-1)*W+1:W*iN) = 1;
+    roisqmaskidx = find(roisqmask);
+    roisqmaskidx(roisqmaskidx>0);
+    FS(iN).squareframe = roisqmask;
+    %     FS(iN).idxs = roisqmaskidx;
+    count = 1;
+    for iM = 1:N
+        poly = h5readatt(EX.file_loc, ['/DATA/STAGE_',num2str(Nstage),'/UNIT_1/ROI_',num2str(iM)],'POLYGON');
+        %         roiselmask = cR.roi;
+        roiselmask = logical(poly2mask(poly(1,:),...
+            poly(2,:),fs(1),fs(2)));
+        roiselmaskidx = find(roiselmask);
+        
+        memberpixelcheck = ismember(roiselmaskidx,roisqmaskidx);
+        if sum(memberpixelcheck) > 0.8*numel(roiselmaskidx)
+            FS(iN).containROI(count) = iM;
+            count = count+1;
+        end
     end
 end
