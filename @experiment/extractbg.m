@@ -400,7 +400,7 @@ for istage = 1:EX.N_stages
     
     
 end
-h5writeatt(EX.file_loc,['/ANALYSIS'], 'BGCORRMETHOD', method);
+h5writeatt(EX.file_loc,['/ANALYSIS'], 'BGEXTRACTMETHOD', method);
 h5writeatt(EX.file_loc,['/ANALYSIS'], 'ISBGCORRECTED', 1);
 EX = experiment(EX.file_loc);
 

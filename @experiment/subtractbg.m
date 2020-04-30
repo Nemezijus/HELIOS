@@ -63,4 +63,5 @@ for istage = 1:OB.N_stages
         end
     end
 end
+h5writeatt(OB.file_loc,['/ANALYSIS'], 'BGCORRMETHOD', info.bgcorrmethod);
 OB = experiment(OB.file_loc);
