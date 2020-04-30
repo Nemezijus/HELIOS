@@ -267,9 +267,9 @@ for istage = 1:EX.N_stages
                             end
                         end
                         roisqmask = nFS.squareframe; %SQUARE MASK OF THE ROI
-                        flds = fieldnames(d.data(iunit).logicalROI(iroi));
+                        flds = fieldnames(d.data(irec).logicalROI(iroi));
                         if ismember('roiRaw',flds)
-                            roiselmask = d.data(iunit).logicalROI(iroi).roiRaw;
+                            roiselmask = d.data(irec).logicalROI(iroi).roiRaw;
                         else
                             roiselmask = logical(poly2mask(d.data(irec).CaTransient(iroi).poly(1,:),...
                                 d.data(irec).CaTransient(iroi).poly(2,:),fs(1),fs(2)));
@@ -346,9 +346,9 @@ for istage = 1:EX.N_stages
                             end
                         end
                         roisqmask = nFS.squareframe; %SQUARE MASK OF THE ROI
-                        flds = fieldnames(d.data(iunit).logicalROI(iroi));
+                        flds = fieldnames(d.data(irec).logicalROI(iroi));
                         if ismember('roiRaw',flds)
-                            roiselmask = d.data(iunit).logicalROI(iroi).roiRaw;
+                            roiselmask = d.data(irec).logicalROI(iroi).roiRaw;
                         else
                             roiselmask = logical(poly2mask(d.data(irec).CaTransient(iroi).poly(1,:),...
                                 d.data(irec).CaTransient(iroi).poly(2,:),fs(1),fs(2)));
