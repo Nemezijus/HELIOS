@@ -214,7 +214,7 @@ for istage = 1:EX.N_stages
                     frameSet = getAOframeset(P1{istage}, irec);
                 end
                 
-                for iroi = 1:ROIsequence
+                for iroi = ROIsequence
                     loc = ['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(irec),'/ROI_',num2str(iroi),'/BG'];
                     for iframe = 1:numel(frameSet(1,1,:));
                         cframe = frameSet(:,:,iframe);
@@ -258,7 +258,7 @@ for istage = 1:EX.N_stages
                 end
                 
                 %now we loop inside each frame of that unit
-                for iroi = 1:ROIsequence
+                for iroi = ROIsequence
                     if isao
                         for ifs = 1:numel(FS)
                             if ismember(iroi,FS(ifs).containROI)
@@ -337,7 +337,7 @@ for istage = 1:EX.N_stages
                 end
                 
                 %now we loop inside each frame of that unit
-                for iroi = 1:ROIsequence
+                for iroi = ROIsequence
                     if isao
                         for ifs = 1:numel(FS)
                             if ismember(iroi,FS(ifs).containROI)
