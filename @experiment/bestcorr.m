@@ -10,10 +10,11 @@ Npix = 5;
 C = [];
 
 %reference image
-cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(1),'/ROIMASK']);
+% cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(1),'/ROIMASK']);
 cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAME']);
 clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAMELUT']);
-R = roi(cmask,Npix);
+% R = roi(cmask,Npix);
+R = roi(OB,iroi,1,Npix);
 
 if R.close_to_border
     referenceonborder = 1;
@@ -27,7 +28,8 @@ refdims = numel(refframe(:,1,1));
 
 for istage = 1:Nstages
     cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
-    R = roi(cmask,Npix);
+%     R = roi(cmask,Npix);
+    R = roi(OB,iroi,istage,Npix);
     if ~R.close_to_border & ~referenceonborder
         shiftsize = 5;
     else

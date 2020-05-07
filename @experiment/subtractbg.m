@@ -35,6 +35,7 @@ for istage = 1:OB.N_stages
                 end
                 path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
                 h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
+                clear UNIT; %added 2020-05-07
             end
         else
             Nstim = OB.N_stim(istage);
@@ -59,6 +60,7 @@ for istage = 1:OB.N_stages
                     end
                     path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
                     h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
+                    clear UNIT; %added 2020-05-07
             end
         end
     end

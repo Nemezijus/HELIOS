@@ -19,8 +19,8 @@ axw = axdims(3);
 axh = axdims(4);
 
 
-cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
-R = roi(cmask,Npix);
+% cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
+R = roi(OB,iroi,istage,Npix);
 cmask = R.square_mask;
 for iframe = 1:Nframes
     cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAME']);

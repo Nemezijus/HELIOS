@@ -313,7 +313,8 @@ cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/MAXPROJ']);
 clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/MAXPROJLUT']);
 
 cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
-R = roi(cmask,Npix);
+% R = roi(cmask,Npix);
+R = roi(OB,iroi,istage,Npix);
 cmask = R.square_mask;
 
 axdims = getpixelposition(AX);
@@ -339,7 +340,11 @@ c(:,:,1) = r;
 c(:,:,2) = g;
 c(:,:,3) = b;
 
-frame = imrotate(flip(c,2),90);
+if ~strcmp(OB.setup, 'ao')
+    frame = imrotate(flip(c,2),90);
+else
+    frame = c;
+end
 
 imdims = size(frame);
 imw = imdims(1);

@@ -64,7 +64,7 @@ for iunit = 1:Nunits
         d = data(iunit).CaTransient(iroi).event(2,:)';
         allocatespace(file_loc, {d}, {loc});
         storedata(file_loc, {d}, {loc});
-        %SQUAREMASK
+        %ROIMASK
         if iunit == 1
             image = data(iunit).meanPic;
             roi_indexed = data(iunit).logicalROI(iroi).roi;
@@ -73,6 +73,21 @@ for iunit = 1:Nunits
             maskpath = strjoin({'/ANALYSIS',['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],'ROIMASK'},'/');
             allocatespace(file_loc, {logicalROI}, {maskpath});
             storedata(file_loc, {logicalROI}, {maskpath});
+            %DIMENSIONS FOR AO FF
+            setup = h5readatt(file_loc,'/DATA','SETUP');
+            if strcmp(setup,'ao')
+                dimspath = strjoin({'/ANALYSIS',['ROI_',num2str(iroi)],['STAGE_',num2str(istage)]},'/');
+                dims = data(iunit).logicalROI(iroi).dims;
+                h5writeatt(file_loc,dimspath, 'DIMENSIONS', dims);
+                try
+                ffwidth = data(iunit).attribs(1).TransversePixNum;
+                ffheight = data(iunit).attribs(1).AO_collection_usedpixels;
+                FFsize = [ffwidth, ffheight];
+                catch
+                    FFsize = [];
+                end
+                h5writeatt(file_loc,dimspath, 'FFSIZE', FFsize);
+            end
         end
         %attributes
         %CENTROID

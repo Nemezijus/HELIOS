@@ -3,6 +3,7 @@ classdef roi
 %used to create square mask and more
 % part of HELIOS
     properties
+        setup
         roi_mask
         N_pixels_for_square_mask
         square_mask
@@ -10,13 +11,16 @@ classdef roi
         mask_around_roi
     end
     methods
-        function obj = roi(mask,N)
-            if nargin < 2
+        function obj = roi(exp,iroi,istage,N)
+            if nargin < 4
                 N = 5;
             end
-            obj.roi_mask = mask;
+            roi_mask = h5read(exp.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
+            obj.roi_mask = roi_mask;
             obj.N_pixels_for_square_mask = N;
-            obj = obj.square;
+            obj.setup = exp.setup;
+            obj = obj.square(iroi,istage,exp);
+            
         end
     end
 end
