@@ -2,7 +2,7 @@ function OB = square(OB,iroi,istage,exp, borderpix)
 % OB = square(OB,iroi,istage,exp) - finds a squared mask for a given roi object OB
 % based on number of pixels to go up, left, right and down (same number)
 % part of HELIOS
-if nargin < 4
+if nargin < 5
     borderpix = OB.N_pixels_for_square_mask;
 end
 cmask = OB.roi_mask;
