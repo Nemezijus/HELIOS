@@ -95,7 +95,7 @@ for istage = 1:EX.N_stages
             %raw data is accessed, we loop in each unit one by one
             for irec = 1:numel(RAWdata)
                 if ~isao
-                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfile);
+                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfileloc);
                 else
                     frameSet = getAOframeset(P1{istage}, irec);
                 end
@@ -209,7 +209,7 @@ for istage = 1:EX.N_stages
             for irec = 1:numel(RAWdata)
                 waitbar(irec/numel(RAWdata),h2);
                 if ~isao
-                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfile);
+                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfileloc);
                 else
                     frameSet = getAOframeset(P1{istage}, irec);
                 end
@@ -244,7 +244,7 @@ for istage = 1:EX.N_stages
                 waitbar(irec/numel(RAWdata),h2);
                 
                 if ~isao
-                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfile);
+                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfileloc);
                 else
                     frameSet = getAOframeset(P1{istage}, irec);
                 end
@@ -324,7 +324,7 @@ for istage = 1:EX.N_stages
                 waitbar(irec/numel(RAWdata),h2);
                 
                 if ~isao
-                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfile);
+                    [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfileloc);
                 else
                     frameSet = getAOframeset(P1{istage}, irec);
                 end
@@ -461,7 +461,7 @@ while err
 end
 
 
-function [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfile)
+function [frameSet, steadydiff] = getDUALframeset(RAWdata,irec,mcorrfileloc)
 upper = findAttrib(RAWdata(irec).Attributes,'Channel_0_Conversion_UpperLimitUint16');
 offset = findAttrib(RAWdata(irec).Attributes,'Channel_0_Conversion_ConversionLinearOffset');
 steadydiff = upper - offset;
