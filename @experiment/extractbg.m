@@ -143,7 +143,7 @@ for istage = 1:EX.N_stages
                             croimask = h5read(EX.file_loc,...
                                 ['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
 %                             ROI = roi(croimask, Npixels);
-                            ROI = roi(OB,iroi,istage,Npixels);
+                            ROI = roi(EX,iroi,istage,Npixels);
                             idxs = find(ROI.mask_around_roi);
                             Npix = numel(idxs);
                             for ipx = 1:Npix
@@ -280,7 +280,7 @@ for istage = 1:EX.N_stages
                         croimask = h5read(EX.file_loc,...
                             ['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
 %                         ROI = roi(croimask, Npixels);
-                        ROI = roi(OB,iroi,istage,Npixels);
+                        ROI = roi(EX,iroi,istage,Npixels);
                         idxs = find(ROI.mask_around_roi);
                         Npix = numel(idxs);
                     end
@@ -360,7 +360,7 @@ for istage = 1:EX.N_stages
                         croimask = h5read(EX.file_loc,...
                             ['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/ROIMASK']);
 %                         ROI = roi(croimask, Npixels);
-                        ROI = roi(OB,iroi,istage,Npixels);
+                        ROI = roi(EX,iroi,istage,Npixels);
                         idxs = find(ROI.mask_around_roi);
                         Npix = numel(idxs);
                     end
