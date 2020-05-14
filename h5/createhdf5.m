@@ -96,7 +96,6 @@ else %OnAcid way
 %     t = toc;
     disp(['OnAcid data stored in hdf5 file. Running time: ', num2str(t)]);
 end
-return
 %STEP 4 store stimtype
 for idl = 1:numel(data_locations)
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', pars.stimtype);
