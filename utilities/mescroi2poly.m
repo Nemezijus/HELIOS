@@ -8,8 +8,13 @@ end
 if nargin < 2
     geomTrans = [-168.8; -168.8; -6716.1];
 end
+if nargin == 4
+    convX = flag.convX;
+    convY = flag.convY;
+else
 convX = 0.6592;
 convY = 0.6592;
+end
 ax = 512;
 ay = 512;
 

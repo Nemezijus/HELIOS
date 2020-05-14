@@ -13,6 +13,15 @@ if isempty(pars) || strcmp(pars.bgmethod,'skip')
 else
     skipbg = 0;
 end
+%whether OnAcid
+if strcmp(lower(pars.dffmethod),'onacid')
+    do_onacid = 1;
+else
+    do_onacid = 0;
+end
+if do_onacid
+    skipbg = 1;
+end
 
 S = load(hrfloc);
 Sfns = fieldnames(S);
@@ -49,18 +58,45 @@ h5writeatt(hdf5loc,'/DATA', 'SETUP', setup);
 
 
 %STEP 3 store data
-data_locations = hrf.analysis.imaging.data_matrices.file_path;
-for idl = 1:numel(data_locations)
-    segments = strsplit(data_locations{idl},'\');
-    idsegment = segments{end-1};
-    stageids{idl} = upper([idsegment(1),idsegment(end)]);
+if ~do_onacid
+    data_locations = hrf.analysis.imaging.data_matrices.file_path;
+    for idl = 1:numel(data_locations)
+        segments = strsplit(data_locations{idl},'\');
+        idsegment = segments{end-1};
+        stageids{idl} = upper([idsegment(1),idsegment(end)]);
+    end
+    disp('Storing data in hdf5 file. Please wait.')
+    tic
+    embeddata(hdf5loc, data_locations, stageids);
+    t = toc;
+    disp(['Data stored in hdf5 file. Running time: ', num2str(t)]);
+else %OnAcid way
+    counter = 1;
+    hrf_data_fields = fieldnames(hrf.imaging);
+    for ifn = 1:numel(hrf_data_fields)
+        cfield = hrf.imaging.(hrf_data_fields{ifn});
+        for ifield = 1:numel(cfield)
+            data_locations{counter} = cfield(ifield).data.file_path;
+            counter = counter+1;
+        end
+    end
+    for idl = 1:numel(data_locations)
+        segments = strsplit(data_locations{idl},'\');
+        idsegment = segments{end-1};
+        stageids{idl} = upper([idsegment(1),idsegment(end)]);
+    end
+    if ~isempty(hrf.analysis.imaging.onacid.directory_path)
+        onacidloc = hrf.analysis.imaging.onacid.directory_path{1};
+    else
+        onacidloc = [];
+    end
+    disp('Storing OnAcid data in hdf5 file. Please wait.')
+%     tic
+    embedonacid(hdf5loc, data_locations, onacidloc, stageids);
+%     t = toc;
+    disp(['OnAcid data stored in hdf5 file. Running time: ', num2str(t)]);
 end
-disp('Storing data in hdf5 file. Please wait.')
-tic
-embeddata(hdf5loc, data_locations, stageids);
-t = toc;
-disp(['Data stored in hdf5 file. Running time: ', num2str(t)]);
-
+return
 %STEP 4 store stimtype
 for idl = 1:numel(data_locations)
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', pars.stimtype);
@@ -74,12 +110,22 @@ end
 
 locs = extractlocations(hrf.imaging, 'motion_corrected_data');
 for idl = 1:numel(data_locations)
-    h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MOTIONCORRECTEDDATAPATH', locs{idl});
+    if ~do_onacid
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MOTIONCORRECTEDDATAPATH', locs{idl});
+    else
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MOTIONCORRECTEDDATAPATH', []);
+    end
 end
-
-locs = extractlocations(hrf.imaging, 'roi');
-for idl = 1:numel(data_locations)
-    h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', locs{idl});
+if ~do_onacid
+    locs = extractlocations(hrf.imaging, 'roi');
+    for idl = 1:numel(data_locations)
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', locs{idl});
+    end
+else
+    locs = hrf.analysis.imaging.onacid.file_path(contains(hrf.analysis.imaging.onacid.file_path,'after'));
+    for idl = 1:numel(data_locations)
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', locs);
+    end
 end
 
 %STEP 6 pull out experiment from the file
@@ -120,12 +166,46 @@ end
 %STEP 8.5
 %if BG was subtracted then dff does not have to be calculated, otherwise it
 %is done here
+%OnAcid path also visits this part but instead of calculating dff it splits
+%estimated dff and stores it
+
 if skipbg
-    disp('Calculating dff for the data. Please Wait.');
-    tic
-    EXP = EXP.dff(lower(method), tostitch);
-    t = toc;
-    disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+    if ~do_onacid
+        disp('Calculating dff for the data. Please Wait.');
+        tic
+        EXP = EXP.dff(lower(method), tostitch);
+        t = toc;
+        disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+    else
+        loc = hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'dff')};
+        disp('Loading OnAcid stored dff file');
+        S = load(loc);
+        disp('Loading done');
+        fns = fieldnames(S);
+        dff = S.(fns{:});
+        
+        for istage = 1:EXP.N_stages
+            Nsamples(istage) = numel(h5read(EXP.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_1/XDATA']));
+        end
+        disp('Reshaping OnAcid dff struct');
+        DFF = onaciddffreshape(dff, EXP.N_stages, EXP.N_stim.*EXP.N_reps, Nsamples);
+        disp('Reshaping done');
+        
+        stimsequence = h5readatt(hdf5loc,'/DATA/STAGE_1','STIMLIST');
+        
+        for idata = 1:EXP.N_stim(1)*EXP.N_reps(1)
+            stimlist(idata) = stimsequence(h5readatt(EXP.file_loc,['/DATA/STAGE_1/UNIT_',num2str(idata)],'STIMID'));
+        end
+        stimlist = stimlist(1:18);%dirty fix, needs a better approach
+        
+        disp('Storing OnAcid dff information');
+        storeonaciddff(EXP, DFF, stimlist, stimsequence);
+        disp('Storing done');
+        
+        h5writeatt(EXP.file_loc,root,'DFFTYPE',[lower(method), stitchstr]);
+        h5writeatt(EXP.file_loc,root,'DFFMODDATE',datenum(now));
+        h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
+    end
 end
 
 %STEP 9 Max Corr 

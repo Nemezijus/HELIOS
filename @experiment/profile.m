@@ -176,38 +176,42 @@ title('Dominant stimulus and OSI');
 
 
 %6 MaxCorr
-AX_MC = autoaxes(F, 1,1,[0.58 , 0.19, 0.25, 0.5]);
-axes(AX_MC);
-MC = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']);
-plot([1:numel(MC)],MC,'-','Color',[0.5 0.5 0.5]);
-hold on
-xlim([1, numel(MC)]);
-ylim([0 1]);
-
-stops = cumsum(OB.N_stim.*OB.N_reps);
-% midstages = stops - stops(1)./2;
-for istage = 1:OB.N_stages
-%     midstages(istage) = 
-    cumsamples = cumsum(OB.N_stim(1:istage).*OB.N_reps(1:istage));
-    nsamplestillnow = cumsamples(end) - OB.N_stim(1).*OB.N_reps(1);
-    cwindowsize = OB.N_stim(istage).*OB.N_reps(istage);
-    midstages(istage) = nsamplestillnow + round(cwindowsize./2);
-    meanCC(istage) = mean(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
-    if istage == 1
-        maxCC(istage) = max(MC(2:nsamplestillnow+cwindowsize));
-    else
-        maxCC(istage) = max(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
+try
+    MC = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']);
+    AX_MC = autoaxes(F, 1,1,[0.58 , 0.19, 0.25, 0.5]);
+    axes(AX_MC);
+    
+    plot([1:numel(MC)],MC,'-','Color',[0.5 0.5 0.5]);
+    hold on
+    xlim([1, numel(MC)]);
+    ylim([0 1]);
+    
+    stops = cumsum(OB.N_stim.*OB.N_reps);
+    % midstages = stops - stops(1)./2;
+    for istage = 1:OB.N_stages
+        %     midstages(istage) =
+        cumsamples = cumsum(OB.N_stim(1:istage).*OB.N_reps(1:istage));
+        nsamplestillnow = cumsamples(end) - OB.N_stim(1).*OB.N_reps(1);
+        cwindowsize = OB.N_stim(istage).*OB.N_reps(istage);
+        midstages(istage) = nsamplestillnow + round(cwindowsize./2);
+        meanCC(istage) = mean(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
+        if istage == 1
+            maxCC(istage) = max(MC(2:nsamplestillnow+cwindowsize));
+        else
+            maxCC(istage) = max(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
+        end
+        minCC(istage) = min(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
+        plot([stops(istage), stops(istage)], [0, 1], ':', 'color',[0.4 0.4 0.4]);
     end
-    minCC(istage) = min(MC(nsamplestillnow+1:nsamplestillnow+cwindowsize));
-    plot([stops(istage), stops(istage)], [0, 1], ':', 'color',[0.4 0.4 0.4]);
+    plot(midstages, meanCC, 'ko-');
+    plot(midstages, maxCC, 'b*-');
+    plot(midstages, minCC, 'r*-');
+    set(AX_MC, 'XTick', midstages);
+    set(AX_MC, 'XTickLabels', [R.stage]);
+    ylabel('Correlation');
+    title('Max corr. evolution');
+catch
 end
-plot(midstages, meanCC, 'ko-');
-plot(midstages, maxCC, 'b*-');
-plot(midstages, minCC, 'r*-');
-set(AX_MC, 'XTick', midstages);
-set(AX_MC, 'XTickLabels', [R.stage]);
-ylabel('Correlation');
-title('Max corr. evolution');
 
 % 7 Textboxes
 frombottom = 0.6;

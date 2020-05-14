@@ -12,7 +12,8 @@ end
 method = 2;
 Nframes = OB.N_stim(istage).*OB.N_reps(istage);
 F = figure;
-set(F,'units', 'normalized', 'position', [0.396 0.331 0.24 0.389],'Color','white');
+set(F,'units', 'normalized', 'position', [0.396 0.331 0.24 0.389],'Color','white',...
+    'NumberTitle','off','Name',['ROI ', num2str(iroi),' stage ',num2str(istage)]);
 AX = axes;
 axdims = getpixelposition(AX);
 axw = axdims(3);
