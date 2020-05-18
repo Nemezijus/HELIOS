@@ -97,6 +97,10 @@ switch type
         data = [];
         for iP = 1:numel(P)
             cdata = h5read(OB.file_loc,[P{iP},'/DFF']);
+            sz = size(cdata);
+            if sz(2) < sz(1)%a dirty fix. restore data in proper dimensions
+                cdata = cdata';
+            end
             cdata = cdata(REPID{:}, :);
             data = vertcat(data,cdata);
             tag(iP,:) = strsplit(P{iP},'/');

@@ -70,7 +70,18 @@ switch OB.setup
                 cmask([max(row)-maxside - borderpix:max(row)+borderpix],[max(col)-maxside-borderpix:max(col)+borderpix]) = 1;
                 
             else
-                cmask([max(row)-maxside:max(row)],[max(col)-maxside:max(col)]) = 1;
+                %code below added 2020 05 15 and needs some refining
+                err = 1;
+                maxsidetemp = maxside; 
+                while err
+                    try
+                        cmask([max(row)-maxsidetemp:max(row)],[max(col)-maxsidetemp:max(col)]) = 1;%except this line
+                        err = 0;
+                    catch
+                        maxsidetemp = maxsidetemp-1;
+                    end
+                end
+                %till here
                 
             end
             

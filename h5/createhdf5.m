@@ -91,9 +91,9 @@ else %OnAcid way
         onacidloc = [];
     end
     disp('Storing OnAcid data in hdf5 file. Please wait.')
-%     tic
+    tic
     embedonacid(hdf5loc, data_locations, onacidloc, stageids);
-%     t = toc;
+    t = toc;
     disp(['OnAcid data stored in hdf5 file. Running time: ', num2str(t)]);
 end
 %STEP 4 store stimtype
@@ -123,7 +123,7 @@ if ~do_onacid
 else
     locs = hrf.analysis.imaging.onacid.file_path(contains(hrf.analysis.imaging.onacid.file_path,'after'));
     for idl = 1:numel(data_locations)
-        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', locs);
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', locs{:});
     end
 end
 
@@ -183,6 +183,9 @@ if skipbg
         fns = fieldnames(S);
         dff = S.(fns{:});
         
+        ROIseq = onacidroimatch(hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'pre')},...
+            hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'after')});
+        dff = dff(ROIseq,:);
         for istage = 1:EXP.N_stages
             Nsamples(istage) = numel(h5read(EXP.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_1/XDATA']));
         end
@@ -201,6 +204,11 @@ if skipbg
         storeonaciddff(EXP, DFF, stimlist, stimsequence);
         disp('Storing done');
         
+        stitchstr = '';
+        if tostitch
+            stitchstr = '_stitched';
+        end
+        root = '/ANALYSIS';
         h5writeatt(EXP.file_loc,root,'DFFTYPE',[lower(method), stitchstr]);
         h5writeatt(EXP.file_loc,root,'DFFMODDATE',datenum(now));
         h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
