@@ -64,6 +64,8 @@ for iunit = 1:Nunits
     %TIMEUNITS
     h5writeatt(file_loc,cloc, 'TIMEUNITS', 'ms');
 
+    disp('Storing ROI data for this unit');
+    tic
     for iroi = 1:Nroi
         cloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
             ['UNIT_',num2str(data(iunit).MeasureNumber)],...
@@ -87,19 +89,6 @@ for iunit = 1:Nunits
             storedata(file_loc, {logicalROI}, {maskpath});
             %DIMENSIONS FOR AO FF
             
-%             if strcmp(setup,'ao')
-%                 dimspath = strjoin({'/ANALYSIS',['ROI_',num2str(iroi)],['STAGE_',num2str(istage)]},'/');
-%                 dims = data(iunit).logicalROI(iroi).dims;
-%                 h5writeatt(file_loc,dimspath, 'DIMENSIONS', dims);
-%                 try
-%                 ffwidth = data(iunit).attribs(1).TransversePixNum;
-%                 ffheight = data(iunit).attribs(1).AO_collection_usedpixels;
-%                 FFsize = [ffwidth, ffheight];
-%                 catch
-%                     FFsize = [];
-%                 end
-%                 h5writeatt(file_loc,dimspath, 'FFSIZE', FFsize);
-%             end
         end
         %attributes
         POLY = R(iroi).poly;
@@ -135,6 +124,10 @@ for iunit = 1:Nunits
             h5writeatt(file_loc,cloc,'Z',[]);
         end
     end
+    
+    t = toc;
+    disp(['ROI data stored, time spent: ',num2str(t)]);
+
 end
 out = 1;
 

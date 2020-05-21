@@ -93,9 +93,17 @@ switch measurementType
         %%
         %%%%%%%%%%%%%% Protocol spec
         %%%%% Teljes frameSet m?velet
-        outStruct = xml2struct2(roilocation);
+        %added by ANDY
+        fID = fopen(roilocation,'r');
+        A = fscanf(fID,'%c');
+        fclose(fID);
+        % extractBetween
+        Ared = extractBetween(A,'<Polygon color=','</Polygon>');
+        %till here
+%         outStruct = xml2struct2(roilocation);
         for id=1:size(data,2)  %% ID egy mérés videó
-            data(id).Nroi = numel(outStruct.MESconfig.ROIs.Polygon);
+%             data(id).Nroi = numel(outStruct.MESconfig.ROIs.Polygon);
+            data(id).Nroi = numel(Ared);
 %             disp(['Reading measure dataset:' num2str(id)]);
             %%
             %%
@@ -134,57 +142,57 @@ switch measurementType
                         data(id).roiSpec=roilocation;
                         
                 end
+                polyType='Polygon';
+%                 if isfield(outStruct.MESconfig.ROIs,'Polygon')
+%                     polyType='Polygon';
+%                     
+%                 end
                 
-                if isfield(outStruct.MESconfig.ROIs,'Polygon')
-                    polyType='Polygon';
-                    
-                end
+%                 if isfield(outStruct.MESconfig.ROIs,'RegularPolygon')
+%                     polyType='RegularPolygon';
+%                 end
                 
-                if isfield(outStruct.MESconfig.ROIs,'RegularPolygon')
-                    polyType='RegularPolygon';
-                end
-                
-                switch polyType
-                    case 'Polygon'
-                        for i=1%:size(outStruct.MESconfig.ROIs.Polygon,2)
-                            polysize=length(outStruct.MESconfig.ROIs.Polygon{1, i}.param);
-                            for p=1:polysize
-                                outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value;
-                                a=strsplit(outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
-                                R(i).POLY(1,p)=str2num(a{1});
-                                R(i).POLY(2,p)=str2num(a{2});
-                            end
-                        end
-                        
-                    case 'RegularPolygon'
-                        for i=1%:size(outStruct.MESconfig.ROIs.RegularPolygon,2)
-                            polysize=length(outStruct.MESconfig.ROIs.RegularPolygon{1, i}.param);
-                            for p=1:polysize
-                                outStruct.MESconfig.ROIs.RegularPolygon{1, i}.param{1, p}.Attributes.value;
-                                a=strsplit(outStruct.MESconfig.ROIs.RegularPolygon{1, i}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
-                                R(i).POLY(1,p)=str2num(a{1});
-                                R(i).POLY(2,p)=str2num(a{2});
-                            end
-                            %% Octogon to Poly
-                            clear POLY2 POLY3 POLY4 ang OCTPOLY
-                            ang=360/8;
-                            RS=[cosd(ang) -sind(ang);...
-                                sind(ang) cosd(ang)];
-                            POLY2= R(i).POLY;
-                            ZX=(0-(POLY2(1,1)));
-                            ZY=(0-(POLY2(2,1)));
-                            POLY3(1,:)=POLY2(1,:)+ZX;
-                            POLY3(2,:)=POLY2(2,:)+ZY;
-                            OCTPOLY(:,1)=POLY3(:,2);
-                            for k=1:8
-                                OCTPOLY(:,k+1)=RS*OCTPOLY(:,k);
-                            end
-                            OCTPOLY(1,:)=OCTPOLY(1,:)-ZX;
-                            OCTPOLY(2,:)=OCTPOLY(2,:)-ZY;
-                            R(i).POLY=[];
-                            R(i).POLY=OCTPOLY;
-                        end
-                end
+%                 switch polyType
+%                     case 'Polygon'
+%                         for i=1%:size(outStruct.MESconfig.ROIs.Polygon,2)
+%                             polysize=length(outStruct.MESconfig.ROIs.Polygon{1, i}.param);
+%                             for p=1:polysize
+%                                 outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value;
+%                                 a=strsplit(outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
+%                                 R(i).POLY(1,p)=str2num(a{1});
+%                                 R(i).POLY(2,p)=str2num(a{2});
+%                             end
+%                         end
+%                         
+%                     case 'RegularPolygon'
+%                         for i=1%:size(outStruct.MESconfig.ROIs.RegularPolygon,2)
+%                             polysize=length(outStruct.MESconfig.ROIs.RegularPolygon{1, i}.param);
+%                             for p=1:polysize
+%                                 outStruct.MESconfig.ROIs.RegularPolygon{1, i}.param{1, p}.Attributes.value;
+%                                 a=strsplit(outStruct.MESconfig.ROIs.RegularPolygon{1, i}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
+%                                 R(i).POLY(1,p)=str2num(a{1});
+%                                 R(i).POLY(2,p)=str2num(a{2});
+%                             end
+%                             %% Octogon to Poly
+%                             clear POLY2 POLY3 POLY4 ang OCTPOLY
+%                             ang=360/8;
+%                             RS=[cosd(ang) -sind(ang);...
+%                                 sind(ang) cosd(ang)];
+%                             POLY2= R(i).POLY;
+%                             ZX=(0-(POLY2(1,1)));
+%                             ZY=(0-(POLY2(2,1)));
+%                             POLY3(1,:)=POLY2(1,:)+ZX;
+%                             POLY3(2,:)=POLY2(2,:)+ZY;
+%                             OCTPOLY(:,1)=POLY3(:,2);
+%                             for k=1:8
+%                                 OCTPOLY(:,k+1)=RS*OCTPOLY(:,k);
+%                             end
+%                             OCTPOLY(1,:)=OCTPOLY(1,:)-ZX;
+%                             OCTPOLY(2,:)=OCTPOLY(2,:)-ZY;
+%                             R(i).POLY=[];
+%                             R(i).POLY=OCTPOLY;
+%                         end
+%                 end
                 
                 
                 %%%
@@ -198,81 +206,81 @@ switch measurementType
                 
                 %% PolyDefense patch
                 
-                for i=1:size(R,2)
-                    if  size(R(i).POLY,2)<=3
-                        R(i).Err=1;
-                    else
-                        R(i).Err=0;
-                    end
-                end
-                R([R.Err]==1)=[];
-                
-               
-                %%
-                
-                
-                for i=1:size(R,2)
-                    ang=90;
-                    RS=[cosd(ang) -sind(ang);...
-                        sind(ang) cosd(ang)];
-                    clear POLY2 POLY3 POLY4
-                    POLY2=R(i).POLY;
-                    
-                    if strcmp(spec,'tompadendritek')
-                        %%%%%%%%%%%% csak tompaDendriteknl
-                        info=hdf5info('C:\1\1.mesc');
-                        dataT=info.GroupHierarchy.Groups.Groups;
-                        geomTrans=double(findAttrib(dataT(1).Attributes,'GeomTransTransl'));
-                        convY=findAttrib(dataT(1).Attributes,'YAxisConversionConversionLinearScale');
-                        convX=findAttrib(dataT(1).Attributes,'XAxisConversionConversionLinearScale');                               %%%%%%%%%%%%%
-                    end
-                    
-                    
-                    POLY2(1,:)=(POLY2(1,:)-geomTrans(1))/convX;
-                    POLY2(2,:)=(POLY2(2,:)-geomTrans(2))/convY;
-                    
-                    %% Shift back to rotate
-                    POLY2(1,:)=(POLY2(1,:))-(ax/2);
-                    POLY2(2,:)=(POLY2(2,:))-(ay/2);
-                    %% Rot in pixel system
-                    POLY3=RS*POLY2;
-                    
-                    %% Shift back to rotate
-                    POLY4(1,:)=(POLY3(1,:))+(ax/2);
-                    POLY4(2,:)=(POLY3(2,:))+(ay/2);
-                    %
-                    ROI(i).poly=POLY4;
-                    
-                    switch polyType
-                        case 'Polygon'
-                            ROI(i).RoiIDReal=outStruct.MESconfig.ROIs.Polygon{1, i}.Attributes.id;
-                        case 'RegularPolygon'
-                            ROI(i).RoiIDReal=outStruct.MESconfig.ROIs.RegularPolygon{1, i}.Attributes.id;
-                    end
-                end
+%                 for i=1:size(R,2)
+%                     if  size(R(i).POLY,2)<=3
+%                         R(i).Err=1;
+%                     else
+%                         R(i).Err=0;
+%                     end
+%                 end
+%                 R([R.Err]==1)=[];
+%                 
+%                
+%                 %%
+%                 
+%                 
+%                 for i=1:size(R,2)
+%                     ang=90;
+%                     RS=[cosd(ang) -sind(ang);...
+%                         sind(ang) cosd(ang)];
+%                     clear POLY2 POLY3 POLY4
+%                     POLY2=R(i).POLY;
+%                     
+%                     if strcmp(spec,'tompadendritek')
+%                         %%%%%%%%%%%% csak tompaDendriteknl
+%                         info=hdf5info('C:\1\1.mesc');
+%                         dataT=info.GroupHierarchy.Groups.Groups;
+%                         geomTrans=double(findAttrib(dataT(1).Attributes,'GeomTransTransl'));
+%                         convY=findAttrib(dataT(1).Attributes,'YAxisConversionConversionLinearScale');
+%                         convX=findAttrib(dataT(1).Attributes,'XAxisConversionConversionLinearScale');                               %%%%%%%%%%%%%
+%                     end
+%                     
+%                     
+%                     POLY2(1,:)=(POLY2(1,:)-geomTrans(1))/convX;
+%                     POLY2(2,:)=(POLY2(2,:)-geomTrans(2))/convY;
+%                     
+%                     %% Shift back to rotate
+%                     POLY2(1,:)=(POLY2(1,:))-(ax/2);
+%                     POLY2(2,:)=(POLY2(2,:))-(ay/2);
+%                     %% Rot in pixel system
+%                     POLY3=RS*POLY2;
+%                     
+%                     %% Shift back to rotate
+%                     POLY4(1,:)=(POLY3(1,:))+(ax/2);
+%                     POLY4(2,:)=(POLY3(2,:))+(ay/2);
+%                     %
+%                     ROI(i).poly=POLY4;
+%                     
+%                     switch polyType
+%                         case 'Polygon'
+%                             ROI(i).RoiIDReal=outStruct.MESconfig.ROIs.Polygon{1, i}.Attributes.id;
+%                         case 'RegularPolygon'
+%                             ROI(i).RoiIDReal=outStruct.MESconfig.ROIs.RegularPolygon{1, i}.Attributes.id;
+%                     end
+%                 end
             end
-            [~,index] = sortrows({ROI.RoiIDReal}.'); ROI = ROI(index); clear index
-            %%
-            mask=zeros([ax ay]);
-            for i=1%:size(ROI,2)
-                p1 = denan(ROI(i).poly(1,:));
-                p2 = denan(ROI(i).poly(2,:));
-                ROI(i).poly = [];
-                ROI(i).poly(1,:) = p1;
-                ROI(i).poly(2,:) = p2;
-                maskBuffer = logical(poly2mask(ROI(i).poly(1,:),ROI(i).poly(2,:),ax,ay));
-                %%%%%1pixelimdilate,hogy szebb legyen az oval körvonal
-                maskBuffer=imdilate(maskBuffer,strel('disk',1));
-                
-                if strcmp(fast,'off')
-                    %%%%% DONUT or DO NOT? <- Pun
-                    maskBuffer2 = bwdist(maskBuffer) <= 10;
-                    maskBuffer=maskBuffer2-maskBuffer;
-                    %%%%% DONUT
-                end
-                %mask=mask|maskBuffer;
-            end
-            
+%             [~,index] = sortrows({ROI.RoiIDReal}.'); ROI = ROI(index); clear index
+%             %%
+%             mask=zeros([ax ay]);
+%             for i=1%:size(ROI,2)
+%                 p1 = denan(ROI(i).poly(1,:));
+%                 p2 = denan(ROI(i).poly(2,:));
+%                 ROI(i).poly = [];
+%                 ROI(i).poly(1,:) = p1;
+%                 ROI(i).poly(2,:) = p2;
+%                 maskBuffer = logical(poly2mask(ROI(i).poly(1,:),ROI(i).poly(2,:),ax,ay));
+%                 %%%%%1pixelimdilate,hogy szebb legyen az oval körvonal
+%                 maskBuffer=imdilate(maskBuffer,strel('disk',1));
+%                 
+%                 if strcmp(fast,'off')
+%                     %%%%% DONUT or DO NOT? <- Pun
+%                     maskBuffer2 = bwdist(maskBuffer) <= 10;
+%                     maskBuffer=maskBuffer2-maskBuffer;
+%                     %%%%% DONUT
+%                 end
+%                 %mask=mask|maskBuffer;
+%             end
+%             
             %%%% mean pic LUT
             
             upper=findAttrib(data(id).Attributes,'Channel_0_Conversion_UpperLimitUint16');
@@ -289,17 +297,17 @@ switch measurementType
             for i=1%:size(ROI,2)
                 intensityVector=[];
                 RingIntensityVector=[];
-                maskBuffer = logical(poly2mask(ROI(i).poly(1,:),ROI(i).poly(2,:),ax,ay));
+%                 maskBuffer = logical(poly2mask(ROI(i).poly(1,:),ROI(i).poly(2,:),ax,ay));
                 %%%%%%%%%%%%%%%%%%% Dilate 1pixel
-                maskBuffer=imdilate(maskBuffer,strel('disk',1));
+%                 maskBuffer=imdilate(maskBuffer,strel('disk',1));
                 %%%%%%%%%%%%%%%%%%% Dilate 1pixel
                 %% ROI COMPRESSION
-                CC = bwconncomp(maskBuffer);
-                data(id).logicalROI(i).roi=uint64(CC.PixelIdxList{1, 1});
+%                 CC = bwconncomp(maskBuffer);
+%                 data(id).logicalROI(i).roi=uint64(CC.PixelIdxList{1, 1});
                 %% ROI COMPRESSION
-                s = regionprops(maskBuffer,'centroid','MajorAxisLength');
-                data(id).logicalROI(i).centroid = cat(1, s.Centroid);
-                data(id).logicalROI(i).axisLength=s.MajorAxisLength;
+%                 s = regionprops(maskBuffer,'centroid','MajorAxisLength');
+%                 data(id).logicalROI(i).centroid = cat(1, s.Centroid);
+%                 data(id).logicalROI(i).axisLength=s.MajorAxisLength;
                 
                 %%
 %                 disp(['ROI:' num2str(i) ' Dataset:' num2str(id)]);
@@ -308,14 +316,16 @@ switch measurementType
                 end
                 
                 %%%%%% Indexing CORE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                 for j=1:size(frameSet,3) %% frame
-%                     I=frameSet(:,:,j);
-%                     frameOffset=(I)-data(id).offset;
-%                     v=I(maskBuffer);
-%                     intensityVector(j)=mean(v);
-%                     if i==1;framePool=framePool+uint32(frameOffset);
-%                     end
-%                 end
+                if i == 1
+                    for j=1:size(frameSet,3) %% frame
+                        I=frameSet(:,:,j);
+                        frameOffset=(I)-data(id).offset;
+%                         v=I(maskBuffer);
+%                         intensityVector(j)=mean(v);
+                        if i==1;framePool=framePool+uint32(frameOffset);
+                        end
+                    end
+                end
                 
                 if i==1;meanPic=uint16(framePool/(size(frameSet,3)));
                 end
@@ -329,7 +339,7 @@ switch measurementType
 %                 offset=65535-data(id).offsetImp;
 %                 ROI(i).event(2,:)=intensityVector-offset;
                 ROI(i).RoiID=i;
-                clear intensityVector;
+%                 clear intensityVector;
             end
             
             %%%% CA GÖRBE RÖGZítés
