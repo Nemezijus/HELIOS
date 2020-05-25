@@ -173,4 +173,4 @@ elseif numel(E) == 1
 else
     error('for some reason the path is empty');
 end
-
+P = P(~contains(P,'UNIT_0')); %added 2020 05 22 eliminates UNIT_0 (no recordings) entries

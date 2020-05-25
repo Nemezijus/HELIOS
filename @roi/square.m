@@ -67,7 +67,16 @@ switch OB.setup
         else
             %         if max(row) + borderpix < dims & max(col) + borderpix < dims
             if allin
-                cmask([max(row)-maxside - borderpix:max(row)+borderpix],[max(col)-maxside-borderpix:max(col)+borderpix]) = 1;
+                err = 1;
+                maxsidetemp = maxside;
+                while err
+                    try
+                        cmask([max(row)-maxsidetemp - borderpix:max(row)+borderpix],[max(col)-maxsidetemp-borderpix:max(col)+borderpix]) = 1;
+                        err = 0;
+                    catch
+                        maxsidetemp = maxsidetemp-1;
+                    end
+                end
                 
             else
                 %code below added 2020 05 15 and needs some refining

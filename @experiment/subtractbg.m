@@ -33,6 +33,7 @@ for istage = 1:OB.N_stages
                 for irep = 1:Nreps
                     UNIT(irep) = OB.restun{istage}(istim,irep);
                 end
+                UNIT = UNIT(UNIT~=0);%added 2020 05 22 eliminates UNIT_0 (aka missing repetitions)
                 path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
                 h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
                 clear UNIT; %added 2020-05-07
@@ -58,6 +59,7 @@ for istage = 1:OB.N_stages
                     for irep = 1:Nreps
                         UNIT(irep) = OB.restun{istage}(istim,irep);
                     end
+                    UNIT = UNIT(UNIT~=0);%added 2020 05 22 eliminates UNIT_0 (aka missing repetitions)
                     path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
                     h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
                     clear UNIT; %added 2020-05-07

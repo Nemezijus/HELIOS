@@ -46,11 +46,13 @@ if isempty(pars)
 end
 
 %STEP 1 - create empty DATA branch to store ID and setup
-fid = H5F.create(hdf5loc);
-plist = 'H5P_DEFAULT';
-gid = H5G.create(fid,'DATA',plist,plist,plist);
-H5G.close(gid);
-H5F.close(fid);
+if ~exist(hdf5loc)
+    fid = H5F.create(hdf5loc);
+    plist = 'H5P_DEFAULT';
+    gid = H5G.create(fid,'DATA',plist,plist,plist);
+    H5G.close(gid);
+    H5F.close(fid);
+end
 
 %STEP 2 store ID and setup
 h5writeatt(hdf5loc,'/DATA', 'ANIMALID', ID);
