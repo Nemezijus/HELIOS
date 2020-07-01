@@ -1,5 +1,9 @@
-function store(W, exp)
-% store(W, exp) - stores the waveform in the hdf5 file
+function store(W, exp, aoexception)
+% store(W, exp, aoexception) - stores the waveform in the hdf5 file
+%aoexception indicates whether it should store dff in unique DFFBASE path
+if nargin < 3
+    aoexception = 0;
+end
 for id = 1:numel(W.data(:,1))
     if strcmp(W.data_type, 'dff')
         if strcmp(W.tag{1,2},'DATA')
@@ -18,7 +22,11 @@ for id = 1:numel(W.data(:,1))
             path{istim} = strjoin({'','ANALYSIS',roi_str, stage_str, ['STIM_',num2str(istim)],upper(W.data_type)},'/');
         elseif strcmp(W.tag{1,2},'ANALYSIS')
             data = {W.data};
-            path = {strjoin([W.tag,'DFF'],'/')};
+            if aoexception
+                path = {strjoin([W.tag,'DFFBASE'],'/')};%added 2020-07-01
+            else
+                path = {strjoin([W.tag,'DFF'],'/')};
+            end
         else
             error('unknown path in tag');
         end

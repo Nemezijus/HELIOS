@@ -1,8 +1,11 @@
-function ex = dff(ex, method, tostitch)
+function ex = dff(ex, method, tostitch, aoexception)
 % ex = dff(ex, method, tostitch) - performs dff on the experiment object
 % and stores the results to the hdf5 file. ex object must contain entries
 % for setup and stimtype fields!
 % part of HELIOS
+if nargin < 4
+    aoexception = 0;
+end
 E = ex.dffparams;
 root = '/ANALYSIS';
 stitchstr = '';
@@ -16,7 +19,7 @@ if tostitch
             st = ex.stitch(iroi, istage, 'raw');
             stdff = st.dff(method, E);
             ustdff = stdff.unstitch(ex);
-            store(ustdff, ex);
+            store(ustdff, ex, aoexception);
             for istim = 1:ex.N_stim(istage)
                 path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
                 for irep = 1:ex.N_reps(istage)
@@ -40,7 +43,11 @@ else
                     D(irep,:) = d.data;
                     UNIT(irep) = ex.restun{istage}(istim,irep);
                 end
-                cpath = [path,'/DFF'];
+                if aoexception
+                    cpath = [path,'/DFFBASE'];
+                else
+                    cpath = [path,'/DFF'];
+                end
                 try
                     allocatespace(ex.file_loc, {D}, {cpath});
                 catch

@@ -164,6 +164,15 @@ if ~skipbg
     
 end
 
+%STEP 8.25
+%for AO we add DFFBASE - dff performed only on the raw data
+if strcmp(setup,'ao')
+    disp('Calculating DFFBASE for the data. Please Wait.');
+    tic
+    EXP = EXP.dff(lower(method), tostitch, 1);
+    t = toc;
+    disp(['DFFBASE stored in hdf5 file. Running time: ', num2str(t)]);
+end
 %STEP 8.5
 %if BG was subtracted then dff does not have to be calculated, otherwise it
 %is done here
