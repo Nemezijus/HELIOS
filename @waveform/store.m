@@ -19,7 +19,11 @@ for id = 1:numel(W.data(:,1))
             unit_id = str2num(unit_id{:});
             [istim, irep] = find(exp.restun{stage_id} == unit_id);
             data{istim}(irep,:) = W.data(id,:);
-            path{istim} = strjoin({'','ANALYSIS',roi_str, stage_str, ['STIM_',num2str(istim)],upper(W.data_type)},'/');
+            if aoexception
+                path{istim} = strjoin({'','ANALYSIS',roi_str, stage_str, ['STIM_',num2str(istim)],'DFFBASE'},'/');
+            else
+                path{istim} = strjoin({'','ANALYSIS',roi_str, stage_str, ['STIM_',num2str(istim)],upper(W.data_type)},'/');
+            end
         elseif strcmp(W.tag{1,2},'ANALYSIS')
             data = {W.data};
             if aoexception
