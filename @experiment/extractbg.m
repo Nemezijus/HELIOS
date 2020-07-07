@@ -315,6 +315,7 @@ for istage = 1:EX.N_stages
                     catch
                     end
                     storedata(EX.file_loc, {bg}, {loc});
+                    clear bg
                 end
             end
             close (h2)
@@ -395,6 +396,7 @@ for istage = 1:EX.N_stages
                     catch
                     end
                     storedata(EX.file_loc, {bg}, {loc});
+                    clear bg
                 end
             end
             close (h2)
