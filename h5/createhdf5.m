@@ -182,7 +182,7 @@ end
 
 %STEP 8.25
 %for AO we add DFFBASE - dff performed only on the raw data
-if strcmp(setup,'ao') & ~strcmp(pars.bgcorrmethod, 'customao')
+if strcmp(setup,'ao') %& ~strcmp(pars.bgcorrmethod, 'customao')
     disp('Calculating DFFBASE for the data. Please Wait.');
     tic
     EXP = EXP.dff(lower(method), tostitch, 1);
