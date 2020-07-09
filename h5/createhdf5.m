@@ -56,7 +56,7 @@ if isempty(pars)
     pars.tostitch = 1;
     pars.bgmethod = 'dynamicpixels';
 end
-if strcmp(pars.bgcorrmethod, 'customao') & ~skipbg
+if strcmp(pars.bgcorrmethod, 'customao') %& ~skipbg
     pars.customAOpars = P;
 end
 
