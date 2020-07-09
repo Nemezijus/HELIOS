@@ -10,8 +10,8 @@ if nargin < 2
 end
 root = '/ANALYSIS';
 E = OB.dffparams; %dff parameter struct
-if strcmp(pars.bgcorrmethod, 'customao')
-    P = pars.customAOpars;
+if strcmp(info.bgcorrmethod, 'customao')
+    P = info.customAOpars;
     disp('running custom AO BG correction');
     customAO(OB.file_loc, P);
     disp('custom AO BG correction done');
