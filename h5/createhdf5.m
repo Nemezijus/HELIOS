@@ -23,6 +23,18 @@ if do_onacid
     skipbg = 1;
 end
 
+%added 2020-07-08 implementing customAO bg subtraction method
+if strcmp(pars.bgcorrmethod, 'customao') %& ~skipbg
+    [~,parfig] = collect_customAO_params;
+    while ishandle(parfig)
+        pause(0.5);
+    end
+    hub = findobj('Tag','HUB');
+    dhub = guidata(hub);
+    P = dhub.AOcustominfo; %parameters for custom AO bg correction
+end
+
+
 S = load(hrfloc);
 Sfns = fieldnames(S);
 hrf = S.(Sfns{:});
@@ -43,6 +55,9 @@ if isempty(pars)
     pars.dffmethod = 'median';
     pars.tostitch = 1;
     pars.bgmethod = 'dynamicpixels';
+end
+if strcmp(pars.bgcorrmethod, 'customao') & ~skipbg
+    pars.customAOpars = P;
 end
 
 %STEP 1 - create empty DATA branch to store ID and setup
@@ -141,6 +156,7 @@ else
     tostitch = pars.tostitch;
 end
 
+
 %STEP 8 BG extraction and subtraction
 if ~skipbg
 %     EXP = experiment(hdf5loc);
@@ -149,7 +165,7 @@ if ~skipbg
     %subtract bg and estimate dff
     disp('Subtracting BG and calculating dff for the data. Please Wait.');
     tic
-    EXP = subtractbg(EXP, pars);
+    EXP = subtractbg(EXP, pars);%if not skipping bg correction
     t = toc;
     disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
     
@@ -166,7 +182,7 @@ end
 
 %STEP 8.25
 %for AO we add DFFBASE - dff performed only on the raw data
-if strcmp(setup,'ao')
+if strcmp(setup,'ao') & ~strcmp(pars.bgcorrmethod, 'customao')
     disp('Calculating DFFBASE for the data. Please Wait.');
     tic
     EXP = EXP.dff(lower(method), tostitch, 1);
@@ -181,6 +197,19 @@ end
 
 if skipbg
     if ~do_onacid
+        if strcmp(pars.bgcorrmethod, 'customao')
+            disp('Subtracting BG and calculating dff for the data. Please Wait.');
+            tic
+            EXP = subtractbg(EXP, pars);
+            t = toc;
+            disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+
+            root = '/ANALYSIS';
+            h5writeatt(EXP.file_loc,root,'DFFTYPE','percentile');
+            h5writeatt(EXP.file_loc,root,'DFFMODDATE',datenum(now));
+            h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
+        end
+        
         disp('Calculating dff for the data. Please Wait.');
         tic
         EXP = EXP.dff(lower(method), tostitch);
@@ -257,3 +286,94 @@ for ifn = 1:numel(fns)
         end
     end
 end
+
+function [P,F] = collect_customAO_params
+P.BGcrit = 0.3;
+P.light_cont_scale = 0.7;
+P.perc = 0.08;
+P.BG_sub_scale = 0;
+
+F = figure;
+set(F,'units', 'normalized', 'position', [0.455 0.394 0.151 0.345],...
+    'Color','w','MenuBar','None','numbertitle','off','Name','Paremeter selection',...
+    'WindowStyle','modal');
+
+ED(1) = uicontrol(F,'Style',...
+    'edit',...
+    'String','0.3','units','normalized','BackgroundColor','w',...
+    'FontSize',10,'foregroundcolor','k','Position',[0.5 0.8 0.45 0.15],...
+    'HandleVisibility','on','Tag','1','Callback',@AOcustomP);
+
+ED(2) = uicontrol(F,'Style','edit',...
+    'String','0.7','units','normalized',...
+    'Position',[0.5 0.6 0.45 0.15],'BackgroundColor','w',...
+    'FontSize',10,'foregroundcolor','k','HandleVisibility','on','Tag','2','Callback',@AOcustomP);
+
+ED(3) = uicontrol(F,'Style','edit',...
+    'String','0.08','units','normalized',...
+    'Position',[0.5 0.4 0.45 0.15],'BackgroundColor','w',...
+    'FontSize',10,'foregroundcolor','k','HandleVisibility','on','Tag','3','Callback',@AOcustomP);
+
+ED(4) = uicontrol(F,'Style','edit',...
+    'String','0','units','normalized',...
+    'Position',[0.5 0.2 0.45 0.15],'BackgroundColor','w',...
+    'FontSize',10,'foregroundcolor','k','HandleVisibility','on','Tag','4','Callback',@AOcustomP);
+
+mTB(1) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[0.07 0.75 0.4 0.125]);
+set(mTB(1),'String',['BG Crit.'],'FontSize',10,'foregroundcolor','k',...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mTB(2) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[0.07 0.55 0.4 0.125]);
+set(mTB(2),'String',['light cont scale'],'FontSize',10,'foregroundcolor','k',...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mTB(3) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[0.07 0.35 0.4 0.125]);
+set(mTB(3),'String',['percentile'],'FontSize',10,'foregroundcolor','k',...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+mTB(4) = uicontrol(F,'style','text','Units','Normalized',...
+    'Position',[0.07 0.15 0.4 0.125]);
+set(mTB(4),'String',['BG sub scale'],'FontSize',10,'foregroundcolor','k',...
+    'backgroundcolor','w','fontweight','bold','Tag','Unique');
+
+PB_VISC = uicontrol(F,'Style', 'Pushbutton', 'String', 'CONFIRM',...
+    'Units','Normalized','Position', [0.25 0.05 0.5 0.1],...
+    'background','k','ForegroundColor','w','FontSize',18,...
+    'Callback', @local_confirm,'Tag','BT1','FontWeight','Bold');
+
+d.F = F;
+d.P = P;
+guidata(F,d);
+
+function AOcustomP(hObject,eventdata)
+d = guidata(hObject);
+tag = str2num(hObject.Tag);
+switch tag
+    case 1
+        d.P.BGcrit = str2num(hObject.String);
+    case 2
+        d.P.light_cont_scale = str2num(hObject.String);
+    case 3
+        d.P.perc = str2num(hObject.String);
+    case 4
+        d.P.BG_sub_scale = str2num(hObject.String);
+end
+guidata(d.F,d);
+
+function local_confirm (hObject, eventdata)
+d = guidata(hObject);
+try
+    hub = findobj('Tag','HUB');
+    dhub = guidata(hub);
+    dhub.AOcustominfo = d.P;
+    guidata(dhub.F_HUB, dhub);
+    disp('AOcustom Info struct embedded to HUB.');
+catch
+    disp('HUB was not found in environment. Info struct was not embedded.');
+end
+AOcustominfo = d.P;
+assignin('base','AOcustominfo',AOcustominfo);
+close(d.F);
