@@ -63,7 +63,7 @@ function [BGfiltered_and_norm, passed] = bgfilter(d, bg)
     BGlimit = prctile(bgvar,d.BGcrit*1e2);
     passed = bgvar < BGlimit;
     BGfiltered_and_norm = nansum(passed'.*bg)./nansum(passed);
-end
+
 
 function [light_cont_with_bg_baseline, light_cont] = light_contamination(d, Y)
     bg_signal = prctile(Y(d.signal_int),d.perc);
@@ -76,7 +76,7 @@ function [light_cont_with_bg_baseline, light_cont] = light_contamination(d, Y)
         end
     end
     light_cont_with_bg_baseline = light_cont+bg_baseline;
-end
+
 
 function [d, X] = getstimparam(d, file_location, istage)
     path = strcat('/DATA/STAGE_',num2str(istage),'/UNIT_1/XDATA');
@@ -99,4 +99,3 @@ function [d, X] = getstimparam(d, file_location, istage)
         [~,bl_start_index] = min(abs(X-bl_start_time));
         [~,bl_stop_index] = min(abs(X-bl_stop_time));
     d.bl_int = bl_start_index:bl_stop_index;
-end
