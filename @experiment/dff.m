@@ -62,7 +62,14 @@ else
     end
     toc
 end
-h5writeatt(ex.file_loc,root,'DFFTYPE',[method, stitchstr]);
-h5writeatt(ex.file_loc,root,'DFFMODDATE',datenum(now));
-h5writeatt(ex.file_loc,root,'DFFMODUSER',getenv('username'));
+if aoexception
+    h5writeatt(ex.file_loc,root,'DFFBASETYPE',[method, stitchstr]);
+    h5writeatt(ex.file_loc,root,'DFFBASEMODDATE',datenum(now));
+    h5writeatt(ex.file_loc,root,'DFFBASEMODUSER',getenv('username'));
+else
+    h5writeatt(ex.file_loc,root,'DFFTYPE',[method, stitchstr]);
+    h5writeatt(ex.file_loc,root,'DFFMODDATE',datenum(now));
+    h5writeatt(ex.file_loc,root,'DFFMODUSER',getenv('username'));
+end
+
 ex = experiment(ex.file_loc);
