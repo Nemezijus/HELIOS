@@ -26,6 +26,7 @@ if tostitch
                     UNIT(irep) = ex.restun{istage}(istim,irep);
                 end
                 h5writeatt(ex.file_loc,path,'UNITNUMBER',UNIT);
+                clear UNIT
             end
         end
     end
@@ -55,6 +56,7 @@ else
                 storedata(ex.file_loc, {D}, {cpath});
                 clear D
                 h5writeatt(ex.file_loc,path,'UNITNUMBER',UNIT);
+                clear UNIT
             end
         end
     end

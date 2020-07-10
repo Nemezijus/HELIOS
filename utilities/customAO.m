@@ -1,9 +1,9 @@
-function customAO(file_location, d)
+function customAO(OB, d)
 % customAO(file_location, d) - custom code by Gergely for
 % light-contamination-based BG subtraction.
 %part of HELIOS
 Gsmooth = 10;  
-
+file_location = OB.file_loc;
 if nargin < 2
     d.BGcrit = 0.3;
     d.light_cont_scale = 0.7;
@@ -51,7 +51,7 @@ for iroi = 1:Ncells
             catch
             end
             h5write(file_location, loc, dff_new);
-            clear raw bg bg_filt passed light_cont light_cont_with_bg bg_avg bg_baseline bg_dff dff_new raw_dec raw_dff;
+            clear raw bg bg_filt passed light_cont light_cont_with_bg bg_avg bg_baseline bg_dff dff_new raw_dec raw_dff units;
         end
     end         
 end
