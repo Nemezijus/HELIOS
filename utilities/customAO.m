@@ -45,7 +45,7 @@ for iroi = 1:Ncells
             raw_dec(:,:) = squeeze(raw(:,:)) - squeeze(d.light_cont_scale * light_cont(:))'; 
             raw_dff(:,:) = visc_percentile_dff(X*1000,squeeze(raw_dec(:,:)), Gsmooth, 5, '');
             dff_new(:,:) = squeeze(raw_dff(:,:)) - d.BG_sub_scale * squeeze(bg_dff(:))';
-            loc = strcat('/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/STIM_',num2str(istim),'/DFFBASE');%renamed DFF_CORR to DFFBASE
+            loc = strcat('/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/STIM_',num2str(istim),'/DFF');%not DFFCORR
             try
                 h5create(file_location,loc,size(dff_new),'ChunkSize',size(dff_new),'Deflate', 9);
             catch

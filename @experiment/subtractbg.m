@@ -23,10 +23,6 @@ if strcmp(info.bgcorrmethod, 'customao')
                 for irep = 1:Nreps
                     UNIT(irep) = OB.restun{istage}(istim,irep);
                 end
-%                 UNIT = UNIT(UNIT~=0);%added 2020 05 22 eliminates UNIT_0 (aka missing repetitions)
-%                 path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
-%                 h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
-%                 clear UNIT; %added 2020-05-07
             end
         end
     end
@@ -51,17 +47,17 @@ for istage = 1:OB.N_stages
             ustdff = stdff.unstitch(OB);
             store(ustdff, OB);
             
-            Nstim = OB.N_stim(istage);
-            Nreps = OB.N_reps(istage);
-            for istim = 1:Nstim
-                for irep = 1:Nreps
-                    UNIT(irep) = OB.restun{istage}(istim,irep);
-                end
-                UNIT = UNIT(UNIT~=0);%added 2020 05 22 eliminates UNIT_0 (aka missing repetitions)
-                path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
-                h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
-                clear UNIT; %added 2020-05-07
-            end
+%             Nstim = OB.N_stim(istage);
+%             Nreps = OB.N_reps(istage);
+%             for istim = 1:Nstim
+%                 for irep = 1:Nreps
+%                     UNIT(irep) = OB.restun{istage}(istim,irep);
+%                 end
+%                 UNIT = UNIT(UNIT~=0);%added 2020 05 22 eliminates UNIT_0 (aka missing repetitions)
+%                 path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
+%                 h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
+%                 clear UNIT; %added 2020-05-07
+%             end
         else
             Nstim = OB.N_stim(istage);
             Nreps = OB.N_reps(istage);
@@ -80,13 +76,13 @@ for istage = 1:OB.N_stages
                     Y.data = corrected;
                     stdff = Y.dff(lower(info.dffmethod), E);
                     store(stdff, OB);
-                    for irep = 1:Nreps
-                        UNIT(irep) = OB.restun{istage}(istim,irep);
-                    end
-                    UNIT = UNIT(UNIT~=0);%added 2020 05 22 eliminates UNIT_0 (aka missing repetitions)
-                    path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
-                    h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
-                    clear UNIT; %added 2020-05-07
+%                     for irep = 1:Nreps
+%                         UNIT(irep) = OB.restun{istage}(istim,irep);
+%                     end
+%                     UNIT = UNIT(UNIT~=0);%added 2020 05 22 eliminates UNIT_0 (aka missing repetitions)
+%                     path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
+%                     h5writeatt(OB.file_loc,path,'UNITNUMBER',UNIT);
+%                     clear UNIT; %added 2020-05-07
             end
         end
     end

@@ -156,8 +156,14 @@ else
     tostitch = pars.tostitch;
 end
 
+%STEP 8 ESTIMATE DFFBASE
+disp('Calculating DFFBASE for the data. Please Wait.');
+tic
+EXP = EXP.dff(lower(method), tostitch, 1);%1 - indicator to store in DFFbase
+t = toc;
+disp(['DFFBASE stored in hdf5 file. Running time: ', num2str(t)]);
 
-%STEP 8 BG extraction and subtraction
+%STEP 9 BG extraction and subtraction
 if ~skipbg
 %     EXP = experiment(hdf5loc);
     EXP = EXP.extractbg(pars.bgmethod);%dynamic pixels is much much faster than staticpixels
@@ -174,7 +180,11 @@ if ~skipbg
         stitchstr = '_stitched';
     end
     root = '/ANALYSIS';
-    h5writeatt(EXP.file_loc,root,'DFFTYPE',[lower(method), stitchstr]);
+    if strcmp(pars.bgcorrmethod, 'customao')
+        h5writeatt(EXP.file_loc,root,'DFFTYPE','percentile');
+    else
+        h5writeatt(EXP.file_loc,root,'DFFTYPE',[lower(method), stitchstr]);
+    end
     h5writeatt(EXP.file_loc,root,'DFFMODDATE',datenum(now));
     h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
     
@@ -182,13 +192,13 @@ end
 
 %STEP 8.25
 %for AO we add DFFBASE - dff performed only on the raw data
-if strcmp(setup,'ao') %& ~strcmp(pars.bgcorrmethod, 'customao')
-    disp('Calculating DFFBASE for the data. Please Wait.');
-    tic
-    EXP = EXP.dff(lower(method), tostitch, 1);
-    t = toc;
-    disp(['DFFBASE stored in hdf5 file. Running time: ', num2str(t)]);
-end
+% if strcmp(setup,'ao') %& ~strcmp(pars.bgcorrmethod, 'customao')
+%     disp('Calculating DFFBASE for the data. Please Wait.');
+%     tic
+%     EXP = EXP.dff(lower(method), tostitch, 1);
+%     t = toc;
+%     disp(['DFFBASE stored in hdf5 file. Running time: ', num2str(t)]);
+% end
 %STEP 8.5
 %if BG was subtracted then dff does not have to be calculated, otherwise it
 %is done here
@@ -210,11 +220,6 @@ if skipbg
             h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
         end
         
-        disp('Calculating dff for the data. Please Wait.');
-        tic
-        EXP = EXP.dff(lower(method), tostitch);
-        t = toc;
-        disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
     else
         loc = hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'dff')};
         disp('Loading OnAcid stored dff file');
