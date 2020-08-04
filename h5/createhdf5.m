@@ -157,11 +157,13 @@ else
 end
 
 %STEP 8 ESTIMATE DFFBASE
-disp('Calculating DFFBASE for the data. Please Wait.');
-tic
-EXP = EXP.dff(lower(method), tostitch, 1);%1 - indicator to store in DFFbase
-t = toc;
-disp(['DFFBASE stored in hdf5 file. Running time: ', num2str(t)]);
+if ~strcmp(lower(method), 'onacid')
+    disp('Calculating DFFBASE for the data. Please Wait.');
+    tic
+    EXP = EXP.dff(lower(method), tostitch, 1);%1 - indicator to store in DFFbase
+    t = toc;
+    disp(['DFFBASE stored in hdf5 file. Running time: ', num2str(t)]);
+end
 
 %STEP 9 BG extraction and subtraction
 if ~skipbg
