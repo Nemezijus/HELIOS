@@ -238,7 +238,7 @@ if skipbg
             Nsamples(istage) = numel(h5read(EXP.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_1/XDATA']));
         end
         disp('Reshaping OnAcid dff struct');
-        DFF = onaciddffreshape(dff, EXP.N_stages, EXP.N_stim.*EXP.N_reps, Nsamples);
+        DFF = onaciddffreshape(dff, EXP.N_stages, EXP.N_stim.*EXP.N_reps, Nsamples, EXP.N_reps);
         disp('Reshaping done');
         
         stimsequence = h5readatt(hdf5loc,'/DATA/STAGE_1','STIMLIST');
