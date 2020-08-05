@@ -229,10 +229,11 @@ if skipbg
         disp('Loading done');
         fns = fieldnames(S);
         dff = S.(fns{:});
-        
-        ROIseq = onacidroimatch(hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'pre')},...
-            hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'after')});
-        dff = dff(ROIseq,:);
+        if numel(dff(:,1)) ~= EXP.N_roi
+            ROIseq = onacidroimatch(hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'pre')},...
+                hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'after')});
+            dff = dff(ROIseq,:);
+        end
         for istage = 1:EXP.N_stages
             Nsamples(istage) = numel(h5read(EXP.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_1/XDATA']));
         end
