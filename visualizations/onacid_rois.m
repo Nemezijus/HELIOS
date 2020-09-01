@@ -2,7 +2,8 @@ function onacid_rois(onacidloc, ex, mescloc, R, M)
 % onacid_rois(onacidloc, exp, mescloc, ROI) - visualizes Onacid ROI
 % contours and their dff
 
-saveloc = 'N:\DATA\andrius.plauska\onacid runs\run7\IMG';
+saveloc = 'N:\DATA\andrius.plauska\onacid runs\run8\IMG';
+% saveloc = 'N:\DATA\andrius.plauska\onacid runs\36A1\run1\IMG';
 Ndays = ex.N_stages;
 
 X = h5read(ex.file_loc,'/DATA/STAGE_1/UNIT_1/XDATA');
@@ -20,7 +21,7 @@ S = load(loc);
 disp('Loading done');
 fns = fieldnames(S);
 dff = S.(fns{:});
-DFF = onaciddffreshape(dff, Ndays, 9, numel(X), ex.N_reps);
+DFF = onaciddffreshape(dff, Ndays, 9*10, numel(X), ex.N_reps);
 if isempty(M)
     disp('calculating max projections. Takes a lot of time')
     for imesc = 1:numel(mescloc)
@@ -204,16 +205,22 @@ for iroi = 1:nroi
 end
 
 
-
+%30A1
 % mescloc{1} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\baseline1\2017_09_04_mouse30A_baseline1_combine_mcorr.mesc';
 % mescloc{2} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\baseline2\2017_09_05_mouse30A_baseline2_combine_mcorr.mesc';
-% mescloc{3} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\baseline3\2017_09_06_mouse30A_baseline3_combine_mcorr.mesc';
-% mescloc{4} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\effect1\2017_09_20_mouse30A_effect1_combine_mcorr.mesc';
-% mescloc{5} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\effect2\2017_09_21_mouse30A_effect2_combine_mcorr.mesc';
-% mescloc{6} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\effect3\2017_09_22_mouse30A_effect3_combine_mcorr.mesc';
+% mescloc{3} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\baseline3\2017_09_06_mouse30A_baseline3_combine_mcorr_tough1.mesc';
+% mescloc{4} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\effect1\2017_09_20_mouse30A_effect1_combine_mcorr_tough1.mesc';
+% mescloc{5} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\effect2\2017_09_21_mouse30A_effect2_combine_mcorr_tough1.mesc';
+% mescloc{6} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\effect3\2017_09_22_mouse30A_effect3_combine_mcorr_tough1.mesc';
 
 
-
+%36A1
+% mescloc{1} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\baseline1\2018_02_21_baseline1_combine_mcorr.mesc';
+% mescloc{2} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\baseline2\2018_02_22_baseline2_combine_mcorr.mesc';
+% mescloc{3} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\baseline3\2018_02_23_baseline3_combine_mcorr.mesc';
+% mescloc{4} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\effect1\2018_03_07_effect1_combine_mcorr.mesc';
+% mescloc{5} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\effect2\2018_03_08_effect2_combine_mcorr.mesc';
+% mescloc{6} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\effect3\2018_03_09_effect3_combine_mcorr.mesc';
 
 
 

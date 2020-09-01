@@ -18,7 +18,7 @@ for iroi = 1:Nroi
         Ncurrsamples = Nsamples(iday)*Nrecs(iday);
         cdaytrace = ctrace((iday-1)*Ncurrsamples+1:iday*Ncurrsamples);
         for irec = 1:Nrecs(iday)
-            DFF(iroi).stage(iday).signal(irec,:) = cdaytrace((irec-1)*Nsamples(iday)+1:irec*Nsamples);
+            DFF(iroi).stage(iday).signal(irec,:) = cdaytrace((irec-1)*Nsamples(iday)+1:irec*Nsamples(iday));
         end
     end
 end
