@@ -75,13 +75,13 @@ set(surrogateF,'units', 'normalized', 'position', [0.0615 0.0991 0.889 0.786],'C
                 
                 plot(bwperim1(:,1),bwperim1(:,2),'Linestyle','-','Color','w');hold on;
                 plot(bwperim2(:,1),bwperim2(:,2),'Linestyle','-','Color','w');
-%                 text(bwperim2(1,1),bwperim2(1,2),num2str(ir),'Color','r');
+                text(bwperim2(1,1),bwperim2(1,2),num2str(ir),'Color','r');
                 
             else
                 bwperim = BW2{:};
                 
                 plot(bwperim(:,1),bwperim(:,2),'Linestyle','-','Color','w');
-%                 text(bwperim(1,1),bwperim(1,2),num2str(ir),'Color','r');
+                text(bwperim(1,1),bwperim(1,2),num2str(ir),'Color','r');
                 
             end
         catch

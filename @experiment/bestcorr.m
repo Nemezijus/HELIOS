@@ -37,6 +37,11 @@ for istage = 1:Nstages
     end
     shiftwindow = [(-1)*shiftsize:1:shiftsize];
     Nframes = OB.N_stim(istage).*OB.N_reps(istage);
+    Nframes_restun = sum(sum(OB.restun{istage}>0));%this eliminates fake frames generated to keep matrix shape in restun
+    if Nframes_restun < Nframes
+        Nframes = Nframes_restun;
+        disp('Number of frames is less than expected');
+    end
     for iframe = 1:Nframes;
         cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAME']);
         clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAMELUT']);

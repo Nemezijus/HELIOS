@@ -29,6 +29,7 @@ for iroi = 1:Ncells
         for istim = 1:9
             loc = strcat('/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/STIM_',num2str(istim));
             units = h5readatt(file_location,loc,'UNITNUMBER');
+            units = units(units>0);
             for irep = 1:length(units)
                 loc = strcat('/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(units(irep)),'/ROI_',num2str(iroi),'/YDATA');
                 raw(irep,:) = h5read(file_location,loc);
