@@ -2,7 +2,7 @@ function onacid_rois(onacidloc, ex, mescloc, R, M)
 % onacid_rois(onacidloc, exp, mescloc, ROI) - visualizes Onacid ROI
 % contours and their dff
 
-saveloc = 'N:\DATA\andrius.plauska\onacid runs\run8\IMG';
+saveloc = 'N:\DATA\andrius.plauska\onacid runs\run12-36A1\IMG';
 % saveloc = 'N:\DATA\andrius.plauska\onacid runs\36A1\run1\IMG';
 Ndays = ex.N_stages;
 
@@ -21,7 +21,7 @@ S = load(loc);
 disp('Loading done');
 fns = fieldnames(S);
 dff = S.(fns{:});
-DFF = onaciddffreshape(dff, Ndays, 9*10, numel(X), ex.N_reps);
+DFF = onaciddffreshape(dff, Ndays, 9*12, numel(X), ex.N_reps);
 if isempty(M)
     disp('calculating max projections. Takes a lot of time')
     for imesc = 1:numel(mescloc)
@@ -214,7 +214,7 @@ end
 % mescloc{6} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group30\30A1 (112, Máté)\Measurement data\effect3\2017_09_22_mouse30A_effect3_combine_mcorr_tough1.mesc';
 
 
-%36A1
+% 36A1
 % mescloc{1} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\baseline1\2018_02_21_baseline1_combine_mcorr.mesc';
 % mescloc{2} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\baseline2\2018_02_22_baseline2_combine_mcorr.mesc';
 % mescloc{3} = 'N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group36\36A1 (060, Andy&Blanka)\Measurement data\baseline3\2018_02_23_baseline3_combine_mcorr.mesc';

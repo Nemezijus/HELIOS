@@ -182,6 +182,7 @@ for istage = 1:EX.N_stages
                 mean_cM = mean(cM,2);
                 Npx = numel(cP);
                 if Npx == 0
+                    cM = cRR.data; %added 2020-09-25 refreshing the value
                     disp(['No pixels had values without NaNs for ROI ',num2str(iroi)]);
                     nonans = sum(~isnan(cM),2);
                     [aa,bb] = sort(nonans);
