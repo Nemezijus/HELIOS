@@ -21,6 +21,19 @@ switch branchname
                 end
             end
         end
+    case 'PEAKSINSTIMWIN'
+        root = '/ANALYSIS';
+        for iroi = 1:OB.N_roi
+            for istage = 1:OB.N_stages
+                R = OB.response(iroi,istage);
+                pks = squeeze(R.peaksinstimwin);
+                for istim = 1:OB.N_stim(istage)
+                    loc = ['/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/STIM_',num2str(istim)];
+                    h5writeatt(OB.file_loc,[root,loc], 'PEAKSINSTIMWIN', pks(istim,:));
+                end
+            end
+            disp(['ROI ',num2str(iroi),' done'])
+        end
     otherwise
 end
 disp('reloading experiment object');

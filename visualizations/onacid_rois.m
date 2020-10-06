@@ -2,7 +2,7 @@ function onacid_rois(onacidloc, ex, mescloc, R, M)
 % onacid_rois(onacidloc, exp, mescloc, ROI) - visualizes Onacid ROI
 % contours and their dff
 
-saveloc = 'N:\DATA\andrius.plauska\onacid runs\run12-36A1\IMG';
+saveloc = 'N:\DATA\andrius.plauska\onacid runs\run15-36A1\IMG';
 % saveloc = 'N:\DATA\andrius.plauska\onacid runs\36A1\run1\IMG';
 Ndays = ex.N_stages;
 
