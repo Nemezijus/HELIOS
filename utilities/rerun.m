@@ -29,7 +29,11 @@ switch branchname
                 pks = squeeze(R.peaksinstimwin);
                 for istim = 1:OB.N_stim(istage)
                     loc = ['/ROI_',num2str(iroi),'/STAGE_',num2str(istage),'/STIM_',num2str(istim)];
-                    h5writeatt(OB.file_loc,[root,loc], 'PEAKSINSTIMWIN', pks(istim,:));
+                    try
+                        h5writeatt(OB.file_loc,[root,loc], 'PEAKSINSTIMWIN', pks(istim,:));
+                    catch
+                        a= 1;
+                    end
                 end
             end
             disp(['ROI ',num2str(iroi),' done'])
