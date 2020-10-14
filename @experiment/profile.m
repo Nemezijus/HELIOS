@@ -136,6 +136,7 @@ for istage = 1:OB.N_stages
         bplotdata = sum(squeeze(R(istage).peaksinstimwin)>0,2)./OB.N_reps(istage);
         for ii = 1:numel(bplotdata)
             bar(ii, bplotdata(ii), 'parent', aHand, 'facecolor', C.stim(ii,:));
+            hold on
         end
     else
         bplot = bar(sum(squeeze(R(istage).peaksinstimwin)>0,2)./OB.N_reps(istage));
