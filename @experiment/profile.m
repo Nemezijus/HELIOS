@@ -127,12 +127,21 @@ ppl.ThetaDir = 'clockwise';
 
 %4 histogram - number of peaks
 AX_hist = autoaxes(F,OB.N_stages, 1,[0.475, 0.4, 0.005, 0.02],[0.025 0.025]);
+
 for istage = 1:OB.N_stages
     Nrepswithpeaks = sum(squeeze(R(istage).peaksinstimwin)>0,2);
     axes(AX_hist(istage));
-    bplot = bar(sum(squeeze(R(istage).peaksinstimwin)>0,2)./OB.N_reps(istage));
-    bplot.FaceColor = 'Flat';
-    bplot.CData = C.stim;
+    if verLessThan('matlab', '9.3')
+        aHand = gca;
+        bplotdata = sum(squeeze(R(istage).peaksinstimwin)>0,2)./OB.N_reps(istage);
+        for ii = 1:numel(bplotdata)
+            bar(ii, bplotdata(ii), 'parent', aHand, 'facecolor', C.stim(ii,:));
+        end
+    else
+        bplot = bar(sum(squeeze(R(istage).peaksinstimwin)>0,2)./OB.N_reps(istage));
+        bplot.FaceColor = 'Flat';
+        bplot.CData = C.stim;
+    end
     ylim([0, 1]);
     box off
     if istage ~= OB.N_stages

@@ -2,7 +2,7 @@ function onacid_rois(onacidloc, ex, mescloc, R, M)
 % onacid_rois(onacidloc, exp, mescloc, ROI) - visualizes Onacid ROI
 % contours and their dff
 
-saveloc = 'N:\DATA\andrius.plauska\onacid runs\run15-36A1\IMG';
+saveloc = 'N:\DATA\andrius.plauska\onacid runs\run16-37C1\IMG';
 % saveloc = 'N:\DATA\andrius.plauska\onacid runs\36A1\run1\IMG';
 Ndays = ex.N_stages;
 
@@ -21,7 +21,7 @@ S = load(loc);
 disp('Loading done');
 fns = fieldnames(S);
 dff = S.(fns{:});
-DFF = onaciddffreshape(dff, Ndays, 9*12, numel(X), ex.N_reps);
+DFF = onaciddffreshape(dff, Ndays, 9*10, numel(X), ex.N_reps);
 if isempty(M)
     disp('calculating max projections. Takes a lot of time')
     for imesc = 1:numel(mescloc)
