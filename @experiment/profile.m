@@ -138,19 +138,28 @@ for istage = 1:OB.N_stages
             bar(ii, bplotdata(ii), 'parent', aHand, 'facecolor', C.stim(ii,:));
             hold on
         end
+        if istage ~= OB.N_stages
+            set(gca,'XTickLabel',[]);
+        else
+            cellstr(num2str(R(1).stimulus))
+            set(gca, 'XTick', 1:numel(bplotdata),...
+                'XTickLabel', cellstr(num2str(R(1).stimulus)),'FontSize',8)
+            xtickangle(90)
+        end
     else
         bplot = bar(sum(squeeze(R(istage).peaksinstimwin)>0,2)./OB.N_reps(istage));
         bplot.FaceColor = 'Flat';
         bplot.CData = C.stim;
+        if istage ~= OB.N_stages
+            set(gca,'XTickLabel',[]);
+        else
+            set(gca, 'XtickLabels',R(1).stimulus,'FontSize',8);
+            xtickangle(90)
+        end
     end
     ylim([0, 1]);
     box off
-    if istage ~= OB.N_stages
-        set(gca,'XTickLabel',[]);
-    else
-        set(gca, 'XtickLabels',R(1).stimulus,'FontSize',8);
-        xtickangle(90)
-    end
+    
     if istage == 1
         title('Peaks in stimwin');
     end
