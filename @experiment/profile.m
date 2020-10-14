@@ -143,7 +143,7 @@ for istage = 1:OB.N_stages
         else
             cellstr(num2str(R(1).stimulus))
             set(gca, 'XTick', 1:numel(bplotdata),...
-                'XTickLabel', cellstr(num2str(R(1).stimulus)),'FontSize',8)
+                'XTickLabel', arrayfun(@num2str, R(1).stimulus, 'UniformOutput', 0),'FontSize',8)
             xtickangle(90)
         end
     else
