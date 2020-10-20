@@ -22,7 +22,11 @@ for idata = 1:numel(data)
     stage = round(LUT(end)) - round(LUT(1));
     greenVec = linspace(0,1,stage);
     Vec = zeros(upper,1)';
-    Vec(round(LUT(1)) : round(LUT(1))+stage-1) = greenVec;
+    try
+        Vec(round(LUT(1)) : round(LUT(1))+stage-1) = greenVec;
+    catch
+        Vec(round(LUT(1))+1 : round(LUT(1))+stage) = greenVec;
+    end
     Vec(round(LUT(end)) : upper) = 1;
     
     LUT = [zeros(upper,1)';Vec;zeros(upper,1)']';

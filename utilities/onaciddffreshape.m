@@ -12,13 +12,18 @@ end
 
 Nroi = numel(dff(:,1));
 
+
 for iroi = 1:Nroi
+    accumsamples = 0;
     ctrace = dff(iroi,:);
     for iday = 1:Ndays
         Ncurrsamples = Nsamples(iday)*Nrecs(iday);
-        cdaytrace = ctrace((iday-1)*Ncurrsamples+1:iday*Ncurrsamples);
+        from = accumsamples+1;
+        to = accumsamples+(Ncurrsamples);
+        cdaytrace = ctrace(from:to);
         for irec = 1:Nrecs(iday)
             DFF(iroi).stage(iday).signal(irec,:) = cdaytrace((irec-1)*Nsamples(iday)+1:irec*Nsamples(iday));
         end
+        accumsamples = accumsamples+Ncurrsamples;
     end
 end
