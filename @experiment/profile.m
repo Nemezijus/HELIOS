@@ -26,6 +26,9 @@ for istage = 1:OB.N_stages
     for istim = 1:OB.N_stim(istage)
         W = OB.traces({iroi, istage, istim, 0},'dff');
         m = mean(W.data);
+        if OB.setup == 'ao'
+            m = m(1:end-30); %truncate the last part
+        end
         if min(m) < Ymin
             Ymin = min(m);
         end
