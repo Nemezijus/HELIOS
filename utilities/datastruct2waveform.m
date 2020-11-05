@@ -1,9 +1,12 @@
 function WAV = datastruct2waveform(data,implant)
-% WAV = datastruct2waveform(data) - creates waveform objects from
+% WAV = datastruct2waveform(data,implant) - creates waveform objects from
 % old VISC data structs.
 %
 % data - the data struct itself
 % the Ca traces should be located in data.CaTransient.event level
+% implant - if specified as 1, will return the same data struct but with
+% waveform appended on the '.event' level. If it is 0 - returns only the
+% group of Waveforms.
 %
 %part of HELIOS
 if nargin < 2
