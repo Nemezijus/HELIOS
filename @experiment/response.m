@@ -16,6 +16,10 @@ else
 end
 E = OB.dffparams;
 count = 1;
+%initialize NaNned R (added 2020-11-04)
+R.stimulus(1:numel(stages),1:max(OB.N_stim)) = NaN;
+R.strength(1:numel(stages),1:max(OB.N_stim)) = NaN;
+R.stimwinsd(1:numel(stages),1:max(OB.N_stim),1:max(OB.N_reps)) = NaN;
 for is = stages
     %stimuli time stamps
     stimtype = h5readatt(OB.file_loc,['/DATA/STAGE_',num2str(is)],'STIMTYPE');
@@ -33,7 +37,7 @@ for is = stages
         meansum = sum(meancY);
         R.stimulus(count,istim) = stimuli(istim);
         R.strength(count, istim) = mean(meancY);
-        R.stimwinsd(count,istim,:) = std(cY,[],2);
+        R.stimwinsd(count,istim,1:numel(cY(:,1))) = std(cY,[],2);
         %         R.meansum(is, istim) = meansum;
         
     end
@@ -60,12 +64,13 @@ end
 count = 1;
 for is = stages
     Nstim = OB.N_stim(is);
-    Nreps = OB.N_reps(is);
+%     Nreps = OB.N_reps(is);
     
     ST = stitch(OB, iroi, is, 'dff');
     [~, si] = visc_wavenorm(ST.data,ST.time,[],10); %to be adapted separately
     for istim = 1:Nstim
         W = OB.traces({iroi, is, istim, 0},'dff');
+        Nreps = numel(W.data(:,1));
         for irep = 1:Nreps
             THR = significant_peaks(W.data(irep,:), W.time(irep,:), si, S, 1, 0);
             R.peaksinstimwin(count,istim,irep) = THR.stim_peaks;

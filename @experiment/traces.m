@@ -8,6 +8,7 @@ function W = traces(OB,idxs,type)
 % instances of that group will be extracted. No more than one 0 is allowed.
 %part of HELIOS
 
+
 if nargin < 3
     type = 'raw'; %default is raw traces
 end
@@ -95,13 +96,21 @@ switch type
             P = makepaths(path_elements, idx);
         end
         data = [];
+        stageid = STAGEID{:};
+        stimid = STIMID{:};
+        REPS = local_real_repetitions(OB,stageid,stimid); %added 2020-11-04
         for iP = 1:numel(P)
+            if numel(P) ~= numel(REPS)
+                error('mismatch!! investigate here');
+            end
             cdata = h5read(OB.file_loc,[P{iP},'/DFF']);
+
             sz = size(cdata);
             if sz(2) < sz(1)%a dirty fix. restore data in proper dimensions
                 cdata = cdata';
             end
-            cdata = cdata(REPID{:}, :);
+%             cdata = cdata(REPID{:}, :);
+            cdata = cdata(REPS{iP,:}, :);%modified 2020-11-04
             data = vertcat(data,cdata);
             tag(iP,:) = strsplit(P{iP},'/');
         end
@@ -174,3 +183,14 @@ else
     error('for some reason the path is empty');
 end
 P = P(~contains(P,'UNIT_0')); %added 2020 05 22 eliminates UNIT_0 (no recordings) entries
+
+function REPS = local_real_repetitions(OB,stageid,stimid)
+restun = OB.restun{stageid};
+
+for istim = 1:numel(stimid)
+    cs = stimid(istim);
+    reps = restun(cs,:);
+    repidx = 1:numel(reps);
+    repidx = repidx(reps>0 & ~isnan(reps));
+    REPS{istim,:} = repidx;
+end

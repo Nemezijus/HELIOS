@@ -10,27 +10,27 @@ if nargin < 2
 end
 root = '/ANALYSIS';
 E = OB.dffparams; %dff parameter struct
-if strcmp(info.bgcorrmethod, 'customao')
-    P = info.customAOpars;
-    disp('running custom AO BG correction');
-    customAO(OB, P);
-    disp('custom AO BG correction done');
-    for istage = 1:OB.N_stages
-        Nstim = OB.N_stim(istage);
-        Nreps = OB.N_reps(istage);
-        for iroi = 1:OB.N_roi
-            for istim = 1:Nstim
-                for irep = 1:Nreps
-                    UNIT(irep) = OB.restun{istage}(istim,irep);
-                end
-            end
-        end
-    end
-    h5writeatt(OB.file_loc,['/ANALYSIS'], 'BGCORRMETHOD', info.bgcorrmethod);
-    OB = experiment(OB.file_loc);
-    return
-end
-for istage = 1:OB.N_stages
+% if strcmp(info.bgcorrmethod, 'customao')
+%     P = info.customAOpars;
+%     disp('running custom AO BG correction');
+%     customAO(OB, P);
+%     disp('custom AO BG correction done');
+%     for istage = 1:OB.N_stages
+%         Nstim = OB.N_stim(istage);
+%         Nreps = OB.N_reps(istage);
+%         for iroi = 1:OB.N_roi
+%             for istim = 1:Nstim
+%                 for irep = 1:Nreps
+%                     UNIT(irep) = OB.restun{istage}(istim,irep);
+%                 end
+%             end
+%         end
+%     end
+%     h5writeatt(OB.file_loc,['/ANALYSIS'], 'BGCORRMETHOD', info.bgcorrmethod);
+%     OB = experiment(OB.file_loc);
+%     return
+% end
+for istage = 4%1:OB.N_stages
     disp(['BG correction on stage ', num2str(istage),' in progress...']);
     for iroi = 1:OB.N_roi
         if info.tostitch

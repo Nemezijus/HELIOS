@@ -25,10 +25,12 @@ for ir = 1:numel(iroi)
                 unit_strings = W.tag(all_unit_index);
                 numcells = regexp(unit_strings,'\d+(\.)?(\d+)?','match');
                 units = str2double([numcells{:}])';
+                units = units(units>0); %added 2020-11-04
             case 'dff'
                 units = [];
                 for itag = 1:numel(W.tag(:,1))
                     subunits = h5readatt(OB.file_loc, strjoin(W.tag(itag,:),'/'), 'UNITNUMBER');
+                    subunits = subunits(subunits>0);%added 2020-11-04
                     units = vertcat(units,subunits);
                 end
         end
