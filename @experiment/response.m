@@ -56,7 +56,11 @@ for is = stages
     remaining_strengths = setdiff(good_strengths,max_strength);
     
     R.osi(count) = (max_strength - mean(remaining_strengths))./(max_strength + mean(remaining_strengths));
-    R.dominantstimulus(count) = good_stimuli(good_strengths == max(good_strengths));
+    if sum(isnan(good_strengths)) == numel(good_strengths)
+        R.dominantstimulus(count) = NaN;
+    else
+        R.dominantstimulus(count) = good_stimuli(good_strengths == max(good_strengths));
+    end
     count = count+1;
 end
 

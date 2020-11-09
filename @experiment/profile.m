@@ -178,9 +178,22 @@ plot([R.dominantstimulus],'ko-');
 stimuli = R(1).stimulus;
 hold on
 for istage = 1:OB.N_stages
+    try
+        mfc = C.stim(stimuli==R(istage).dominantstimulus,:);
+        mec = C.stim(stimuli==R(istage).dominantstimulus,:);
+    catch
+        mfc = 'k';
+        mec = 'k';
+    end
+    if isempty(mfc)
+        mfc = 'k';
+    end
+    if isempty(mec)
+        mec = 'k';
+    end
     plot(istage, R(istage).dominantstimulus, 'o',...
-        'MarkerFaceColor',C.stim(stimuli==R(istage).dominantstimulus,:),...
-        'MarkerEdgeColor',C.stim(stimuli==R(istage).dominantstimulus,:));
+        'MarkerFaceColor',mfc,...
+        'MarkerEdgeColor',mec);
 end
 set(AX_domstim,'XTick',[1:numel([R.dominantstimulus])]);
 set(AX_domstim, 'XtickLabels',[R.stage]);
