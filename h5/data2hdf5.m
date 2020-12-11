@@ -50,9 +50,17 @@ for iunit = 1:Nunits
     storedata(file_loc, {d}, {loc});
     %attributes
     %REPID
-    h5writeatt(file_loc,cloc, 'REPID', data(iunit).PredictedSession);
+    try
+        h5writeatt(file_loc,cloc, 'REPID', data(iunit).PredictedSession);
+    catch
+        h5writeatt(file_loc,cloc, 'REPID', 'NaN');
+    end
     %STIMID
-    h5writeatt(file_loc,cloc, 'STIMID', data(iunit).PredictedOrientationID);
+    try
+        h5writeatt(file_loc,cloc, 'STIMID', data(iunit).PredictedOrientationID);
+    catch
+        h5writeatt(file_loc,cloc, 'STIMID', 'NaN');
+    end
     %TIMEUNITS
     h5writeatt(file_loc,cloc, 'TIMEUNITS', 'ms');
     for iroi = 1:Nroi
