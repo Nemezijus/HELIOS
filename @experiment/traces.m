@@ -110,7 +110,8 @@ switch type
                 cdata = cdata';
             end
 %             cdata = cdata(REPID{:}, :);
-            cdata = cdata(REPS{iP,:}, :);%modified 2020-11-04
+%             cdata = cdata(REPS{iP,:}, :);%modified 2020-11-04
+            cdata = cdata(REPS{iP,:}(REPID{:}), :);%modified 2020-12-11
             data = vertcat(data,cdata);
             tag(iP,:) = strsplit(P{iP},'/');
         end
