@@ -36,27 +36,46 @@ else
         path = strjoin({root, ['ROI_',num2str(iroi)]},'/');
         for istage = 1:ex.N_stages
             path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)]},'/');
-            for istim = 1:ex.N_stim(istage)
-                path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
-                for irep = 1:ex.N_reps(istage)
-                    w = traces(ex,{iroi, istage, istim, irep},'raw');
-                    d = w.dff(method,E);
-                    D(irep,:) = d.data;
-                    UNIT(irep) = ex.restun{istage}(istim,irep);
+            if ex.N_stim(istage) ~= 0
+                for istim = 1:ex.N_stim(istage)
+                    path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['STIM_',num2str(istim)]},'/');
+                    for irep = 1:ex.N_reps(istage)
+                        w = traces(ex,{iroi, istage, istim, irep},'raw');
+                        d = w.dff(method,E);
+                        D(irep,:) = d.data;
+                        UNIT(irep) = ex.restun{istage}(istim,irep);
+                    end
+                    if aoexception
+                        cpath = [path,'/DFFBASE'];
+                    else
+                        cpath = [path,'/DFF'];
+                    end
+                    try
+                        allocatespace(ex.file_loc, {D}, {cpath});
+                    catch
+                    end
+                    storedata(ex.file_loc, {D}, {cpath});
+                    clear D
+                    h5writeatt(ex.file_loc,path,'UNITNUMBER',UNIT);
+                    clear UNIT
                 end
-                if aoexception
-                    cpath = [path,'/DFFBASE'];
-                else
+            else
+                
+                N_units = numel(ex.restun{istage});
+                w = traces(ex,{iroi,istage},'raw');
+                d = w.dff(method, E);
+                for iunit = 1:N_units
+                    path = strjoin({root, ['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],['UNIT_',num2str(ex.restun{istage}(iunit))]},'/');
                     cpath = [path,'/DFF'];
+                    dff = d.data(iunit,:);
+                    
+                    try
+                        allocatespace(ex.file_loc, {dff}, {cpath});
+                    catch
+                    end
+                    
+                    storedata(ex.file_loc, {dff}, {cpath});
                 end
-                try
-                    allocatespace(ex.file_loc, {D}, {cpath});
-                catch
-                end
-                storedata(ex.file_loc, {D}, {cpath});
-                clear D
-                h5writeatt(ex.file_loc,path,'UNITNUMBER',UNIT);
-                clear UNIT
             end
         end
     end

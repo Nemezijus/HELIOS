@@ -8,8 +8,14 @@ E.median.short_kernel_coeff = 8.7476e-04;
 E.mode.mode_kernelsize = 5400;
 E.mode.mean_kernelsize = 3000;
 
-S = visc_recall_stims(ex.stim_type);
-E.percentile.timewindow = S.static1*1e-3;
+%added 2021-01-06 
+if isempty(ex.stim_type)
+    E.percentile.timewindow = 10; %first 10 seconds
+else
+    S = visc_recall_stims(ex.stim_type);
+    E.percentile.timewindow = S.static1*1e-3;
+end
+%till here
 E.percentile.perc = 8;
 E.percentile.catchoutlier = 1;
 
@@ -22,5 +28,9 @@ E.gauss.Gsmooth = 10;
 E.gauss.nbins = 100;
 
 E.mean.window = 500;
-E.mean.S = S;
+if isempty(ex.stim_type)
+    E.mean.S = NaN;
+else
+    E.mean.S = S;
+end
 E.mean.setup = ex.setup;

@@ -13,45 +13,73 @@ if nargin < 3
     type = 'raw'; %default is raw traces
 end
 
-if numel(idxs) < 4
-    REPID = 0;
-end
-if numel(idxs) < 3
-    STIMID = 0;
-end
-if numel(idxs) < 2
-    STAGEID = 0;
-end
-ROIID = idxs(1);
-if ~iscell(ROIID)
-    ROIID = {ROIID(:)};
-end
-STAGEID = idxs(2);
-if ~iscell(STAGEID)
-    STAGEID = {STAGEID(:)};
-end
-STIMID = idxs(3);
-if ~iscell(STIMID)
-    STIMID = {STIMID(:)};
-end
-REPID = idxs(4);
-if ~iscell(REPID)
-    REPID = {REPID(:)};
-end
+[ROIID,STAGEID,STIMID,REPID,UNITID] = local_idx_parse(OB, idxs);
+
+% if numel(idxs) < 4
+%     REPID = 0;
+% else
+%     REPID = idxs(4);
+% end
+% if numel(idxs) < 3
+%     STIMID = 0;
+% else
+%     STIMID = idxs(3);
+% end
+% if numel(idxs) < 2
+%     STAGEID = 0;
+% else
+%     STAGEID = idxs(2);
+% end
+% ROIID = idxs(1);
+% if ~iscell(ROIID)
+%     ROIID = {ROIID(:)};
+% end
+% 
+% if ~iscell(STAGEID)
+%     STAGEID = {STAGEID(:)};
+% end
+% 
+% if ~iscell(STIMID)
+%     STIMID = {STIMID(:)};
+% end
+% 
+% if ~iscell(REPID)
+%     REPID = {REPID(:)};
+% end
 
 path_elements = OB.paths(strcmp({OB.paths{:,1}},'DATA'),:);
-if REPID{:} == 0
-    REPID = {1:OB.N_reps(STAGEID{:})};
-end
-if STIMID{:} == 0
-    STIMID = {1:OB.N_stim(STAGEID{:})};
+if isempty(UNITID)
+    if REPID{:} == 0
+        REPID = {1:OB.N_reps(STAGEID{:})};
+    end
+    if STIMID{:} == 0
+        STIMID = {1:OB.N_stim(STAGEID{:})};
+    end
 end
 %step 1 - time axis
 if STAGEID{:} ~= 0
     idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:})};
-    P = makepaths(path_elements, idx);
+    %%added 2020-12-18
+    if isempty(OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}))%for no stim cases
+        idx{end} = 1;
+    end
+    sz = size(path_elements);
+    for irow = 1:sz(1)
+        isbeh(irow) = 0;
+        for icol = 1:numel(path_elements(irow,:))
+            if strcmp('BEHAVIOR',path_elements{irow,icol})
+                isbeh(irow) = 1;
+            end
+        end
+    end
+    if sum(isbeh) > 0
+        idx = [idx,NaN];
+    end
+    %%till here
+    P = makepaths(path_elements(~isbeh,:), idx);
 else
 end
+clear isbeh
 for iP = 1:numel(P)
     loc = [P{iP},'/XDATA'];
     time(iP,:) = h5read(OB.file_loc,loc);
@@ -70,7 +98,23 @@ switch type
     case {'raw', 'YDATA', '/YDATA'}
         if STAGEID{:} ~= 0
             idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}), ROIID{:}};
-            P = makepaths(path_elements, idx);
+            %%added 2020-12-18
+            sz = size(path_elements);
+            for irow = 1:sz(1)
+                isbeh(irow) = 0;
+                for icol = 1:numel(path_elements(irow,:))
+                    if strcmp('BEHAVIOR',path_elements{irow,icol})
+                        isbeh(irow) = 1;
+                    end
+                end
+            end
+            if sum(isbeh) > 0
+                if sum(OB.N_stim) == 0
+                    idx = {NaN, STAGEID{:}, OB.restun{STAGEID{:}}, NaN, ROIID{:}};
+                end
+            end
+            %%till here
+            P = makepaths(path_elements(~isbeh,:), idx);
         end
         for iP = 1:numel(P)
             data(iP,:) = h5read(OB.file_loc,[P{iP},'/YDATA']);
@@ -91,29 +135,46 @@ switch type
         data_units = 'a.u.';
     case {'dff', 'DFF', '/DFF'}
         path_elements = OB.paths(strcmp({OB.paths{:,1}},'ANALYSIS'),:);
-        if STAGEID{:} ~= 0
-            idx = {NaN,ROIID{:},STAGEID{:}, STIMID{:}};
+        
+        if sum(strcmp({path_elements{:}},'UNIT_')) > 0
+            idx = {NaN, ROIID{:}, STAGEID{:}, UNITID{:}};
             P = makepaths(path_elements, idx);
-        end
-        data = [];
-        stageid = STAGEID{:};
-        stimid = STIMID{:};
-        REPS = local_real_repetitions(OB,stageid,stimid); %added 2020-11-04
-        for iP = 1:numel(P)
-            if numel(P) ~= numel(REPS)
-                error('mismatch!! investigate here');
+            data = [];
+            stageid = STAGEID{:};
+            for iP = 1:numel(P)
+                cdata = h5read(OB.file_loc,[P{iP},'/DFF']);
+                if sz(2) < sz(1)%a dirty fix. restore data in proper dimensions
+                    cdata = cdata';
+                end
+                data = vertcat(data,cdata);
+                tag(iP,:) = strsplit(P{iP},'/');
             end
-            cdata = h5read(OB.file_loc,[P{iP},'/DFF']);
-
-            sz = size(cdata);
-            if sz(2) < sz(1)%a dirty fix. restore data in proper dimensions
-                cdata = cdata';
+        else
+            
+            if STAGEID{:} ~= 0
+                idx = {NaN,ROIID{:},STAGEID{:}, STIMID{:}};
+                P = makepaths(path_elements, idx);
             end
-%             cdata = cdata(REPID{:}, :);
-%             cdata = cdata(REPS{iP,:}, :);%modified 2020-11-04
-            cdata = cdata(REPS{iP,:}(REPID{:}), :);%modified 2020-12-11
-            data = vertcat(data,cdata);
-            tag(iP,:) = strsplit(P{iP},'/');
+            data = [];
+            stageid = STAGEID{:};
+            stimid = STIMID{:};
+            REPS = local_real_repetitions(OB,stageid,stimid); %added 2020-11-04
+            for iP = 1:numel(P)
+                if numel(P) ~= numel(REPS)
+                    error('mismatch!! investigate here');
+                end
+                cdata = h5read(OB.file_loc,[P{iP},'/DFF']);
+                
+                sz = size(cdata);
+                if sz(2) < sz(1)%a dirty fix. restore data in proper dimensions
+                    cdata = cdata';
+                end
+                %             cdata = cdata(REPID{:}, :);
+                %             cdata = cdata(REPS{iP,:}, :);%modified 2020-11-04
+                cdata = cdata(REPS{iP,:}(REPID{:}), :);%modified 2020-12-11
+                data = vertcat(data,cdata);
+                tag(iP,:) = strsplit(P{iP},'/');
+            end
         end
         data_type = 'dff';
         data_units = '%';
@@ -124,6 +185,14 @@ W = waveform(data, time, data_type, time_units, data_units, tag);
 function P = makepaths(pe, idx)
 str = {'/'};
 id = 1;
+
+% newver = 0;
+% for ipe = 1:numel(pe)
+%     if strcmp('IMAGING',pe{ipe})
+%         newver = 1;
+%         idx = [idx, NaN];
+%     end
+% end
 while id <= numel(idx)
     for ii = 1:numel(idx{id})
         if ~isnan(idx{id}(ii))
@@ -137,9 +206,11 @@ while id <= numel(idx)
     clear substr
 end
 N = prod(cellfun(@numel, E));
-[e1,e2,e3,e4] = deal('');
-%works for 4 cases only for now
-if numel(E) == 4
+[e1,e2,e3,e4,e5] = deal('');
+%works for 5 cases only for now
+if numel(E) == 5
+    [Dx,Cx,Bx,Ax,ax] = ndgrid(1:numel(E{1}),1:numel(E{2}),1:numel(E{3}),1:numel(E{4}),1:numel(E{5}));
+elseif numel(E) == 4
     [Dx,Cx,Bx,Ax] = ndgrid(1:numel(E{1}),1:numel(E{2}),1:numel(E{3}),1:numel(E{4}));
 elseif numel(E) == 3
     [Dx,Cx,Bx] = ndgrid(1:numel(E{1}),1:numel(E{2}),1:numel(E{3}));
@@ -169,10 +240,18 @@ if numel(E) > 1
             if isrow(e4)
                 e4 = e4';
             end
+            if numel(E) > 4
+                e5 = E{5}(ax(:));
+                if isrow(e5)
+                    e5 = e5';
+                end
+            end
         end
     end
 end
-if numel(E) == 4
+if numel(E) == 5
+    P = strcat('/',e1,'/',e2,'/',e3,'/',e4,'/',e5);
+elseif numel(E) == 4
     P = strcat('/',e1,'/',e2,'/',e3,'/',e4);
 elseif numel(E) == 3
     P = strcat('/',e1,'/',e2,'/',e3);
@@ -194,4 +273,58 @@ for istim = 1:numel(stimid)
     repidx = 1:numel(reps);
     repidx = repidx(reps>0 & ~isnan(reps));
     REPS{istim,:} = repidx;
+end
+
+
+function [ROIID,STAGEID,STIMID,REPID,UNITID] = local_idx_parse(ob, idxs)
+ROIID = idxs(1);
+if ~iscell(ROIID)
+    ROIID = {ROIID(:)};
+end
+
+if numel(idxs) < 2
+    STAGEID = {0};
+else
+    STAGEID = idxs(2);
+end
+if ~iscell(STAGEID)
+    STAGEID = {STAGEID(:)};
+end
+
+if STAGEID{:} == 0
+    STAGEID = [1:ob.N_stages];
+end
+
+
+
+
+if ~any(ob.N_stim)
+    REPID = {};
+    STIMID = {};
+    for istage = 1:numel(STAGEID)
+        if STAGEID{istage} ~= 0
+            UNITID{istage} = ob.restun{STAGEID{istage}};
+        end
+    end
+else
+    if numel(idxs) < 4
+        REPID = 0;
+    else
+        REPID = idxs(4);
+    end
+    if numel(idxs) < 3
+        STIMID = 0;
+    else
+        STIMID = idxs(3);
+    end
+    
+    if ~iscell(STIMID)
+        STIMID = {STIMID(:)};
+    end
+    
+    if ~iscell(REPID)
+        REPID = {REPID(:)};
+    end
+    
+    UNITID = {};
 end

@@ -9,20 +9,37 @@ function out = moculus_createhdf5(hrfloc, hdf5loc, pars)
 S = load(hrfloc);
 Sfns = fieldnames(S);
 hrf = S.(Sfns{:});
-
-
-fid = H5F.create(hdf5loc);
-plist = 'H5P_DEFAULT';
-gid = H5G.create(fid,'DATA',plist,plist,plist);
-H5G.close(gid);
-H5F.close(fid);
-h5writeatt(hdf5loc,'/DATA', 'ANIMALID', hrf.ID);
-h5writeatt(hdf5loc,'/DATA', 'SETUP', hrf.setup);
+if isempty(pars)
+    method = 'median';
+    tostitch = 1;
+else
+    method = pars.dffmethod;
+    tostitch = pars.tostitch;
+end
+try
+    fid = H5F.create(hdf5loc);
+    plist = 'H5P_DEFAULT';
+    gid = H5G.create(fid,'DATA',plist,plist,plist);
+    H5G.close(gid);
+    H5F.close(fid);
+    h5writeatt(hdf5loc,'/DATA', 'ANIMALID', hrf.ID);
+    h5writeatt(hdf5loc,'/DATA', 'SETUP', hrf.setup);
+catch
+end
 
 
 
 data_locations = {hrf.analysis.imaging.data.file_path};
-for idl = 1:numel(data_locations);
+if isempty(data_locations)
+    disp('data.mat locations in hrf file not found');
+    disp('attempting to index by sessions');
+    data_locations = {};
+    Ndata = numel([hrf.measurements.session]);
+else
+    Ndata = numel(data_locations);
+end
+
+for idl = 1:Ndata;
     stageids{idl} = num2str(idl);
     behav_files{idl} = {hrf.measurements.session(idl).behavior_data.file_path};
 end
@@ -31,14 +48,13 @@ tic
 moculus_embeddata(hdf5loc, data_locations, stageids, behav_files);
 t = toc;
 disp(['Data stored in hdf5 file. Running time: ', num2str(t)]);
+
+disp('Calculating df/f. Please wait.')
+tic
+ex = experiment(hdf5loc);
+%dff [when no onacid]
+ex = ex.dff(lower(method), tostitch, 1);
+t = toc;
+disp(['Df/f calculated and stored. Running time: ', num2str(t)]);
+
 out = 1;
-% datapaths{1} = 'N:\DATA\pinke.domonkos\2020\Moculus_Analyised\_620mc\Day1\Standard\data.mat';
-% datapaths{2} = 'N:\DATA\pinke.domonkos\2020\Moculus_Analyised\_620mc\Day2\data.mat';
-% datapaths{3} = 'N:\DATA\pinke.domonkos\2020\Moculus_Analyised\_620mc\Day3\standard\data.mat';
-% 
-% behavior_files{1} = {'N:\DATA\pinke.domonkos\2020\Moculus_Analyised\_620mc\Day1\Standard\',...
-%     'N:\DATA\pinke.domonkos\2020\Moculus_Analyised\_620mc\Day1\Standard\',...
-%     'N:\DATA\pinke.domonkos\2020\Moculus_Analyised\_620mc\Day1\Standard\',...
-%     'N:\DATA\pinke.domonkos\2020\Moculus_Analyised\_620mc\Day1\Standard\'}
-% behavior_files{2} = {'','','','',''}
-% behavior_files{3} = {'','','','',''}

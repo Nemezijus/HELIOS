@@ -81,6 +81,7 @@ classdef experiment
             obj.paths = paths;
             
             for istage = 1:obj.N_stages
+                gr = [];
                 try %first try in ANALYSIS branch
                     for istim = 1:obj.N_stim
                         for irep = 1:obj.N_reps(istage)
@@ -97,6 +98,9 @@ classdef experiment
                         unitstr = regexp(locstr{end},['\d+\.?\d*'],'match');
                         gr(istim,irep) = str2num(unitstr{:});
                     end
+                end
+                if isempty(gr)
+                    gr = 1:numel(datagroup.Groups(istage).Groups);
                 end
                 restun{istage} = gr;
                 clear gr
