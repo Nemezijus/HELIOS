@@ -217,11 +217,4 @@ setup = lower(d.setup);
 MC_ROI_PAIRS = d.PAIRS;
 assignin('base','MC_ROI_PAIRS',MC_ROI_PAIRS);
 assignin('base','setup',setup);
-for ip = 1:numel(MC_ROI_PAIRS)
-    mcfileloc = MC_ROI_PAIRS(ip).motcorr;
-    roifileloc = MC_ROI_PAIRS(ip).mescroi;
-    mcf = strsplit(mcfileloc,'\');
-    mcf = mcf(1:end-1);
-    saveloc = strjoin(mcf,'\');
-    a=1;
-end
+collectdata(setup, MC_ROI_PAIRS);
