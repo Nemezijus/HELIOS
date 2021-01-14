@@ -5,10 +5,13 @@ function out = moculus_createhdf5(hrfloc, hdf5loc, pars)
 % pars.dffmethod - a string (e.g. 'median', 'mode', 'percentile')
 % pars.tostitch - an integer {0 or 1}
 % part of HELIOS
-
-S = load(hrfloc);
-Sfns = fieldnames(S);
-hrf = S.(Sfns{:});
+if ~isstruct(hrfloc)
+    S = load(hrfloc);
+    Sfns = fieldnames(S);
+    hrf = S.(Sfns{:});
+else
+    hrf = hrfloc;
+end
 if isempty(pars)
     method = 'median';
     tostitch = 1;
@@ -39,7 +42,7 @@ else
     Ndata = numel(data_locations);
 end
 
-for idl = 1:Ndata;
+for idl = 1:Ndata
     stageids{idl} = num2str(idl);
     behav_files{idl} = {hrf.measurements.session(idl).behavior_data.file_path};
 end
