@@ -265,7 +265,12 @@ collectdata(setup, MC_ROI_PAIRS); %creates data.mat files
 hrf.ID = d.ID;
 hrf.setup = setup;
 for ip = 1:numel(P)
-    hrf.analysis.imaging.data(ip).file_path = P(ip).motcorr;
+    loc = P(ip).motcorr;
+    loc = strsplit(loc,'\');
+    loc = loc(1:end-1);
+    loc = strjoin(loc,'\');
+    dataloc = [loc,'\data.mat'];
+    hrf.analysis.imaging.data(ip).file_path = dataloc;
     for ib = 1:numel(P(ip).behavior)
         hrf.measurements.session(ip).behavior_data.file_path(ib) = P(ip).behavior{ib};
     end
