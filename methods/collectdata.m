@@ -8,6 +8,7 @@ mrp = MC_ROI_PAIRS;
 clear MC_ROI_PAIRS
 
 for ip = 1:numel(mrp)
+    disp(['working on day ',num2str(ip)]);
     mcfileloc = mrp(ip).motcorr;
     roifileloc = mrp(ip).mescroi;
     mcf = strsplit(mcfileloc,'\');
