@@ -257,8 +257,12 @@ end
 MC_ROI_PAIRS = P;
 assignin('base','MC_ROI_PAIRS',MC_ROI_PAIRS);
 assignin('base','setup',setup);
-collectdata(setup, MC_ROI_PAIRS); %creates data.mat files
 
+tic;
+disp('Creating data.mat files!');
+collectdata(setup, MC_ROI_PAIRS); %creates data.mat files
+t = toc;
+disp(['data.mat files created! Running time: ',num2str(t),' s']);
 
 %creating h5
 %here we create dummy hrf struct since there is no hrf coming from this gui
@@ -272,7 +276,7 @@ for ip = 1:numel(P)
     dataloc = [loc,'\data.mat'];
     hrf.analysis.imaging.data(ip).file_path = dataloc;
     for ib = 1:numel(P(ip).behavior)
-        hrf.measurements.session(ip).behavior_data.file_path(ib) = P(ip).behavior{ib};
+        hrf.measurements.session(ip).behavior_data(ib).file_path = P(ip).behavior{ib};
     end
 end
 pars.dffmethod = 'median';
@@ -280,7 +284,7 @@ pars.tostitch = 0;
 
 loc = P(1).motcorr;
 loc = strsplit(loc,'\');
-loc = loc(1:end-1);
+loc = loc(1:end-2);
 loc = strjoin(loc,'\');
 h5name = ['\',d.ID,'.h5'];
 hdf5loc = [loc,h5name];
