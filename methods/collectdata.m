@@ -20,12 +20,12 @@ for ip = 1:numel(mrp)
                 units = 1:numel(roifileloc);
                 for ic = 1:numel(roifileloc)
                     disp(['working on unit ',num2str(ic)]);
-                    out = AOExporterVR(mcfileloc,roifileloc{ic},[],saveloc,mode,units);
+                    out = AOExporterVR(mcfileloc,roifileloc{ic},[],saveloc,mode,units(ic));
                     d(ic).data = out;
                 end
                 data=[];
                 for i=1:length(units)
-                    data=[data d(i).data]
+                    data=[data d(i).data];
                 end
                 disp('saving data.mat file');
                 save([saveloc '\data.mat'],'data','-v7.3')
