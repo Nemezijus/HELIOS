@@ -6,6 +6,7 @@ function collectdata(setup, MC_ROI_PAIRS)
 
 mrp = MC_ROI_PAIRS;
 clear MC_ROI_PAIRS
+isonacid = 0;
 
 for ip = 1:numel(mrp)
     disp(['working on day ',num2str(ip)]);
@@ -34,5 +35,14 @@ for ip = 1:numel(mrp)
             end
             
         case 'reso'
+            if isonacid
+            else
+                if iscell(roifileloc)
+                    error('Multiple ROI files are not allowed for resonant data')
+                end
+                disp('Running ResonantExporter')
+                resonantExporter(mcfileloc,roifileloc,saveloc);
+                disp('ResonantExporter finished!');
+            end
     end
 end
