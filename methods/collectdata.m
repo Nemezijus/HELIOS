@@ -36,7 +36,7 @@ for ip = 1:numel(mrp)
                         roiloc = roifileloc;
                     end
                     disp(['working on unit ',num2str(ic)]);
-                    out = AOExporterVR(mcfileloc,r,[],saveloc,mode,units(ic));
+                    out = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
                     d(ic).data = out;
                 end
                 data=[];
