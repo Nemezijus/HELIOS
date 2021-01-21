@@ -12,6 +12,7 @@ for ip = 1:numel(mrp)
     disp(['working on day ',num2str(ip)]);
     mcfileloc = mrp(ip).motcorr;
     roifileloc = mrp(ip).mescroi;
+    behaviorloc = mrp(ip).behavior;
     mcf = strsplit(mcfileloc,'\');
     mcf = mcf(1:end-1);
     saveloc = strjoin(mcf,'\');
@@ -19,10 +20,15 @@ for ip = 1:numel(mrp)
         case 'ao'
             if iscell(roifileloc)
                 mode='multi';
-                units = 1:numel(roifileloc);
-                for ic = 1:numel(roifileloc)
+                units = 1:numel(behaviorloc);
+                for ic = 1:numel(behaviorloc)
+                    if numel(roifileloc) < ic
+                        roiloc = roifileloc{end};
+                    else
+                        roiloc = roifileloc{ic};
+                    end
                     disp(['working on unit ',num2str(ic)]);
-                    out = AOExporterVR(mcfileloc,roifileloc{ic},[],saveloc,mode,units(ic));
+                    out = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
                     d(ic).data = out;
                 end
                 data=[];
