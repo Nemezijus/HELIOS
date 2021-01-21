@@ -45,8 +45,6 @@ for ip = 1:numel(mrp)
                 end
                 disp('saving data.mat file');
                 save([saveloc '\data.mat'],'data','-v7.3')
-            else
-            end
             
         case 'reso'
             if isonacid
