@@ -18,7 +18,7 @@ for ip = 1:numel(mrp)
     saveloc = strjoin(mcf,'\');
     switch setup
         case 'ao'
-            if iscell(roifileloc)
+
                 mode='multi';
                 units = 1:numel(behaviorloc);
                 for ic = 1:numel(behaviorloc)
@@ -37,8 +37,6 @@ for ip = 1:numel(mrp)
                 end
                 disp('saving data.mat file');
                 save([saveloc '\data.mat'],'data','-v7.3')
-            else
-            end
             
         case 'reso'
             if isonacid
