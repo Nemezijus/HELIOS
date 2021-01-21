@@ -18,17 +18,25 @@ for ip = 1:numel(mrp)
     saveloc = strjoin(mcf,'\');
     switch setup
         case 'ao'
-
+            if iscell(roifileloc)
+                Nmescroi = numel(roifileloc);
+            else
+                Nmescroi = 1;
+            end
                 mode='multi';
                 units = 1:numel(behaviorloc);
                 for ic = 1:numel(behaviorloc)
-                    if numel(roifileloc) < ic
-                        roiloc = roifileloc{end};
+                    if iscell(roifileloc)
+                        if Nmescroi < ic
+                            roiloc = roifileloc{end};
+                        else
+                            roiloc = roifileloc{ic};
+                        end
                     else
-                        roiloc = roifileloc{ic};
+                        roiloc = roifileloc;
                     end
                     disp(['working on unit ',num2str(ic)]);
-                    out = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
+                    out = AOExporterVR(mcfileloc,r,[],saveloc,mode,units(ic));
                     d(ic).data = out;
                 end
                 data=[];
@@ -37,6 +45,8 @@ for ip = 1:numel(mrp)
                 end
                 disp('saving data.mat file');
                 save([saveloc '\data.mat'],'data','-v7.3')
+            else
+            end
             
         case 'reso'
             if isonacid
