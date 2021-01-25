@@ -21,14 +21,15 @@ COLORS.plotting.aversive = [0.6510, 0.4706, 0.7608];
 COLORS.plotting.black = [0.2588, 0.2431, 0.2431];
 COLORS.plotting.cloud = [0.651, 0.651, 0.651];
 COLORS.plotting.reward = [0.2314, 0.4784, 0.3647];
-COLORS.plotting.lick = [];
-COLORS.plotting.lickdelta = [];
-COLORS.plotting.licklock = [];
-COLORS.plotting.teleport = [];
-COLORS.plotting.trigger = [];
-COLORS.plotting.port_a = [];
-COLORS.plotting.port_b = [];
-COLORS.plotting.port_c = [];
+COLORS.plotting.lick = [0.3882, 0.4588, 0.0980];
+COLORS.plotting.lickdelta = [0.5804, 0.6784, 0.1843];
+COLORS.plotting.licklock = [0.2 0.3 0.4];
+COLORS.plotting.teleport = [0.7882, 0.4745, 0.6196];
+COLORS.plotting.trigger = [0.9020, 0.1529, 0.5020];
+COLORS.plotting.port_a = [0.5725, 0.6588, 0.4039];
+COLORS.plotting.port_b = [0.4902, 0.6706, 0.1333];
+COLORS.plotting.port_c = [0.2824, 0.3804,0.0863];
+COLORS.plotting.luminance = [1, 1, 0];
 COLORS.plotting.dff = [0.5294, 0.3137, 0.1255];
 COLORS.plotting.raw = [0.5804, 0, 0];
 
@@ -141,7 +142,7 @@ switch hO.Value
         end
 end
 guidata(d.F, d);
-local_plot(hO,lower(tag));
+local_plot(hO);
 
 function local_right_plot(hO, ed)
 d = guidata(hO);
@@ -163,19 +164,19 @@ switch hO.Value
         d.plotting.right.X = Xr;
         d.plotting.right.Y = vertcat(d.plotting.right.Y, Yr');
         if ~isempty(ed)
-            d.plotting.right.tags{numel(d.plotting.right.tags)+1} = tag;
+            d.plotting.right.tags{numel(d.plotting.right.tags)+1} = lower(hO.String);%!!!
         end
     case 0
-        mask = ~ismember(d.plotting.right.tags, tag);
+        mask = ~ismember(d.plotting.right.tags, lower(hO.String));
         if ~isempty(ed)
             d.plotting.right.Y = d.plotting.right.Y(mask,:);
             d.plotting.right.tags = d.plotting.right.tags(mask);
         end
 end
 guidata(d.F, d);
-local_plot(hO,lower(hO.String));
+local_plot(hO);
 
-function local_plot(hO, flag)
+function local_plot(hO)
 d = guidata(hO);
 cla reset;
 axes(d.ax);
@@ -190,11 +191,38 @@ Y1 = d.plotting.left.Y;
 X2 = d.plotting.right.X;
 Y2 = d.plotting.right.Y;
 
+
+% yyaxis right
+if ~isempty(Y2)
+    yyaxis right
+    col = 'r';
+    for iy = 1:numel(Y2(:,1))
+        plot(X2,Y2(iy,:),'-','Color',d.C.plotting.(d.plotting.right.tags{iy})); hold on;
+    end
+    if d.axes_params.Xlim_locked
+        xlim(d.axes_params.Xlim);
+    else
+        xl = xlim;
+        set(d.GUI.axes_limits.ED(1), 'String', num2str(xl(1)));
+        set(d.GUI.axes_limits.ED(2), 'String', num2str(xl(2)));
+        d.axes_params.Xlim = xl;
+    end
+    if d.axes_params.Yrlim_locked
+        ylim(d.axes_params.Yrlim);
+    else
+        yl = ylim;
+        set(d.GUI.axes_limits.ED(5), 'String', num2str(yl(1)));
+        set(d.GUI.axes_limits.ED(6), 'String', num2str(yl(2)));
+        d.axes_params.Yrlim = yl;
+    end
+end
 if ~isempty(Y1)
     yyaxis left
 %     col = d.C.plotting.(lower(hO.Tag));
     col = 'k';
-    plot(X1,Y1,'-','color',col);
+    for iy = 1:numel(Y1(:,1))
+        plot(X1,Y1(iy,:),'-','Color',d.C.plotting.(d.plotting.left.tags{iy})); hold on
+    end
     if d.axes_params.Xlim_locked
         xlim(d.axes_params.Xlim);
     else
@@ -214,28 +242,7 @@ if ~isempty(Y1)
     
     hold on;
 end
-% yyaxis right
-if ~isempty(Y2)
-    yyaxis right
-    col = 'r';
-    plot(X2,Y2,'-','Color',col);
-    if d.axes_params.Xlim_locked
-        xlim(d.axes_params.Xlim);
-    else
-        xl = xlim;
-        set(d.GUI.axes_limits.ED(1), 'String', num2str(xl(1)));
-        set(d.GUI.axes_limits.ED(2), 'String', num2str(xl(2)));
-        d.axes_params.Xlim = xl;
-    end
-    if d.axes_params.Yrlim_locked
-        ylim(d.axes_params.Yrlim);
-    else
-        yl = ylim;
-        set(d.GUI.axes_limits.ED(5), 'String', num2str(yl(1)));
-        set(d.GUI.axes_limits.ED(6), 'String', num2str(yl(2)));
-        d.axes_params.Yrlim = yl;
-    end
-end
+
 
 guidata(d.F, d);
 
