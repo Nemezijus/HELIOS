@@ -58,6 +58,7 @@ d.plotting.left.tags = {};
 d.plotting.right.X = [];
 d.plotting.right.Y = [];
 d.plotting.right.tags = {};
+d.offset = 0;
 d.axes_params.Xlim = [0,1];
 d.axes_params.Xlim_locked = 0;
 d.axes_params.Xtype = 'lin';
@@ -183,6 +184,9 @@ axes(d.ax);
 % W = traces(d.ob, {d.cROI, d.cSTAGE}, 'dff');
 %LEFT
 X1 = d.plotting.left.X;
+if d.offset
+    X1 = X1+d.B.stage(d.cSTAGE).unit(d.cUNIT).time_offset;
+end
 Y1 = d.plotting.left.Y;
 % m1 = max(abs(Y1));
 
@@ -287,6 +291,10 @@ cb(2) = uicontrol(uibg,'Style', 'checkbox', 'String', 'raw',...
     'tag','raw',...
     'Units','Normalized','Position', [0.02 0.5 0.9 0.22],'FontSize',8,...
     'Callback',@local_left_plot,'Value', 0);
+CB = uicontrol(F,'Style', 'checkbox', 'String', 'adjust offset',...
+    'tag','offset',...
+    'Units','Normalized','Position', [0.02 0.63 0.075 0.05],'FontSize',8,...
+    'Callback',@local_offset, 'Value',0);
 
 function cb = local_bg_right(F, C, prot)
 uibg = uibuttongroup(F, 'Position',[0.09 0.5 0.155 0.29],'Title','Right axis');
@@ -555,3 +563,9 @@ d.axes_params.Yrlim_locked = 0;
 d.axes_params.Yrtype = 'lin';
 
 guidata(d.F, d);
+
+function local_offset(hO, ed)
+d = guidata(hO);
+d.offset = hO.Value;
+guidata(d.F, d);
+local_plot(hO);
