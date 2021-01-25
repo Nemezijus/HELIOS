@@ -89,6 +89,9 @@ d.GUI.plotting.right.cb = cb_right;
 [ED, cb] = local_bg_3(F, COLORS);
 d.GUI.axes_limits.ED = ED;
 d.GUI.axes_limits.cb = cb;
+
+%button group export
+cb = local_bg_export(F, COLORS);
 guidata(F, d);
 
 function local_pick_RSU(hO, ev)
@@ -177,15 +180,19 @@ end
 guidata(d.F, d);
 local_plot(hO);
 
-function local_plot(hO)
+function local_plot(hO, ax)
 d = guidata(hO);
-cla reset;
-axes(d.ax);
+if nargin == 1
+    cla reset;
+    axes(d.ax);
+else
+    axes(ax);
+end
 % W = traces(d.ob, {d.cROI, d.cSTAGE}, 'dff');
 %LEFT
 X1 = d.plotting.left.X;
 if d.offset
-    X1 = X1+d.B.stage(d.cSTAGE).unit(d.cUNIT).time_offset;
+    X1 = X1+d.B.stage(d.cSTAGE).unit(d.cUNIT).time_offset-X1(1);
 end
 Y1 = d.plotting.left.Y;
 % m1 = max(abs(Y1));
@@ -201,7 +208,7 @@ if ~isempty(Y2)
     yyaxis right
     col = 'r';
     for iy = 1:numel(Y2(:,1))
-        plot(X2,Y2(iy,:),'-','Color',d.C.plotting.(d.plotting.right.tags{iy})); hold on;
+        pl(iy) = plot(X2,Y2(iy,:),'-','Color',[d.C.plotting.(d.plotting.right.tags{iy}),0.5]); hold on;
     end
     if d.axes_params.Xlim_locked
         xlim(d.axes_params.Xlim);
@@ -246,7 +253,6 @@ if ~isempty(Y1)
     
     hold on;
 end
-
 
 guidata(d.F, d);
 
@@ -400,6 +406,14 @@ cb(16) = uicontrol(uibg,'Style', 'checkbox', 'String', 'Cloud',...
     'Units','Normalized','Position', [0.5 0.001 0.4 0.1],'FontSize',8,...
     'Callback',@local_right_plot,'Value', 0);
 
+function PB = local_bg_export(F, C)
+uibg = uibuttongroup(F, 'Position',[0.09 0.4 0.155 0.1],'Title','Export');
+
+PB(1) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'Figure',...
+    'Units','Normalized','Position', [0.05 0.3 0.3 0.4],...
+    'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
+    'Callback', @local_export,'Tag','figure','FontWeight','Bold');
+
 function [ED, cb] = local_bg_3(F, C)
 d = guidata(F);
 ax = d.ax;
@@ -527,6 +541,17 @@ switch hO.Tag
         d.axes_params.Yrlim(2) = lim;
 end
 guidata(d.F, d);
+
+function local_export(hO, ed)
+d = guidata(hO);
+
+switch hO.Tag
+    case 'figure'
+        FF = figure;
+        set(FF,'units', 'normalized', 'position', [0.189 0.0972 0.675 0.76]);
+        AX = axes(FF);
+        local_plot(hO, AX);
+end
 
 function local_reset(hO, ed)
 d = guidata(hO);
