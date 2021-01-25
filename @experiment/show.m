@@ -413,6 +413,10 @@ PB(1) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'Figure',...
     'Units','Normalized','Position', [0.05 0.3 0.3 0.4],...
     'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
     'Callback', @local_export,'Tag','figure','FontWeight','Bold');
+PB(2) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'PNG',...
+    'Units','Normalized','Position', [0.35 0.3 0.3 0.4],...
+    'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
+    'Callback', @local_export,'Tag','png','FontWeight','Bold');
 
 function [ED, cb] = local_bg_3(F, C)
 d = guidata(F);
@@ -551,6 +555,22 @@ switch hO.Tag
         set(FF,'units', 'normalized', 'position', [0.189 0.0972 0.675 0.76]);
         AX = axes(FF);
         local_plot(hO, AX);
+    case 'png'
+        saveloc = d.ob.file_loc;
+        saveloc = strsplit(saveloc,'\');
+        saveloc = saveloc(1:end-1);
+        saveloc{end+1} = 'show_images';
+        saveloc = strjoin(saveloc,'\');
+        mkdir(saveloc);
+        name = ['\',d.ob.id,'_stage_',num2str(d.cSTAGE),'_unit_',num2str(d.cUNIT),...
+            '.png'];
+        saveloc = [saveloc,name];
+        FF = figure;
+        set(FF,'units', 'normalized', 'position', [0.189 0.0972 0.675 0.76]);
+        AX = axes(FF);
+        local_plot(hO, AX);
+        saveas(FF,saveloc);
+        close(FF);
 end
 
 function local_reset(hO, ed)
