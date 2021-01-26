@@ -165,7 +165,7 @@ switch hO.Value
         else
             Yr = B.(lower(hO.String));
         end
-        d.plotting.right.X = Xr;
+        d.plotting.right.X = Xr';
         d.plotting.right.Y = vertcat(d.plotting.right.Y, Yr');
         if ~isempty(ed)
             d.plotting.right.tags{numel(d.plotting.right.tags)+1} = lower(hO.String);%!!!
@@ -410,13 +410,17 @@ function PB = local_bg_export(F, C)
 uibg = uibuttongroup(F, 'Position',[0.09 0.4 0.155 0.1],'Title','Export');
 
 PB(1) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'Figure',...
-    'Units','Normalized','Position', [0.05 0.3 0.3 0.4],...
+    'Units','Normalized','Position', [0.005 0.3 0.3 0.4],...
     'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
     'Callback', @local_export,'Tag','figure','FontWeight','Bold');
 PB(2) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'PNG',...
     'Units','Normalized','Position', [0.35 0.3 0.3 0.4],...
     'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
     'Callback', @local_export,'Tag','png','FontWeight','Bold');
+PB(3) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'Curves',...
+    'Units','Normalized','Position', [0.7 0.3 0.3 0.4],...
+    'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
+    'Callback', @local_export,'Tag','gor','FontWeight','Bold');
 
 function [ED, cb] = local_bg_3(F, C)
 d = guidata(F);
@@ -548,7 +552,10 @@ guidata(d.F, d);
 
 function local_export(hO, ed)
 d = guidata(hO);
-
+saveloc = d.ob.file_loc;
+saveloc = strsplit(saveloc,'\');
+saveloc = saveloc(1:end-1);
+cdir = cd;
 switch hO.Tag
     case 'figure'
         FF = figure;
@@ -556,9 +563,6 @@ switch hO.Tag
         AX = axes(FF);
         local_plot(hO, AX);
     case 'png'
-        saveloc = d.ob.file_loc;
-        saveloc = strsplit(saveloc,'\');
-        saveloc = saveloc(1:end-1);
         saveloc{end+1} = 'show_images';
         saveloc = strjoin(saveloc,'\');
         mkdir(saveloc);
@@ -571,6 +575,40 @@ switch hO.Tag
         local_plot(hO, AX);
         saveas(FF,saveloc);
         close(FF);
+    case 'gor'
+        saveloc{end+1} = 'show_curves';
+        saveloc = strjoin(saveloc,'\');
+        mkdir(saveloc);
+        name = [d.ob.id,'_stage_',num2str(d.cSTAGE),'_unit_',num2str(d.cUNIT),...
+            '.gor'];
+        L = d.plotting.left;
+        R = d.plotting.right;
+        idx = 1;
+        for il = 1:numel(L.Y(:,1))
+            G(idx) = gorobj('double',L.X,...
+                'double',L.Y(il,:));
+            G(idx)=set(G(idx),'xname','time (s)');
+            G(idx)=set(G(idx),'name',['ROI ',num2str(d.cROI),' stage ',num2str(d.cSTAGE),' unit ',...
+                num2str(d.cUNIT),' ', L.tags{il}]);
+            G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
+            G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
+            G(idx)=compress(G(idx));
+            idx = idx + 1;
+        end
+        for ir = 1:numel(R.Y(:,1))
+            G(idx) = gorobj('double',R.X,...
+                'double',R.Y(ir,:));
+            G(idx)=set(G(idx),'xname','time (s)');
+            G(idx)=set(G(idx),'name',['ROI ',num2str(d.cROI),' stage ',num2str(d.cSTAGE),' unit ',...
+                num2str(d.cUNIT),' ', R.tags{ir}]);
+            G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
+            G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
+            G(idx)=compress(G(idx));
+            idx = idx + 1;
+        end
+        cd(saveloc);
+        save(name,'G','-v7.3','-nocompression');
+        cd(cdir);
 end
 
 function local_reset(hO, ed)
