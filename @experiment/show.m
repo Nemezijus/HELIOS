@@ -609,7 +609,7 @@ switch hO.Tag
         cd(saveloc);
         gor2file(name,G)
 %         save(name,'G','-v7.3','-nocompression');
-        uiopen(name);
+        winopen(saveloc);
         cd(cdir);
 end
 
