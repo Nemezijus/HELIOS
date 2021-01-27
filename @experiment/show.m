@@ -592,6 +592,7 @@ switch hO.Tag
                 num2str(d.cUNIT),' ', L.tags{il}]);
             G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
             G(idx)=set(G(idx),'vars',[d.cROI,d.cSTAGE,d.cUNIT,0,0,0,0]);
+            G(idx)=set(G(idx),'Color',d.C.plotting.(L.tags{il}));
             G(idx)=compress(G(idx));
             idx = idx + 1;
         end
@@ -603,6 +604,7 @@ switch hO.Tag
                 num2str(d.cUNIT),' ', R.tags{ir}]);
             G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
             G(idx)=set(G(idx),'vars',[d.cROI,d.cSTAGE,d.cUNIT,0,0,0,0]);
+            G(idx)=set(G(idx),'Color',d.C.plotting.(L.tags{il}));
             G(idx)=compress(G(idx));
             idx = idx + 1;
         end
