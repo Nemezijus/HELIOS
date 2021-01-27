@@ -407,7 +407,7 @@ cb(16) = uicontrol(uibg,'Style', 'checkbox', 'String', 'Cloud',...
     'Callback',@local_right_plot,'Value', 0);
 
 function PB = local_bg_export(F, C)
-uibg = uibuttongroup(F, 'Position',[0.09 0.4 0.155 0.1],'Title','Export');
+uibg = uibuttongroup(F, 'Position',[0.09 0.4 0.155 0.1],'Title','Export Selection');
 
 PB(1) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'Figure',...
     'Units','Normalized','Position', [0.005 0.3 0.3 0.4],...
@@ -609,6 +609,7 @@ switch hO.Tag
         cd(saveloc);
         gor2file(name,G)
 %         save(name,'G','-v7.3','-nocompression');
+        uiopen(name);
         cd(cdir);
 end
 
