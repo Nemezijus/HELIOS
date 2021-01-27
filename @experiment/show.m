@@ -592,7 +592,7 @@ switch hO.Tag
                 num2str(d.cUNIT),' ', L.tags{il}]);
             G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
             G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
-            G(idx)=compress(G(idx));
+%             G(idx)=compress(G(idx));
             idx = idx + 1;
         end
         for ir = 1:numel(R.Y(:,1))
@@ -603,7 +603,7 @@ switch hO.Tag
                 num2str(d.cUNIT),' ', R.tags{ir}]);
             G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
             G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
-            G(idx)=compress(G(idx));
+%             G(idx)=compress(G(idx));
             idx = idx + 1;
         end
         cd(saveloc);
