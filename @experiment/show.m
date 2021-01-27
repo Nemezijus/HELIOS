@@ -592,7 +592,11 @@ switch hO.Tag
         R = d.plotting.right;
         idx = 1;
         for il = 1:numel(L.Y(:,1))
-            G(idx) = gorobj('double',L.X,...
+            X = L.X;
+            if d.offset
+               X = X+d.B.stage(d.cSTAGE).unit(d.cUNIT).time_offset-X(1);
+            end 
+            G(idx) = gorobj('double',X,...
                 'double',L.Y(il,:));
             G(idx)=set(G(idx),'xname','time (s)');
             G(idx)=set(G(idx),'name',['ROI ',num2str(d.cROI),' stage ',num2str(d.cSTAGE),' unit ',...
@@ -629,7 +633,11 @@ cdir = cd;
 hh = msgbox('Creating and saving gor file! Please wait!');
 for ir = 1:d.ob.N_roi
     W = traces(d.ob, {ir, d.cSTAGE}, 'dff');
-    G(idx) = gorobj('double',W.time(d.cUNIT,:)*1e-3,'double',W.data(d.cUNIT,:));
+    X = W.time(d.cUNIT,:)*1e-3;
+    if d.offset
+        X = X+d.B.stage(d.cSTAGE).unit(d.cUNIT).time_offset-X(1);
+    end
+    G(idx) = gorobj('double',X,'double',W.data(d.cUNIT,:));
     G(idx)=set(G(idx),'xname','time (ms)');
     G(idx)=set(G(idx),'yname','dFF');
     G(idx)=set(G(idx),'name',['ROI ',num2str(ir),' stage ',num2str(d.cSTAGE),' unit ',...
@@ -639,6 +647,7 @@ for ir = 1:d.ob.N_roi
     G(idx)=compress(G(idx));
     idx = idx+1;
 end
+clear X
 %BEHAVIOR
 B = d.B.stage(d.cSTAGE).unit(d.cUNIT);
 X = B.time';
