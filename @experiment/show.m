@@ -579,7 +579,7 @@ switch hO.Tag
         saveloc{end+1} = 'show_curves';
         saveloc = strjoin(saveloc,'\');
         mkdir(saveloc);
-        name = [d.ob.id,'_stage_',num2str(d.cSTAGE),'_unit_',num2str(d.cUNIT),...
+        name = [d.ob.id,'_ROI_',num2str(d.cROI),'_stage_',num2str(d.cSTAGE),'_unit_',num2str(d.cUNIT),...
             '.gor'];
         L = d.plotting.left;
         R = d.plotting.right;
