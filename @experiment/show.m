@@ -119,9 +119,11 @@ d = guidata(gcf);
 nright = numel(d.GUI.plotting.right.cb);
 d.plotting.right.Y = []; 
 guidata(d.F, d);
+axes(d.ax);
 for ir = 1:nright
     local_right_plot(d.GUI.plotting.right.cb(ir),[]);
 end
+yyaxis right
 
 function local_left_plot(hO, ed)
 d = guidata(hO);
