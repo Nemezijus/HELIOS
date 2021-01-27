@@ -625,6 +625,8 @@ end
 function local_export_all(hO, ed)
 d = guidata(hO);
 idx = 1;
+cdir = cd;
+hh = msgbox('Creating and saving gor file! Please wait!');
 for ir = 1:d.ob.N_roi
     W = traces(d.ob, {ir, d.cSTAGE}, 'dff');
     G(idx) = gorobj('double',W.time(d.cUNIT,:)*1e-3,'double',W.data(d.cUNIT,:));
@@ -670,8 +672,11 @@ saveloc = strjoin(saveloc,'\');
 mkdir(saveloc);
 name = [d.ob.id,'_all_ROIs','_stage_',num2str(d.cSTAGE),'_unit_',num2str(d.cUNIT),...
     '.gor'];
+cd(saveloc);
 gor2file(name,G);
+close(hh);
 winopen(saveloc);
+cd(cdir);
 
 function [D, names] = behave_read_for_gor(s)
 fn = fieldnames(s);
