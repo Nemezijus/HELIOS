@@ -93,6 +93,11 @@ d.GUI.axes_limits.cb = cb;
 %button group export
 cb = local_bg_export(F, COLORS);
 guidata(F, d);
+PB(1) = uicontrol(F,'Style', 'Pushbutton', 'String', 'Export 2 GOR',...
+    'Units','Normalized','Position', [0.35 0.9 0.075 0.05],...
+    'background',COLORS.bgcol_1,'ForegroundColor',COLORS.fgcol_1,'FontSize',10,...
+    'Callback', @local_export_all,'Tag','figure','FontWeight','Bold');
+
 
 function local_pick_RSU(hO, ev)
 d = guidata(hO);
@@ -615,6 +620,68 @@ switch hO.Tag
 %         save(name,'G','-v7.3','-nocompression');
         winopen(saveloc);
         cd(cdir);
+end
+
+function local_export_all(hO, ed)
+d = guidata(hO);
+idx = 1;
+for ir = 1:d.ob.N_roi
+    W = traces(d.ob, {ir, d.cSTAGE}, 'dff');
+    G(idx) = gorobj('double',W.time(d.cUNIT,:)*1e-3,'double',W.data(d.cUNIT,:));
+    G(idx)=set(G(idx),'xname','time (ms)');
+    G(idx)=set(G(idx),'yname','dFF');
+    G(idx)=set(G(idx),'name',['ROI ',num2str(ir),' stage ',num2str(d.cSTAGE),' unit ',...
+        num2str(d.cUNIT),' ', 'dff']);
+    G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
+    G(idx)=set(G(idx),'vars',[ir,d.cSTAGE,d.cUNIT,0,0,0,0]);
+    G(idx)=compress(G(idx));
+    idx = idx+1;
+end
+%BEHAVIOR
+B = d.B.stage(d.cSTAGE).unit(d.cUNIT);
+X = B.time';
+
+[D1, names1] = behave_read_for_gor(B);
+[D2, names2] = behave_read_for_gor(B.events);
+[D3, names3] = behave_read_for_gor(B.ports);
+[D4, names4] = behave_read_for_gor(B.zones.control);
+[D5, names5] = behave_read_for_gor(B.zones.discrim);
+[D6, names6] = behave_read_for_gor(B.zones.neutral);
+D = vertcat(D1,D2,D3,D4,D5,D6);
+names = horzcat(names1,names2,names3,names4,names5,names6);
+
+for iname = 1:numel(names)
+    G(idx) = gorobj('double',X,'double',D(iname,:));
+    G(idx)=set(G(idx),'xname','time (s)');
+    G(idx)=set(G(idx),'name',['ROI ',num2str(ir),' stage ',num2str(d.cSTAGE),' unit ',...
+        num2str(d.cUNIT),' ', names{iname}]);
+    G(idx)=set(G(idx),'varnames',{'ROI','STAGE','UNIT','D','E','F','G'});
+    G(idx)=set(G(idx),'vars',[ir,d.cSTAGE,d.cUNIT,0,0,0,0]);
+    G(idx)=set(G(idx),'Color',d.C.plotting.(names{iname}));
+    G(idx)=compress(G(idx));
+    idx = idx+1;
+end
+
+saveloc = d.ob.file_loc;
+saveloc = strsplit(saveloc,'\');
+saveloc = saveloc(1:end-1);
+saveloc{end+1} = 'show_curves';
+saveloc = strjoin(saveloc,'\');
+mkdir(saveloc);
+name = [d.ob.id,'_all_ROIs','_stage_',num2str(d.cSTAGE),'_unit_',num2str(d.cUNIT),...
+    '.gor'];
+gor2file(name,G);
+winopen(saveloc);
+
+function [D, names] = behave_read_for_gor(s)
+fn = fieldnames(s);
+idx = 1;
+for ifn = 1:numel(fn)
+    if ~isstruct(s.(fn{ifn})) & numel(s.(fn{ifn})) > 1 & ~strcmp(fn{ifn},'time')
+        D(idx,:) = s.(fn{ifn})';
+        names{idx} = fn{ifn};
+        idx = idx+1;
+    end
 end
 
 function local_reset(hO, ed)
