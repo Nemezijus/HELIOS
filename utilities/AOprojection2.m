@@ -183,7 +183,7 @@ end
                             
                             data(unitID).CaTransient(i).poly=[R(i).POLY2(1,:);R(i).POLY2(2,:)];
                             mask = logical(poly2mask(R(i).POLY2(1,:),R(i).POLY2(2,:),ax,ay));
-                            
+                            data(unitID).CaTransient(i).mask = mask;
                             %% Finding centroid first
                             rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
                             centr = cat(1, rawmask.Centroid);
@@ -535,10 +535,11 @@ imagesc(FS);
 nROI = numel(data.logicalROI);
 hold on;
 for iROI = 1:nROI
-    [B,L] = bwboundaries(data.logicalROI(iROI).mask,'noholes');
+    [B,L] = bwboundaries(data.CaTransient(iROI).mask,'noholes');
     for k = 1:length(B)
         boundary = B{k};
-        plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2)
+        plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2);
+        text(boundary(1,2), boundary(1,1),num2str(k));
     end
 end
 
