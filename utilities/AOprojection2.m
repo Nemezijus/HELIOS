@@ -530,7 +530,7 @@ figure;
 FS = mean(frameSet,3);
 FS = FS';
 FS = flip(FS);
-imagesc(FS);
+imshow(FS, data.gmap);
 
 nROI = numel(data.logicalROI);
 hold on;
@@ -539,7 +539,7 @@ for iROI = 1:nROI
     for k = 1:length(B)
         boundary = B{k};
         plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2);
-        text(boundary(1,2), boundary(1,1),num2str(iROI),'FontSize',12,'Color','w');
+        text(boundary(1,2), boundary(1,1),num2str(iROI),'FontSize',12,'Color','r');
     end
 end
 
