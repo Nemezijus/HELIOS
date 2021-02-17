@@ -1,4 +1,4 @@
-function out = AOprojection(filelocation,roilocation,mode)
+function data = AOprojection(filelocation,roilocation,mode)
 tic
 
 %% Modes:
@@ -60,7 +60,7 @@ end
 
 
 
-
+units = 1;
 %%
 
     
@@ -124,10 +124,10 @@ end
         end
         
         %diri=uigetdir(mainsettings.dirDATA);
-        diri=exportlocation;
-        if isnumeric(diri)
-            return
-        end
+%         diri=exportlocation;
+%         if isnumeric(diri)
+%             return
+%         end
         
         h2 = waitbar(0,'Exporting measurement units...', 'Name', 'MES' );
         setp(h2, '+y', 90)
@@ -137,7 +137,7 @@ end
         for unitID=1  %% unit level
             typ=get(f(unitID), 1, 'Type');
             mthnam=strrep(strrep(char(f(unitID)), '*', ''), ' ', '');
-            filenam=fullfile(diri, [mthnam, '.tiff']);
+%             filenam=fullfile(diri, [mthnam, '.tiff']);
             switch typ
                 case 'XY'
                     %expmultitiff(f(i), filenam)
@@ -197,16 +197,16 @@ end
                             cy=centr(2);
                             %% Reallocate roiLoc
                             [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
-                            if doublecoord==1
-                             if roiLoc==roiLocMax
-                              roiLocNew=(roiLoc/2)  
-                             else    
-                             roiLocNew=(roiLoc+1)/2;
-                             end
-                            else
-                                roiLoc=roiLoc; %old one
-                            end
-                            roiLoc=roiLocNew;
+%                             if doublecoord==1
+%                              if roiLoc==roiLocMax
+%                               roiLocNew=(roiLoc/2)  
+%                              else    
+%                              roiLocNew=(roiLoc+1)/2;
+%                              end
+%                             else
+%                                 roiLoc=roiLoc; %old one
+%                             end
+%                             roiLoc=roiLocNew;
                             %%
                             maskBuffer=maskfilter(mask,AOSize,roiLoc);
                             %% ROI COMPRESSION - Normal coordinates
@@ -455,7 +455,7 @@ end
         
         %end
         
-        mainsettings.dirDATA=diri;
+%         mainsettings.dirDATA=diri;
         if ishandle(h2),close(h2);end
         
  
@@ -537,9 +537,9 @@ end
             save([exportlocation '\errorlog.mat'],'errorlog','-v7.3')
         end
     else
-        if ~preview
-        save([exportlocation '\data.mat'],'data','-v7.3')
-        end
+%         if ~preview
+%         save([exportlocation '\data.mat'],'data','-v7.3')
+%         end
     end
     
     out = data;
