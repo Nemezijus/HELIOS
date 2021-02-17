@@ -122,7 +122,8 @@ end
 d = guidata(gcf);
 %HERE GOES THE RIGHT SIDE
 nright = numel(d.GUI.plotting.right.cb);
-d.plotting.right.Y = []; 
+d.plotting.right.Y = [];
+d.plotting.right.tags= {};%######
 guidata(d.F, d);
 axes(d.ax);
 for ir = 1:nright
@@ -174,9 +175,9 @@ switch hO.Value
         end
         d.plotting.right.X = Xr';
         d.plotting.right.Y = vertcat(d.plotting.right.Y, Yr');
-        if ~isempty(ed)
+%         if ~isempty(ed)
             d.plotting.right.tags{numel(d.plotting.right.tags)+1} = lower(hO.String);%!!!
-        end
+%         end
     case 0
         mask = ~ismember(d.plotting.right.tags, lower(hO.String));
         if ~isempty(ed)

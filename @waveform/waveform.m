@@ -28,11 +28,11 @@ classdef waveform
                 data_units = 'a.u.';
                 data_type = 'random';
             end
+            obj.data = data;
             if nargin < 2
                 time = 1:numel(obj.data);
                 time_units = 'samples';
             end
-            obj.data = data;
             obj.time = time;
             obj.data_type = data_type;
             obj.time_units = time_units;
