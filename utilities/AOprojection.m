@@ -4,7 +4,15 @@ tic
 %% Modes:
 % multi: Multiroi xy.mescroi in .mes folder + .csv to stims
 % scanfield: autoscanfields rois + .csv to stims
-% previewer: Only creates p
+% previewer: Only creates previews
+
+%Example
+
+% filelocation='N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group33\Groups_A\mouse33A2\33A2\Measurement data\Baseline1\baseline1_mcorr.mes'
+% roilocation='N:\DATA\Betanitas\!Mouse Gramophon\2_Imaging\group33\Groups_A\mouse33A2\33A2\Measurement data\Baseline1\1.mescroi'
+% stimlocation='C:\AMD\b1.csv'
+% exportlocation='C:\AMD'
+% mode='multi'
 
 switch mode
     
@@ -33,7 +41,7 @@ switch mode
         
         savemode='multiMat';
         saveraw=false;
-        stimload=false;
+        stimload=true;
         calc=true;
         multiroi=false;
         preview=false;
@@ -60,7 +68,7 @@ end
 
 
 
-units = 1;
+
 %%
 
     
@@ -93,9 +101,7 @@ units = 1;
         mode='XYT';
         %%
         %global mainsettings
-        r=mestaghandle('isf');
-        f=r(units);
-        
+        f=mestaghandle('isf');
         if isempty(f)
             warndlg('Open a file first!', 'Export all XYZ to tiff')
             return
@@ -123,7 +129,7 @@ units = 1;
             return
         end
         
-        %diri=uigetdir(mainsettings.dirDATA);
+%         %diri=uigetdir(mainsettings.dirDATA);
 %         diri=exportlocation;
 %         if isnumeric(diri)
 %             return
@@ -177,37 +183,13 @@ units = 1;
                             
                             data(unitID).CaTransient(i).poly=[R(i).POLY2(1,:);R(i).POLY2(2,:)];
                             mask = logical(poly2mask(R(i).POLY2(1,:),R(i).POLY2(2,:),ax,ay));
-                            
+                            data(unitID).CaTransient(i).mask = mask;
                             %% Finding centroid first
-                            %% checking version
-                            maxroinum=size(frameSet,1)/AOSize;
-                            checker=flipud(mask)';
-                            maxleny=size(checker,1);
-                            maxlenx=size(checker,2);
-                            [x,y,z,section,roiLocMax]=Line2getxypos(round(maxleny),round(maxleny),info);
-                            if roiLocMax>maxroinum
-                              doublecoord=1;
-                            else
-                                doublecoord=0;
-                            end
-                            %% 
                             rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
                             centr = cat(1, rawmask.Centroid);
                             cx=centr(1);
                             cy=centr(2);
-                            %% Reallocate roiLoc
                             [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
-%                             if doublecoord==1
-%                              if roiLoc==roiLocMax
-%                               roiLocNew=(roiLoc/2)  
-%                              else    
-%                              roiLocNew=(roiLoc+1)/2;
-%                              end
-%                             else
-%                                 roiLoc=roiLoc; %old one
-%                             end
-%                             roiLoc=roiLocNew;
-                            %%
                             maskBuffer=maskfilter(mask,AOSize,roiLoc);
                             %% ROI COMPRESSION - Normal coordinates
                             s = regionprops(flipud(maskBuffer)','centroid','MajorAxisLength');
@@ -216,7 +198,7 @@ units = 1;
                             data(unitID).logicalROI(i).dims=[ax ay];
                             cx=data(unitID).logicalROI(i).centroid(1);
                             cy=data(unitID).logicalROI(i).centroid(2);
-                            %[x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info); %%% SWAPPED!!! 
+                            [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info); %%% SWAPPED!!! 
                             data(unitID).CaTransient(i).Realxyz=[x y z];
                             data(unitID).CaTransient(i).RealRoi=roiLoc;
                             data(unitID).CaTransient(i).RealSection=section;
@@ -249,20 +231,20 @@ units = 1;
                             %%%%%%  Indexing CORE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                             %%%%%Correct sample time
                             
-%                             st=attribs(1).FoldedFrameInfo.firstFrameStartTime;
-%                             steps=attribs(1).FoldedFrameInfo.frameTimeLength;
-%                             stframe=st/steps;
-%                             AOSize=attribs(1).AO_collection_usedpixels;
-%                             FFnum=size(frameSet,1)/AOSize;
-%                             timeVect=(stframe:(size(frameSet,3)+stframe-1))*steps;
-%                             ROI(i).event(1,:)=timeVect;
-%                             ROI(i).event(2,:)=intensityVector;
-%                             ROI(i).RoiID=i;
-%    
-%                             %% Integrate data
-%                             data(unitID).CaTransient(i).event(1,:)=timeVect;
-%                             data(unitID).CaTransient(i).event(2,:)=intensityVector;
-%                             clear intensityVector;
+                            st=attribs(1).FoldedFrameInfo.firstFrameStartTime;
+                            steps=attribs(1).FoldedFrameInfo.frameTimeLength;
+                            stframe=st/steps;
+                            AOSize=attribs(1).AO_collection_usedpixels;
+                            FFnum=size(frameSet,1)/AOSize;
+                            timeVect=(stframe:(size(frameSet,3)+stframe-1))*steps;
+                            ROI(i).event(1,:)=timeVect;
+                            ROI(i).event(2,:)=intensityVector;
+                            ROI(i).RoiID=i;
+   
+                            %% Integrate data
+                            data(unitID).CaTransient(i).event(1,:)=timeVect;
+                            data(unitID).CaTransient(i).event(2,:)=intensityVector;
+                            clear intensityVector;
                             data(unitID).CaTransient(i).RoiID=i;
                             data(unitID).CaTransient(i).RoiIDReal=i;
                             try
@@ -528,24 +510,40 @@ units = 1;
             
             if strcmp(savemode,'multiMat')
                 if ~preview
-                save([exportlocation '\data.mat'],'data','-v7.3')
+%                 save([exportlocation '\data.mat'],'data','-v7.3')
                 end
             end
         catch
             warning('Parsing_error')
-            
-            save([exportlocation '\errorlog.mat'],'errorlog','-v7.3')
+%             
+%             save([exportlocation '\errorlog.mat'],'errorlog','-v7.3')
         end
     else
-%         if ~preview
+        if ~preview
 %         save([exportlocation '\data.mat'],'data','-v7.3')
-%         end
+        end
     end
-    
-    out = data;
-
 %%
 disp(unitID)
+
+figure;
+FS = mean(frameSet,3);
+FS = FS';
+FS = flip(FS);
+colormap summer
+imagesc(FS);
+
+nROI = numel(data.logicalROI);
+hold on;
+for iROI = 1:nROI
+    [B,L] = bwboundaries(data.CaTransient(iROI).mask,'noholes');
+    for k = 1:length(B)
+        boundary = B{k};
+        plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2);
+        text(boundary(1,2), boundary(1,1),num2str(iROI),'FontSize',12,'Color','r');
+    end
+end
+
 function [subindex,prew,frameSet,lineInfo,attribs]=foldedframe2xyz2Own(in,chaninput)
 %usage foldedframe2xyz2 f21
 %xyt meresse konvertalja a foldedframe merest
