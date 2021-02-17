@@ -129,11 +129,11 @@ end
             return
         end
         
-        %diri=uigetdir(mainsettings.dirDATA);
-        diri=exportlocation;
-        if isnumeric(diri)
-            return
-        end
+%         %diri=uigetdir(mainsettings.dirDATA);
+%         diri=exportlocation;
+%         if isnumeric(diri)
+%             return
+%         end
         
         h2 = waitbar(0,'Exporting measurement units...', 'Name', 'MES' );
         setp(h2, '+y', 90)
@@ -143,7 +143,7 @@ end
         for unitID=1  %% unit level
             typ=get(f(unitID), 1, 'Type');
             mthnam=strrep(strrep(char(f(unitID)), '*', ''), ' ', '');
-            filenam=fullfile(diri, [mthnam, '.tiff']);
+%             filenam=fullfile(diri, [mthnam, '.tiff']);
             switch typ
                 case 'XY'
                     %expmultitiff(f(i), filenam)
@@ -437,7 +437,7 @@ end
         
         %end
         
-        mainsettings.dirDATA=diri;
+%         mainsettings.dirDATA=diri;
         if ishandle(h2),close(h2);end
         
  
@@ -525,6 +525,23 @@ end
     end
 %%
 disp(unitID)
+
+figure;
+FS = mean(frameSet,3);
+FS = FS';
+FS = flip(FS);
+imagesc(FS);
+
+nROI = numel(data.logicalROI);
+hold on;
+for iROI = 1:nROI
+    [B,L] = bwboundaries(data.logicalROI(iROI).mask,'noholes');
+    for k = 1:length(B)
+        boundary = B{k};
+        plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2)
+    end
+end
+
 function [subindex,prew,frameSet,lineInfo,attribs]=foldedframe2xyz2Own(in,chaninput)
 %usage foldedframe2xyz2 f21
 %xyt meresse konvertalja a foldedframe merest
