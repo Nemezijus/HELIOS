@@ -46,7 +46,10 @@ cb = uicontrol(F,'Style', 'checkbox', 'String', '',...
 AX = axes(F,'Position', [0.05, 0.1, 0.9, 0.3],'Units', 'Normalized');
 set(AX, 'YColor','none');
 title('Stimulus Layout');
-AX.Toolbar.Visible = 'off';
+try
+    AX.Toolbar.Visible = 'off';
+catch
+end
 AX2 = axes(F,'Position', [0, 0.45, 1.0, 0.3],'Units', 'Normalized');
 set(AX2, 'YColor','none','XColor','None');
 patch(AX2,[0 1 1 0],...
@@ -139,7 +142,10 @@ title('Stimulus Layout');
 xlabel('time, ms');
 box off;
 set(d.AX, 'YColor','none');
-d.AX.Toolbar.Visible = 'off';
+try
+    d.AX.Toolbar.Visible = 'off';
+catch
+end
 
 function local_add_stim(hO, ed)
 d = guidata(hO);
@@ -155,7 +161,10 @@ if ~isempty(d.xlim)
     set(d.AX, 'XLim', d.xlim);
 end
 title('Stimulus Layout');
-d.AX.Toolbar.Visible = 'off';
+try
+    d.AX.Toolbar.Visible = 'off';
+catch
+end
 guidata(d.F,d);
 show_info(d, d.stimbuild.S);
 
@@ -214,7 +223,10 @@ title('Stimulus Layout');
 xlabel('time, ms');
 box off;
 set(d.AX, 'YColor','none');
-d.AX.Toolbar.Visible = 'off';
+try
+    d.AX.Toolbar.Visible = 'off';
+catch
+end
 guidata(d.F, d);
 
 function local_select(hO, ed)
