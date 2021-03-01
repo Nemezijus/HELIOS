@@ -54,7 +54,10 @@ AX2 = axes(F,'Position', [0, 0.45, 1.0, 0.3],'Units', 'Normalized');
 set(AX2, 'YColor','none','XColor','None');
 patch(AX2,[0 1 1 0],...
     [0, 0, 1, 1],[0.6 0.6 0.6],'EdgeColor','None');
-AX2.Toolbar.Visible = 'off';
+try
+    AX2.Toolbar.Visible = 'off';
+catch
+end
 
 
 types = {'blank','static','moving'};
