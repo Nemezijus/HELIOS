@@ -24,8 +24,12 @@ for ip = 1:numel(mrp)
                 Nmescroi = 1;
             end
                 mode='multi';
-                units = 1:numel(behaviorloc);
-                for ic = 1:numel(behaviorloc)
+                file_open([],mcfileloc);
+                r = mestaghandle('isf');
+                sz = size(r);
+                units = 1:sz(2);
+%                 units = 1:numel(behaviorloc);
+                for ic = 1:numel(units)
                     if iscell(roifileloc)
                         if Nmescroi < ic
                             roiloc = roifileloc{end};

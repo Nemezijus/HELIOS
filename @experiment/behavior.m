@@ -7,7 +7,13 @@ function B = behavior(ob)
 Nstages = ob.N_stages;
 B.id = ob.id;
 
-protocol = h5readatt(ob.file_loc,'/DATA/STAGE_1/UNIT_1/BEHAVIOR','PROTOCOL');
+try
+    protocol = h5readatt(ob.file_loc,'/DATA/STAGE_1/UNIT_1/BEHAVIOR','PROTOCOL');
+catch
+    msgbox('Behavior is not present in this experiment');
+    B = [];
+    return
+end
 B.protocol = protocol;
 
 for istage = 1:Nstages

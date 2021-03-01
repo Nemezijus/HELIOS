@@ -158,7 +158,8 @@ switch type
             data = [];
             stageid = STAGEID{:};
             stimid = STIMID{:};
-            REPS = local_real_repetitions(OB,stageid,stimid); %added 2020-11-04
+            roiid = ROIID{:};
+            REPS = local_real_repetitions(OB,stageid,stimid, roiid); %added 2020-11-04
             for iP = 1:numel(P)
                 if numel(P) ~= numel(REPS)
                     error('mismatch!! investigate here');
@@ -264,7 +265,7 @@ else
 end
 P = P(~contains(P,'UNIT_0')); %added 2020 05 22 eliminates UNIT_0 (no recordings) entries
 
-function REPS = local_real_repetitions(OB,stageid,stimid)
+function REPS = local_real_repetitions(OB,stageid,stimid, roiid)
 restun = OB.restun{stageid};
 
 for istim = 1:numel(stimid)
@@ -274,7 +275,12 @@ for istim = 1:numel(stimid)
     repidx = repidx(reps>0 & ~isnan(reps));
     REPS{istim,:} = repidx;
 end
-
+R = REPS{:};
+%added 2021-02-24
+for iroi = 1:numel(roiid)-1
+    REPS{iroi+1,:} = R;
+end
+a=1;
 
 function [ROIID,STAGEID,STIMID,REPID,UNITID] = local_idx_parse(ob, idxs)
 ROIID = idxs(1);

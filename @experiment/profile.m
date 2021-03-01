@@ -11,8 +11,15 @@ set(F,'units', 'normalized', 'position', [0.103 0.0528 0.817 0.853],'color','w')
 C = colors;
 
 %0 - estimate responses
-for istage = 1:OB.N_stages
-    R(istage) = response(OB, iroi, istage);
+try
+    for istage = 1:OB.N_stages
+        R(istage) = response(OB, iroi, istage);
+    end
+catch
+    msgbox('This experiment has no stimuli variation. Terminating');
+    close(F);
+    F = [];
+    return
 end
 G = local_stage_grouping([R.stage]);
 

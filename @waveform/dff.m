@@ -10,6 +10,10 @@ if ~strcmp(className, 'waveform')
     error('the provided object is not a waveform!')
     return
 end
+if strcmp(obj.data_type,'dff')
+    msgbox('Waveform is already a dff type');
+    return
+end
 if nargin < 3
     E = [];
 end

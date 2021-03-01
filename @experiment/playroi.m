@@ -1,5 +1,5 @@
 function [IMmovie,frames] = playroi(OB, iroi, istage, Npix)
-% M = playroi(OB, iroi, istage, Npix) - method for experiment object. Generates
+% [IMmovie, frames] = playroi(OB, iroi, istage, Npix) - method for experiment object. Generates
 % movie for a specified ROI and day created from stacked squared frames
 % around that ROI
 % part of HELIOS
@@ -11,6 +11,10 @@ if nargin < 3
 end
 method = 2;
 Nframes = OB.N_stim(istage).*OB.N_reps(istage);
+if Nframes == 0
+    msgbox('no frames to use for the video. Terminating')
+    return
+end
 F = figure;
 set(F,'units', 'normalized', 'position', [0.396 0.331 0.24 0.389],'Color','white',...
     'NumberTitle','off','Name',['ROI ', num2str(iroi),' stage ',num2str(istage)]);

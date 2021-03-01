@@ -1,5 +1,5 @@
 function ex = dff(ex, method, tostitch, aoexception)
-% ex = dff(ex, method, tostitch) - performs dff on the experiment object
+% ex = dff(ex, method, tostitch, aoexception) - performs dff on the experiment object
 % and stores the results to the hdf5 file. ex object must contain entries
 % for setup and stimtype fields!
 % part of HELIOS

@@ -8,10 +8,20 @@ Nstages = OB.N_stages;
 Npix = 5;
 
 C = [];
-
+if iroi > OB.N_roi
+    msgbox('Selected ROI exceeds number of ROIs.');
+    C = [];
+    return
+end
 %reference image
 % cmask = h5read(OB.file_loc,['/ANALYSIS/ROI_',num2str(iroi),'/STAGE_',num2str(1),'/ROIMASK']);
-cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAME']);
+try
+    cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAME']);
+catch
+    msgbox('This experiment has no MEANFRAME');
+    C = [];
+    return
+end
 clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAMELUT']);
 % R = roi(cmask,Npix);
 R = roi(OB,iroi,1,Npix);
