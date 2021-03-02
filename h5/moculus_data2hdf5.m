@@ -226,7 +226,7 @@ for iunit = 1:Nunits
     
     
     cloc = [clocbeh,'PORTS/'];
-    cstrings = {'port_A','port_B','port_C'};
+    cstrings = {'port_a','port_b','port_c'};
     for ics = 1:numel(cstrings)
         cstring = cstrings{ics};
         v = getfromcsv(cstring, T_names, T, nsamples);
