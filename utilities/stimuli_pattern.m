@@ -225,6 +225,7 @@ delete(d.counttxt);
 d.tbs = [];
 d.counttxt = [];
 d.pattern = [];
+d.bottom = 0.75;
 if hO.Value
     set(d.popup(1), 'Enable', 'on');
     set(d.PB(3), 'Value', 0);
@@ -246,6 +247,7 @@ delete(d.counttxt);
 d.tbs = [];
 d.counttxt = [];
 d.pattern = [];
+d.bottom = 0.75;
 if hO.Value
     set(d.popup(1), 'Enable', 'off');
     set(d.PB(2), 'Value', 0);
