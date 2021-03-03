@@ -245,7 +245,7 @@ if ~isempty(h5cre)
     mtb = findobj('Tag', 'stimulus');
     set(mtb, 'String',name);
     guidata(D.F, D);
-    msgbox('stimulus accepted!');
+    msgbox('stimulus protocol accepted!');
 else
     assignin('base','S',S);
     msgbox('stimulus exported to workspace as S');
