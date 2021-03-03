@@ -1,6 +1,9 @@
 function stimuli_pattern(nunits)
 % P = stimuli_pattern(nunits) - a GUI to choose/create stimuli pattern used
 % in the measurement
+if nargin < 1
+    nunits = 10;
+end
 C.bgcol = 'w';
 C.bgcol_2 = [0.6, 0.6, 0.6];
 C.bgcol_3 = [0.9, 0.9, 0.9];
@@ -270,7 +273,7 @@ for ip = 1:numel(d.pattern)
 end
 p = stimulus_pattern(answer{:},s);
 close(d.F);
-stimuli_pattern;
+stimuli_pattern(d.nunits);
 
 function local_select(hO, ed)
 d = guidata(hO);
@@ -292,7 +295,7 @@ if ~isempty(h5cre)
     D = guidata(h5cre);
     D.stim_pattern = P;
     D.stim_pattern_name = name;
-    mtb = findobj('Tag', 'stimulus');
+    mtb = findobj('Tag', 'pattern');
     set(mtb, 'String',name);
     guidata(D.F, D);
     msgbox('stimulus pattern accepted!');
