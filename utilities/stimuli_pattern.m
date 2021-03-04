@@ -1,8 +1,10 @@
 function stimuli_pattern(nunits)
 % P = stimuli_pattern(nunits) - a GUI to choose/create stimuli pattern used
 % in the measurement
+nounits = 0;
 if nargin < 1
     nunits = 10;
+    nounits = 1;
 end
 C.bgcol = 'w';
 C.bgcol_2 = [0.6, 0.6, 0.6];
@@ -17,7 +19,7 @@ seq1 = {'chessboard'};
 seq2 = compose('%g', sequence);
 clear sequence;
 sequence = [seq1,seq2];
-
+8
 str = seq2str(sequence);
 F = figure;
 set(F,'units', 'normalized', 'position', [0.336 0.286 0.372 0.389],...
@@ -110,6 +112,7 @@ d.counttxt = [];
 d.pattern = {};
 d.bottom = 0.75;
 d.nunits = nunits;
+d.nounits = nounits;
 guidata(F, d);
 
 function str = seq2str(seq)
@@ -281,13 +284,16 @@ function local_select(hO, ed)
 d = guidata(hO);
 name = d.popup(1).String{d.popup.Value};
 p = stimulus_pattern(name);
-
-N = d.nunits;
-
-full = floor(N/numel(p));
-
-P = repmat(p,1,full);
-P(full*numel(p)+1: N) = p(1:mod(N, numel(p)));
+if d.nounits
+    P = p;
+else
+    N = d.nunits;
+    
+    full = floor(N/numel(p));
+    
+    P = repmat(p,1,full);
+    P(full*numel(p)+1: N) = p(1:mod(N, numel(p)));
+end
 
 
 
