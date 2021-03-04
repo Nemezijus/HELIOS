@@ -288,7 +288,7 @@ assignin('base','setup',setup);
 
 tic;
 disp('Creating data.mat files!');
-collectdata(setup, MC_ROI_PAIRS); %creates data.mat files
+collectdata(setup, MC_ROI_PAIRS, d.stim_pattern); %creates data.mat files
 t = toc;
 disp(['data.mat files created! Running time: ',num2str(t),' s']);
 

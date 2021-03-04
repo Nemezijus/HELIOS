@@ -1,4 +1,4 @@
-function AOExporter_HELIOS(filelocation,roilocation,stimlist,exportlocation,mode)
+function data = AOExporter_HELIOS(filelocation,roilocation,stimlist,exportlocation,mode)
 % AOExporter_HELIOS(filelocation,roilocation,stimlist,exportlocation,mode) - 
 % this is amodified AOExporter version, meant to work with HELIOS h5creator
 
@@ -20,7 +20,6 @@ switch mode
         preview=false;
         motioncorr=false;
         
-        8
        case 'multiRaw'
         savemode='multiMat';
         saveraw=true;
@@ -515,7 +514,7 @@ end
             
             if strcmp(savemode,'multiMat')
                 if ~preview
-                save([exportlocation '\data.mat'],'data','-v7.3')
+%                 save([exportlocation '\data.mat'],'data','-v7.3')
                 end
             end
         catch
@@ -525,7 +524,7 @@ end
         end
     else
         if ~preview
-        save([exportlocation '\data.mat'],'data','-v7.3')
+%         save([exportlocation '\data.mat'],'data','-v7.3')
         end
     end
 %

@@ -1,5 +1,5 @@
-function collectdata(setup, MC_ROI_PAIRS)
-% collectdata(setup, MC_ROI_PAIRS) - creates data.mat files from provided
+function collectdata(setup, MC_ROI_PAIRS, stimlist)
+% collectdata(setup, MC_ROI_PAIRS, stimlist) - creates data.mat files from provided
 % pairs of motion corrected files and mescroifiles. If multiple mescroi 
 % files are specified per one mot.corr. file then they are applied one by
 % one for each unit within the mot.corr. file.
@@ -29,20 +29,21 @@ for ip = 1:numel(mrp)
                 sz = size(r);
                 units = 1:sz(2);
 %                 units = 1:numel(behaviorloc);
-                for ic = 1:numel(units)
-                    if iscell(roifileloc)
-                        if Nmescroi < ic
-                            roiloc = roifileloc{end};
-                        else
-                            roiloc = roifileloc{ic};
-                        end
-                    else
-                        roiloc = roifileloc;
-                    end
-                    disp(['working on unit ',num2str(ic)]);
-                    out = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
-                    d(ic).data = out;
-                end
+                data = AOExporter_HELIOS(mcfileloc,roifileloc,stimlist,saveloc,mode);
+%                 for ic = 1:numel(units)
+%                     if iscell(roifileloc)
+%                         if Nmescroi < ic
+%                             roiloc = roifileloc{end};
+%                         else
+%                             roiloc = roifileloc{ic};
+%                         end
+%                     else
+%                         roiloc = roifileloc;
+%                     end
+%                     disp(['working on unit ',num2str(ic)]);
+%                     out = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
+%                     d(ic).data = out;
+%                 end
                 data=[];
                 for i=1:length(units)
                     data=[data d(i).data];
