@@ -105,7 +105,7 @@ end
         Nunits = SZ(2);
         full = floor(Nunits/numel(stimlist));
         P = repmat(stimlist,1,full);
-        P(full*numel(stimlist)+1: N) = stimlist(1:mod(Nunits, numel(stimlist)));
+        P(full*numel(stimlist)+1: Nunits) = stimlist(1:mod(Nunits, numel(stimlist)));
         %%% till here
         
         todel=false(size(f));
