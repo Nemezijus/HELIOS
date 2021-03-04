@@ -452,11 +452,19 @@ end
     if stimload
         clear stims stimCode
         errorlog=[];
+        
+        uP = unique(P);
+        uPidx = 1:numel(uP);
+        for iP = 1:numel(P)
+            stimsCode(iP,1) = iP;
+            stimsCode(iP,2) = uPidx(ismember(uP, P{iP}));
+        end
+        stims{:,1} = 1:numel(P); stims{:,2} = P;
 %         stims = dlmread(stimlocation,';',0,0);
 %         codes=[1 2 3  4  5   6   7   8   9; ...
 %             999 0 45 90 135 180 225 270 315]';
 %         
-%         
+% %         
 %         stimsCode=stims
 %         % for c=1:length(codes)
 %         %    stimsCode(stims==codes(c,2))=codes(c,1);
@@ -476,19 +484,25 @@ end
         %
         try
             
-            for globalID=1:length(data)
-                data(globalID).subindexRead=stims(globalID,1);
+            for globalID = 1:length(data)
+%                 data(globalID).subindexRead=stims(globalID,1);
+%                 if data(globalID).subindex~=data(globalID).subindexRead;
+%                     warning('Stim file incompatible!!!!!!!!!!!!!!!!!!!!!');
+%                     errorlog(end+1)=num2str(globalID)
+%                     save([exportlocation '\errorlog.mat'],'errorlog','-v7.3')
+%                 end
+%                 data(globalID).ProtocolOrientationID = stimsCode(globalID,2);
+%                 data(globalID).PredictedOrientationID = stimsCode(globalID,2);
+%                 data(globalID).ProtocolStim = stims(globalID,2);
+                data(globalID).subindexRead=stims{1}(globalID);
                 if data(globalID).subindex~=data(globalID).subindexRead;
                     warning('Stim file incompatible!!!!!!!!!!!!!!!!!!!!!');
                     errorlog(end+1)=num2str(globalID)
                     save([exportlocation '\errorlog.mat'],'errorlog','-v7.3')
                 end
-%                 data(globalID).ProtocolOrientationID=stimsCode(globalID,2);
-%                 data(globalID).PredictedOrientationID=stimsCode(globalID,2);
-%                 data(globalID).ProtocolStim=stims(globalID,2);
-                data(globalID).ProtocolOrientationID=P{globalID};
-                data(globalID).PredictedOrientationID=P{globalID};
-                data(globalID).ProtocolStim=stims(globalID,2);
+                data(globalID).ProtocolOrientationID = stimsCode(globalID,2);
+                data(globalID).PredictedOrientationID = stimsCode(globalID,2);
+                data(globalID).ProtocolStim = stims{2}{1};
             end
             [~,index] = sortrows([data.MeasureNumber].'); data = data(index); clear index
             [~,index] = sortrows([data.ProtocolOrientationID].'); data = data(index); clear index

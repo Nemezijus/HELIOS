@@ -19,7 +19,7 @@ seq1 = {'chessboard'};
 seq2 = compose('%g', sequence);
 clear sequence;
 sequence = [seq1,seq2];
-8
+
 str = seq2str(sequence);
 F = figure;
 set(F,'units', 'normalized', 'position', [0.336 0.286 0.372 0.389],...
