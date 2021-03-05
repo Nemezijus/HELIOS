@@ -44,10 +44,10 @@ for ip = 1:numel(mrp)
 %                     out = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
 %                     d(ic).data = out;
 %                 end
-                data=[];
-                for i=1:length(units)
-                    data=[data d(i).data];
-                end
+%                 data=[];
+%                 for i=1:length(units)
+%                     data=[data d(i).data];
+%                 end
                 disp('saving data.mat file');
                 save([saveloc '\data.mat'],'data','-v7.3')
             
