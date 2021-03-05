@@ -34,8 +34,22 @@ if nargin == 0
     s = S;
     return
 end
+if ~strcmp(name(1:3), 'st_')
+    name = ['st_',name];
+end
 if ismember(name, stim_names)
     s = S.(name);
+    fn = fieldnames(s);
+    clear S
+    for ifn = 1:numel(fn)
+        if endsWith(fn{ifn},'_start')
+            fieldn = erase(fn{ifn},'_start');
+            S.(fieldn) = s.(fn{ifn});
+        else
+            S.(fn{ifn}) = s.(fn{ifn});
+        end
+    end
+    s = S;
     return
 end
 fnames = fieldnames(newstimstruct);

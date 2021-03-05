@@ -12,7 +12,8 @@ E.mode.mean_kernelsize = 3000;
 if isempty(ex.stim_type)
     E.percentile.timewindow = 10; %first 10 seconds
 else
-    S = visc_recall_stims(ex.stim_type);
+%     S = visc_recall_stims(ex.stim_type);
+    S = stimulus_protocol(ex.stimtype); 
     E.percentile.timewindow = S.static1*1e-3;
 end
 %till here
