@@ -1,4 +1,4 @@
-function out = moculus_data2hdf5(file_loc, data, stagetag, behave_file_loc)
+function out = moculus_data2hdf5(file_loc, data, stagetag, behave_file_loc, dataloc)
 % out = moculus_data2hdf5(file_loc, data, stagetag, behave_file_loc) - stores
 % experiment data from data file into hdf5 file with specified location file_loc.
 % stagetag - identifier of the data file (a short struct)
@@ -32,7 +32,7 @@ if ~nodata
     storedata(file_loc, {LUT}, {loc});
     %DATAPATH
     try
-        h5writeatt(file_loc,cloc,'DATAPATH',data(1).Filename);
+        h5writeatt(file_loc,cloc,'DATAPATH',dataloc);
     catch
         h5writeatt(file_loc,cloc,'DATAPATH','');
     end
@@ -52,6 +52,8 @@ end
 for iunit = 1:Nunits
     
     if ~nodata
+        parentloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
+            ['UNIT_',num2str(iunit)]},'/');
         %%%%%%%%%%%%%%%%----IMAGING----%%%%%%%%%%%%%
         cloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
             ['UNIT_',num2str(iunit)],['IMAGING']},'/');
@@ -73,15 +75,21 @@ for iunit = 1:Nunits
         %attributes
         %REPID
         try
-            h5writeatt(file_loc,cloc, 'REPID', data(iunit).PredictedSession);
+            h5writeatt(file_loc,parentloc, 'REPID', data(iunit).PredictedSession);
         catch
-            h5writeatt(file_loc,cloc, 'REPID', 'NaN');
+            h5writeatt(file_loc,parentloc, 'REPID', 'NaN');
         end
         %STIMID
         try
-            h5writeatt(file_loc,cloc, 'STIMID', data(iunit).PredictedOrientationID);
+            h5writeatt(file_loc,parentloc, 'STIMID', data(iunit).PredictedOrientationID);
         catch
-            h5writeatt(file_loc,cloc, 'STIMID', 'NaN');
+            h5writeatt(file_loc,parentloc, 'STIMID', 'NaN');
+        end
+        %STIM
+        try
+            h5writeatt(file_loc,parentloc, 'STIM', data(iunit).ProtocolStim);
+        catch
+            h5writeatt(file_loc,parentloc, 'STIM', 'NaN');
         end
         %TIMEUNITS
         h5writeatt(file_loc,cloc, 'TIMEUNITS', 'ms');
@@ -154,6 +162,8 @@ for iunit = 1:Nunits
     clocbeh = strjoin({'','DATA',['STAGE_',num2str(istage)],...
         ['UNIT_',num2str(iunit)],['BEHAVIOR/']},'/');
     
+    
+    if ~isempty(behave_file_loc)
     cbehave = behave_file_loc{iunit};
     fid = fopen(cbehave);
     T = textscan(fid,'%s','Delimiter',{'/n'},'CollectOutput',1);
@@ -256,6 +266,9 @@ for iunit = 1:Nunits
         TIME_OFFSET = NaN;
     end
     h5writeatt(file_loc,clocbeh,'TIME_OFFSET',TIME_OFFSET);
+    else
+        continue
+    end
 end
 out = 1;
 

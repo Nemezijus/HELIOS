@@ -286,11 +286,17 @@ MC_ROI_PAIRS = P;
 assignin('base','MC_ROI_PAIRS',MC_ROI_PAIRS);
 assignin('base','setup',setup);
 
-tic;
-disp('Creating data.mat files!');
-collectdata(setup, MC_ROI_PAIRS, d.stim_pattern); %creates data.mat files
-t = toc;
-disp(['data.mat files created! Running time: ',num2str(t),' s']);
+F = analysis_info(d);
+while ishandle(F)
+    pause(0.5);
+end
+d = guidata(hO);
+%%%TEMP COMMENT OUT
+% tic;
+% disp('Creating data.mat files!');
+% collectdata(setup, MC_ROI_PAIRS, d.stim_pattern); %creates data.mat files
+% t = toc;
+% disp(['data.mat files created! Running time: ',num2str(t),' s']);
 
 %creating h5
 %here we create dummy hrf struct since there is no hrf coming from this gui
@@ -303,12 +309,16 @@ for ip = 1:numel(P)
     loc = strjoin(loc,'\');
     dataloc = [loc,'\data.mat'];
     hrf.analysis.imaging.data(ip).file_path = dataloc;
-    for ib = 1:numel(P(ip).behavior)
-        hrf.measurements.session(ip).behavior_data(ib).file_path = P(ip).behavior{ib};
+    if ~isempty(P(ip).behavior)
+        for ib = 1:numel(P(ip).behavior)
+            hrf.measurements.session(ip).behavior_data(ib).file_path = P(ip).behavior{ib};
+        end
+    else
+        hrf.measurements.session(ip).behavior_data = [];
     end
 end
-pars.dffmethod = 'median';
-pars.tostitch = 0;
+% pars.dffmethod = 'median';
+% pars.tostitch = 0;
 
 loc = P(1).motcorr;
 loc = strsplit(loc,'\');
@@ -317,7 +327,7 @@ loc = strjoin(loc,'\');
 h5name = ['\',d.ID,'.h5'];
 hdf5loc = [loc,h5name];
 
-out = moculus_createhdf5(hrf, hdf5loc, pars);
+out = moculus_createhdf5(hrf, hdf5loc, d.info, MC_ROI_PAIRS);
 
 function local_stimprot(hO, ed)
 stimuli;

@@ -27,5 +27,5 @@ try
         end
     end
 catch
-    calue = [];
+    value = [];
 end

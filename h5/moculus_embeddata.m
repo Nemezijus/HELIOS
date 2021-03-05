@@ -25,12 +25,12 @@ if ~isempty(datapaths)
         fn = fieldnames(S);
         data = S.(fn{:});
         disp(['storing data from stage ', num2str(idata)]);
-        out = moculus_data2hdf5(file_loc, data, stagetag, behavior_files{idata});
+        out = moculus_data2hdf5(file_loc, data, stagetag, behavior_files{idata}, cpath);
     end
 else
     for idata = 1:numel(behavior_files)
         stagetag.id = stageids{idata};
         stagetag.idx = idata;
-        out = moculus_data2hdf5(file_loc, [], stagetag, behavior_files{idata});
+        out = moculus_data2hdf5(file_loc, [], stagetag, behavior_files{idata}, '');
     end
 end
