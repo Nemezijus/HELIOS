@@ -502,7 +502,7 @@ end
                 end
                 data(globalID).ProtocolOrientationID = stimsCode(globalID,2);
                 data(globalID).PredictedOrientationID = stimsCode(globalID,2);
-                data(globalID).ProtocolStim = stims{2}{1};
+                data(globalID).ProtocolStim = stims{2}{globalID};
             end
             [~,index] = sortrows([data.MeasureNumber].'); data = data(index); clear index
             [~,index] = sortrows([data.ProtocolOrientationID].'); data = data(index); clear index
