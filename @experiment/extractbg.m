@@ -448,7 +448,11 @@ for iN = 1:Nsq
     %     FS(iN).idxs = roisqmaskidx;
     count = 1;
     for iM = 1:N
-        poly = h5readatt(EX.file_loc, ['/DATA/STAGE_',num2str(Nstage),'/UNIT_1/ROI_',num2str(iM)],'POLYGON');
+        try
+            poly = h5readatt(EX.file_loc, ['/DATA/STAGE_',num2str(Nstage),'/UNIT_1/ROI_',num2str(iM)],'POLYGON');
+        catch
+            poly = h5readatt(EX.file_loc, ['/DATA/STAGE_',num2str(Nstage),'/UNIT_1/IMAGING/ROI_',num2str(iM)],'POLYGON');
+        end
         %         roiselmask = cR.roi;
         roiselmask = logical(poly2mask(poly(1,:),...
             poly(2,:),fs(1),fs(2)));
