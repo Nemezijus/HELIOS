@@ -75,7 +75,11 @@ for istage = 1:EX.N_stages
         end
         ROIsequence = 1:EX.N_roi;
     else %AO
-        d = load(hrf.analysis.imaging.data_matrices.file_path{istage});
+        try
+            d = load(hrf.analysis.imaging.data_matrices.file_path{istage});
+        catch
+            d = load(hrf.analysis.imaging.data(istage).file_path);
+        end
         Nrecs = numel(d.data);
         Nrois = numel(d.data(1).logicalROI);
         roiH = d.data(1).attribs(1).TransversePixNum;
