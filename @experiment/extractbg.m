@@ -1,5 +1,5 @@
-function EX = extractbg(EX,method)
-% EX = extractbg(EX,method) - extracts background signal from motion
+function EX = extractbg(EX, method, hrf)
+% EX = extractbg(EX,method, hrf) - extracts background signal from motion
 % corrected images for every roi.
 % part of HELIOS
 Npicks = 10;
@@ -46,7 +46,9 @@ if isao
     %MES initialized
 end
 if isao
-    hrf = findhrf(EX.id);
+    if nargin ~=3
+        hrf = findhrf(EX.id);
+    end
 end
 
 

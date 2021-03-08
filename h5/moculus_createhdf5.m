@@ -5,7 +5,20 @@ function out = moculus_createhdf5(hrfloc, hdf5loc, pars, MCpairs)
 % pars.dffmethod - a string (e.g. 'median', 'mode', 'percentile')
 % pars.tostitch - an integer {0 or 1}
 % part of HELIOS
-do_onacid = 0;
+if isempty(pars) || strcmp(pars.bgmethod,'skip')
+    skipbg = 1;
+else
+    skipbg = 0;
+end
+%whether OnAcid
+if strcmp(lower(pars.dffmethod),'onacid')
+    do_onacid = 1;
+else
+    do_onacid = 0;
+end
+if do_onacid
+    skipbg = 1;
+end
 if ~isstruct(hrfloc)
     S = load(hrfloc);
     Sfns = fieldnames(S);
@@ -96,5 +109,32 @@ ex = experiment(hdf5loc);
 ex = ex.dff(lower(method), tostitch, 1);
 t = toc;
 disp(['Df/f calculated and stored. Running time: ', num2str(t)]);
+
+
+if ~skipbg
+%     EXP = experiment(hdf5loc);
+    ex = ex.extractbg(pars.bgmethod, hrf);%dynamic pixels is much much faster than staticpixels
+    
+    %subtract bg and estimate dff
+    disp('Subtracting BG and calculating dff for the data. Please Wait.');
+    tic
+    ex = subtractbg(ex, pars);%if not skipping bg correction
+    t = toc;
+    disp(['DFF stored in hdf5 file. Running time: ', num2str(t)]);
+    
+    stitchstr = '';
+    if tostitch
+        stitchstr = '_stitched';
+    end
+    root = '/ANALYSIS';
+    if strcmp(pars.bgcorrmethod, 'customao')
+        h5writeatt(ex.file_loc,root,'DFFTYPE','percentile');
+    else
+        h5writeatt(ex.file_loc,root,'DFFTYPE',[lower(method), stitchstr]);
+    end
+    h5writeatt(ex.file_loc,root,'DFFMODDATE',datenum(now));
+    h5writeatt(ex.file_loc,root,'DFFMODUSER',getenv('username'));
+    
+end
 
 out = 1;

@@ -80,10 +80,22 @@ if STAGEID{:} ~= 0
 else
 end
 clear isbeh
+
+testloc = [P{1},'/XDATA'];
+try
+    h5read(OB.file_loc,testloc);
+    is_old = 1;
+    append1 = '/XDATA';
+    append2 = '';
+catch
+    is_old = 0;
+    append1 = '/IMAGING/XDATA';
+    append2 = '/IMAGING';
+end
 for iP = 1:numel(P)
-    loc = [P{iP},'/XDATA'];
+    loc = [P{iP},append1];
     time(iP,:) = h5read(OB.file_loc,loc);
-    time_units{iP} = h5readatt(OB.file_loc,P{iP},'TIMEUNITS');
+    time_units{iP} = h5readatt(OB.file_loc,[P{iP}, append2],'TIMEUNITS');
 end
 
 if sum(strcmp(time_units,time_units{1})) == numel(time_units)
@@ -97,7 +109,11 @@ end
 switch type
     case {'raw', 'YDATA', '/YDATA'}
         if STAGEID{:} ~= 0
-            idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}), ROIID{:}};
+            if is_old
+                idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}), ROIID{:}};
+            else
+                idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}),NaN, ROIID{:}};
+            end
             %%added 2020-12-18
             sz = size(path_elements);
             for irow = 1:sz(1)

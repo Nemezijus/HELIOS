@@ -13,7 +13,7 @@ if isempty(ex.stim_type)
     E.percentile.timewindow = 10; %first 10 seconds
 else
 %     S = visc_recall_stims(ex.stim_type);
-    S = stimulus_protocol(ex.stimtype); 
+    S = stimulus_protocol(ex.stim_type); 
     E.percentile.timewindow = S.static1*1e-3;
 end
 %till here
