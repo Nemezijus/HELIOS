@@ -191,7 +191,7 @@ guidata(d.F, d);
 
 function local_add(hO, eventdata)
 d = guidata(hO);
-if isempty(d.PAIRS(d.current).motcorr) | isempty(d.PAIRS(d.current).mescroi) | isempty(d.PAIRS(d.current).behavior)
+if isempty(d.PAIRS(d.current).motcorr) | isempty(d.PAIRS(d.current).mescroi)
     msgbox('One of the two previous fields is not filled in!');
     return
 end
