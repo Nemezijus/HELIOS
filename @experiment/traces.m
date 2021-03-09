@@ -140,7 +140,12 @@ switch type
         data_units = 'a.u.';
     case {'bg', 'BG', '/BG'}
         if STAGEID{:} ~= 0
-            idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}), ROIID{:}};
+%             idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}), ROIID{:}};
+            if is_old
+                idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}), ROIID{:}};
+            else
+                idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}),NaN, ROIID{:}};
+            end
             P = makepaths(path_elements, idx);
         end
         for iP = 1:numel(P)

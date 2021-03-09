@@ -398,7 +398,7 @@ for istage = 1:EX.N_stages
                         
                         bg(iframe) = nanmean(double(cands));
                     end
-                    loc = ['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(irec),'/ROI_',num2str(iroi),'/BG'];
+                    loc = ['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(irec),'/IMAGING/ROI_',num2str(iroi),'/BG'];
                     try
                         allocatespace(EX.file_loc, {bg}, {loc});
                     catch
