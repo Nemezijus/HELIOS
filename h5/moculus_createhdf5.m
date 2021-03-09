@@ -137,4 +137,16 @@ if ~skipbg
     
 end
 
+h = waitbar(0,'Calculating Max Correlations');
+for iroi = 1:ex.N_roi
+    waitbar(iroi/ex.N_roi);
+    C = ex.bestcorr(iroi);
+    try
+        allocatespace(ex.file_loc, {C}, {['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']});
+    catch
+    end
+    storedata(ex.file_loc, {C}, {['/ANALYSIS/ROI_',num2str(iroi),'/MAXCORR']});
+end
+close(h)
+
 out = 1;

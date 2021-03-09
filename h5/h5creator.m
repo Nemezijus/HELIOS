@@ -292,11 +292,11 @@ while ishandle(F)
 end
 d = guidata(hO);
 %%%TEMP COMMENT OUT
-% tic;
-% disp('Creating data.mat files!');
-% collectdata(setup, MC_ROI_PAIRS, d.stim_pattern); %creates data.mat files
-% t = toc;
-% disp(['data.mat files created! Running time: ',num2str(t),' s']);
+tic;
+disp('Creating data.mat files!');
+collectdata(setup, MC_ROI_PAIRS, d.stim_pattern); %creates data.mat files
+t = toc;
+disp(['data.mat files created! Running time: ',num2str(t),' s']);
 
 %creating h5
 %here we create dummy hrf struct since there is no hrf coming from this gui
