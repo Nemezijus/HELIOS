@@ -75,10 +75,10 @@ end
 
 for idl = 1:Ndata
     if ~do_onacid
-        if iscell(MCpairs.motcorr)
-            loc = MCpairs.motcorr{idl};
+        if iscell(MCpairs(idl).motcorr)
+            loc = MCpairs(idl).motcorr{:};
         else
-            loc = MCpairs.motcorr;
+            loc = MCpairs(idl).motcorr;
         end
         h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MOTIONCORRECTEDDATAPATH', loc);
     else
@@ -88,10 +88,10 @@ end
 
 if ~do_onacid
     for idl = 1:Ndata
-        if iscell(MCpairs.mescroi)
-            loc= MCpairs.mescroi{idl};
+        if iscell(MCpairs(idl).mescroi)
+            loc = MCpairs(idl).mescroi{:};
         else
-            loc = MCpairs.mescroi;
+            loc = MCpairs(idl).mescroi;
         end
         h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MASKPATH', loc);
     end
