@@ -18,11 +18,22 @@ end
 try
     cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAME']);
 catch
-    msgbox('This experiment has no MEANFRAME');
-    C = [];
-    return
+    try
+        cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/IMAGING/MEANFRAME']);
+    catch
+        msgbox('This experiment has no MEANFRAME');
+        C = [];
+        return
+    end
+%     msgbox('This experiment has no MEANFRAME');
+%     C = [];
+%     return
 end
-clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAMELUT']);
+try
+    clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/MEANFRAMELUT']);
+catch
+    clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(1),'/UNIT_',num2str(1),'/IMAGING/MEANFRAMELUT']);
+end
 % R = roi(cmask,Npix);
 R = roi(OB,iroi,1,Npix);
 
@@ -53,8 +64,13 @@ for istage = 1:Nstages
         disp('Number of frames is less than expected');
     end
     for iframe = 1:Nframes;
-        cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAME']);
-        clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAMELUT']);
+        try
+            cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAME']);
+            clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/MEANFRAMELUT']);
+        catch
+            cframe = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/IMAGING/MEANFRAME']);
+            clut = h5read(OB.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_',num2str(iframe),'/IMAGING/MEANFRAMELUT']);
+        end
         frame = cutframe(cframe, clut, R.square_mask);
         cPOLY_g = frame(:,:,2);
         if numel(frame(:,1,1)) < refdims %this is a bit different from VISC method (see visc_ROIevolution)

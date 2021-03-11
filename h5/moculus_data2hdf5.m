@@ -59,35 +59,35 @@ for iunit = 1:Nunits
             ['UNIT_',num2str(iunit)],['IMAGING']},'/');
         %XDATA
         loc = [cloc,'/XDATA'];
-        d = data(iunit).CaTransient(1).event(1,:)';
+        d = data([data.subindex]==iunit).CaTransient(1).event(1,:)';
         allocatespace(file_loc, {d}, {loc});
         storedata(file_loc, {d}, {loc});
         %MEANFRAME
         loc = [cloc,'/MEANFRAME'];
-        d = data(iunit).meanPic;
+        d = data([data.subindex]==iunit).meanPic;
         allocatespace(file_loc, {d}, {loc});
         storedata(file_loc, {d}, {loc});
         %MEANFRAMELUT
         loc = [cloc,'/MEANFRAMELUT'];
-        d = data(iunit).gmap;
+        d = data([data.subindex]==iunit).gmap;
         allocatespace(file_loc, {d}, {loc});
         storedata(file_loc, {d}, {loc});
         %attributes
         %REPID
         try
-            h5writeatt(file_loc,parentloc, 'REPID', data(iunit).PredictedSession);
+            h5writeatt(file_loc,parentloc, 'REPID', data([data.subindex]==iunit).PredictedSession);
         catch
             h5writeatt(file_loc,parentloc, 'REPID', 'NaN');
         end
         %STIMID
         try
-            h5writeatt(file_loc,parentloc, 'STIMID', data(iunit).PredictedOrientationID);
+            h5writeatt(file_loc,parentloc, 'STIMID', data([data.subindex]==iunit).PredictedOrientationID);
         catch
             h5writeatt(file_loc,parentloc, 'STIMID', 'NaN');
         end
         %STIM
         try
-            h5writeatt(file_loc,parentloc, 'STIM', data(iunit).ProtocolStim);
+            h5writeatt(file_loc,parentloc, 'STIM', data([data.subindex]==iunit).ProtocolStim);
         catch
             h5writeatt(file_loc,parentloc, 'STIM', 'NaN');
         end
@@ -99,13 +99,13 @@ for iunit = 1:Nunits
                 ['ROI_',num2str(iroi)]},'/');
             %YDATA
             loc = [cloc, '/YDATA'];
-            d = data(iunit).CaTransient(iroi).event(2,:)';
+            d = data([data.subindex]==iunit).CaTransient(iroi).event(2,:)';
             allocatespace(file_loc, {d}, {loc});
             storedata(file_loc, {d}, {loc});
             %ROIMASK
             if iunit == 1
-                image = data(iunit).meanPic;
-                roi_indexed = data(iunit).logicalROI(iroi).roi;
+                image = data([data.subindex]==iunit).meanPic;
+                roi_indexed = data([data.subindex]==iunit).logicalROI(iroi).roi;
                 logicalROI = zeros(size(image));
                 logicalROI(uint64(roi_indexed)) = 1;
                 maskpath = strjoin({'/ANALYSIS',['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],'ROIMASK'},'/');
@@ -115,11 +115,11 @@ for iunit = 1:Nunits
                 setup = h5readatt(file_loc,'/DATA','SETUP');
                 if strcmp(setup,'ao')
                     dimspath = strjoin({'/ANALYSIS',['ROI_',num2str(iroi)],['STAGE_',num2str(istage)]},'/');
-                    dims = data(iunit).logicalROI(iroi).dims;
+                    dims = data([data.subindex]==iunit).logicalROI(iroi).dims;
                     h5writeatt(file_loc,dimspath, 'DIMENSIONS', dims);
                     try
-                        ffwidth = data(iunit).attribs(1).TransversePixNum;
-                        ffheight = data(iunit).attribs(1).AO_collection_usedpixels;
+                        ffwidth = data([data.subindex]==iunit).attribs(1).TransversePixNum;
+                        ffheight = data([data.subindex]==iunit).attribs(1).AO_collection_usedpixels;
                         FFsize = [ffwidth, ffheight];
                     catch
                         FFsize = [];
@@ -129,26 +129,26 @@ for iunit = 1:Nunits
             end
             %attributes
             %CENTROID
-            h5writeatt(file_loc,cloc, 'CENTROID', data(iunit).logicalROI(iroi).centroid);
+            h5writeatt(file_loc,cloc, 'CENTROID', data([data.subindex]==iunit).logicalROI(iroi).centroid);
             %POLYGON
-            h5writeatt(file_loc,cloc, 'POLYGON', data(iunit).CaTransient(iroi).poly);
+            h5writeatt(file_loc,cloc, 'POLYGON', data([data.subindex]==iunit).CaTransient(iroi).poly);
             %ROIID
-            h5writeatt(file_loc,cloc, 'ROIID', data(iunit).CaTransient(iroi).RoiID);
+            h5writeatt(file_loc,cloc, 'ROIID', data([data.subindex]==iunit).CaTransient(iroi).RoiID);
             %UNIQUEID
-            h5writeatt(file_loc,cloc, 'UNIQUEID', data(iunit).CaTransient(iroi).RoiIDReal);
+            h5writeatt(file_loc,cloc, 'UNIQUEID', data([data.subindex]==iunit).CaTransient(iroi).RoiIDReal);
             %X, Y, Z
             try
-                h5writeatt(file_loc,cloc,'X',data(iunit).CaTransient(iroi).Realxyz(1));
+                h5writeatt(file_loc,cloc,'X',data([data.subindex]==iunit).CaTransient(iroi).Realxyz(1));
             catch
                 h5writeatt(file_loc,cloc,'X',[]);
             end
             try
-                h5writeatt(file_loc,cloc,'Y',data(iunit).CaTransient(iroi).Realxyz(2));
+                h5writeatt(file_loc,cloc,'Y',data([data.subindex]==iunit).CaTransient(iroi).Realxyz(2));
             catch
                 h5writeatt(file_loc,cloc,'Y',[]);
             end
             try
-                h5writeatt(file_loc,cloc,'Z',data(iunit).CaTransient(iroi).Realxyz(2));
+                h5writeatt(file_loc,cloc,'Z',data([data.subindex]==iunit).CaTransient(iroi).Realxyz(2));
             catch
                 h5writeatt(file_loc,cloc,'Z',[]);
             end

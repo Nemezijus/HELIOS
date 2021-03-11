@@ -90,6 +90,9 @@ d.GUI.plotting.right.cb = cb_right;
 d.GUI.axes_limits.ED = ED;
 d.GUI.axes_limits.cb = cb;
 
+%button group 4
+local_bg_4(F, COLORS);
+
 %button group export
 cb = local_bg_export(F, COLORS);
 guidata(F, d);
@@ -502,7 +505,22 @@ PB(1) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'reset',...
     'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
     'Callback', @local_reset,'Tag','reset','FontWeight','Bold');
 
+function local_bg_4(F, C)
+d = guidata(F);
+ax = d.ax;
+axes(ax);
+xl = xlim;
+yyaxis left
+yl_l = ylim;
+yyaxis right
+yr_l = ylim;
 
+uibg = uibuttongroup(F, 'Position',[0.025 0.1 0.22 0.25]);
+
+PB(1) = uicontrol(uibg,'Style', 'Pushbutton', 'String', 'Teleport events',...
+    'Units','Normalized','Position', [0.011 0.805 0.384 0.175],...
+    'background',C.bgcol_1,'ForegroundColor',C.fgcol_1,'FontSize',10,...
+    'Callback', @local_cut_around_teleport,'Tag','cut_around_teleport','FontWeight','Bold');
 
 function local_lock(hO, ed)
 d = guidata(hO);
@@ -740,3 +758,59 @@ d = guidata(hO);
 d.offset = hO.Value;
 guidata(d.F, d);
 local_plot(hO);
+
+function local_cut_around_teleport(hO, ed)
+d = guidata(hO);
+range = [2,5];%seconds
+[V, DFF] = teleport_cuts(d.cROI, d.cSTAGE, d.cUNIT, d.ob, d.B, range, hO);
+
+cla reset;
+axes(d.ax);
+
+yyaxis right
+for ii = 1:numel(DFF)
+    plot(DFF(ii).fixed_time, DFF(ii).imag_cut,'-','Color',[0.8 0.8 0.8],'Marker','None'); hold on
+end
+yyaxis left
+for ii = 1:numel(V)
+    plot(V(ii).fixed_time, -V(ii).vel_cut,'-','Color','r','Marker','None'); hold on
+end
+
+function [V, DFF] = teleport_cuts(iroi, istage, iunit, ob, B, range, hO)
+beh_time = B.stage(istage).unit(iunit).time;%in seconds
+beh_velocity = B.stage(istage).unit(iunit).velocity;
+teleports = B.stage(istage).unit(iunit).events.teleport;
+teleport_samples = find(teleports);
+teleport_timestamps = beh_time(teleport_samples);
+
+offset = B.stage(istage).unit(iunit).time_offset;
+W = traces(ob,{iroi, istage},'dff');
+imag_time = W.time(iunit,:)*1e-3;%in seconds
+imag_signal = W.data(iunit,:);
+
+imag_time_with_offset = imag_time+offset-imag_time(1);
+
+for isample = 1:numel(teleport_samples)
+    csample = teleport_samples(isample);
+    ctime = teleport_timestamps(isample);
+    pre_time = ctime-range(1);
+    post_time = ctime+range(2);
+    
+    
+    beh_time_mask = beh_time < pre_time |  beh_time > post_time;
+    beh_time_mask = ~beh_time_mask;
+    cvel_cut = beh_velocity(beh_time_mask);
+    V(isample).time_cut = beh_time(beh_time_mask);
+    V(isample).fixed_time = V(isample).time_cut - V(isample).time_cut(1);
+    V(isample).vel_cut = cvel_cut;
+    
+    imag_time_mask = imag_time_with_offset < pre_time | imag_time_with_offset > post_time;
+    imag_time_mask = ~ imag_time_mask;
+    
+    cimag_cut = imag_signal(imag_time_mask);
+    if sum(imag_time_mask) > 0
+        DFF(isample).time_cut = imag_time_with_offset(imag_time_mask);
+        DFF(isample).fixed_time = DFF(isample).time_cut - DFF(isample).time_cut(1);
+        DFF(isample).imag_cut = cimag_cut;
+    end
+end
