@@ -329,7 +329,7 @@ loc = strjoin(loc,'\');
 h5name = ['\',d.ID,'.h5'];
 hdf5loc = [loc,h5name];
 
-out = moculus_createhdf5(hrf, hdf5loc, d.info, MC_ROI_PAIRS);
+out = moculus_createhdf5(hrf, hdf5loc, d.info, MC_ROI_PAIRS, stimlist);
 
 function local_stimprot(hO, ed)
 stimuli;

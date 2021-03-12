@@ -1,5 +1,6 @@
-function out = moculus_createhdf5(hrfloc, hdf5loc, pars, MCpairs)
-% out = moculus_createhdf5(hrfloc, hdf5loc, pars, MCpairs) - creates hdf5 file specified in
+function out = moculus_createhdf5(hrfloc, hdf5loc, pars, MCpairs, stimlist)
+% out = moculus_createhdf5(hrfloc, hdf5loc, pars, MCpairs, stimlist) - 
+% creates hdf5 file specified in
 % hdf5loc, hrfloc - HUB root file location for that experiment.
 % pars.stimtype - a string (eg. '8s_gray60Hz')
 % pars.dffmethod - a string (e.g. 'median', 'mode', 'percentile')
@@ -68,6 +69,13 @@ tic
 moculus_embeddata(hdf5loc, data_locations, stageids, behav_files);
 t = toc;
 disp(['Data stored in hdf5 file. Running time: ', num2str(t)]);
+
+try
+    cloc = strjoin({'','DATA',['STAGE_',num2str(istage)]},'/');
+    h5writeatt(hdf5loc,cloc,'STIMLIST',stimlist.order);
+catch
+    disp('Stim list was not embedded');
+end
 
 for idl = 1:Ndata
     h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', pars.stimtype);
