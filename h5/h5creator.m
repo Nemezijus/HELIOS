@@ -294,7 +294,9 @@ d = guidata(hO);
 %%%TEMP COMMENT OUT
 tic;
 disp('Creating data.mat files!');
-collectdata(setup, MC_ROI_PAIRS, d.stim_pattern); %creates data.mat files
+stimlist.list = d.stim_pattern;
+stimlist.order = {'999','0','45','90','135','180','225','270','315'};
+collectdata(setup, MC_ROI_PAIRS, stimlist); %creates data.mat files
 t = toc;
 disp(['data.mat files created! Running time: ',num2str(t),' s']);
 

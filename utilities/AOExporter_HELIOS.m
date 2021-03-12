@@ -103,9 +103,9 @@ end
         %%%ADDED by ANDY
         SZ = size(f);
         Nunits = SZ(2);
-        full = floor(Nunits/numel(stimlist));
-        P = repmat(stimlist,1,full);
-        P(full*numel(stimlist)+1: Nunits) = stimlist(1:mod(Nunits, numel(stimlist)));
+        full = floor(Nunits/numel(stimlist.list));
+        P = repmat(stimlist.list,1,full);
+        P(full*numel(stimlist.list)+1: Nunits) = stimlist.list(1:mod(Nunits, numel(stimlist.list)));
         %%% till here
         
         todel=false(size(f));
@@ -453,7 +453,7 @@ end
         clear stims stimCode
         errorlog=[];
         
-        uP = unique(P);
+        uP = stimlist.order;
         uPidx = 1:numel(uP);
         for iP = 1:numel(P)
             stimsCode(iP,1) = iP;
