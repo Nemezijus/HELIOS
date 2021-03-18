@@ -162,6 +162,9 @@ end
 if do_onacid
     data_locations = {MCpairs.motcorr};
     onacidloc = MCpairs(1).onacid;
+    onacidloc = strsplit(onacidloc,'\');
+    onacidloc = onacidloc(1:end-1);
+    onacidloc = strjoin(onacidloc,'\');
     out = moculus_embedonacid(hdf5loc, data_locations, onacidloc, stageids); 
 end
 %%%
