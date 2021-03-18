@@ -23,7 +23,8 @@ for iroi = 1:numel(dff)
         fullstimlist = repmat(stimlist, 1,ceil(numel(dff(iroi).stage(istage).signal(:,1))/numel(stimlist)));
         for istim = 1:numel(stimsequence)
             cpath2 = [cpath1,'/STIM_', num2str(istim)];
-            data = dff(iroi).stage(istage).signal(fullstimlist==stimsequence(istim),:)';
+%             data = dff(iroi).stage(istage).signal(fullstimlist==stimsequence(istim),:)';
+            data = dff(iroi).stage(istage).signal(ismember(fullstimlist,stimsequence(istim)),:)';
             loc = [cpath2,'/DFF'];
             try
                 allocatespace(OB.file_loc, {data}, {loc});
