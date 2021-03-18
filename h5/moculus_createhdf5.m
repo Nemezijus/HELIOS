@@ -14,6 +14,7 @@ end
 %whether OnAcid
 if strcmp(lower(pars.dffmethod),'onacid')
     do_onacid = 1;
+    skipbg = 1; %onacid presence means no bg calculations [for now]8
 else
     do_onacid = 0;
 end
@@ -63,12 +64,13 @@ for idl = 1:Ndata
         behav_files{idl} = [];
     end
 end
-
-disp('Storing data in hdf5 file. Please wait.')
-tic
-moculus_embeddata(hdf5loc, data_locations, stageids, behav_files);
-t = toc;
-disp(['Data stored in hdf5 file. Running time: ', num2str(t)]);
+if ~do_onacid
+    disp('Storing data in hdf5 file. Please wait.')
+    tic
+    moculus_embeddata(hdf5loc, data_locations, stageids, behav_files);
+    t = toc;
+    disp(['Data stored in hdf5 file. Running time: ', num2str(t)]);
+end
 
 try
     cloc = strjoin({'','DATA',['STAGE_',num2str(istage)]},'/');
@@ -82,14 +84,14 @@ for idl = 1:Ndata
 end
 
 for idl = 1:Ndata
-    if ~do_onacid
+    try
         if iscell(MCpairs(idl).motcorr)
             loc = MCpairs(idl).motcorr{:};
         else
             loc = MCpairs(idl).motcorr;
         end
         h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MOTIONCORRECTEDDATAPATH', loc);
-    else
+    catch
         h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'MOTIONCORRECTEDDATAPATH', []);
     end
 end
@@ -110,13 +112,15 @@ else %TO BE CORRECTED
     end
 end
 
-disp('Calculating df/f. Please wait.')
-tic
-ex = experiment(hdf5loc);
-%dff [when no onacid]
-ex = ex.dff(lower(method), tostitch, 1);
-t = toc;
-disp(['Df/f calculated and stored. Running time: ', num2str(t)]);
+if ~do_onacid
+    disp('Calculating df/f. Please wait.')
+    tic
+    ex = experiment(hdf5loc);
+    %dff [when no onacid]
+    ex = ex.dff(lower(method), tostitch, 1);
+    t = toc;
+    disp(['Df/f calculated and stored. Running time: ', num2str(t)]);
+end
 
 
 if ~skipbg
@@ -144,7 +148,13 @@ if ~skipbg
     h5writeatt(ex.file_loc,root,'DFFMODUSER',getenv('username'));
     
 end
-
+%%%HERE WE EMBED ONACID DATA
+if do_onacid
+    data_locations = {MCpairs.motcorr};
+    onacidloc = MCpairs(1).onacid;
+    out = moculus_embedonacid(hdf5loc, data_locations, onacidloc, stageids); 
+end
+%%%
 h = waitbar(0,'Calculating Max Correlations');
 for iroi = 1:ex.N_roi
     waitbar(iroi/ex.N_roi);

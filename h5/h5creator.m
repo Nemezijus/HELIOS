@@ -12,25 +12,26 @@ current = 1;
 PAIRS(current).B = B;
 PAIRS(current).motcorr = [];
 PAIRS(current).mescroi = [];
+PAIRS(current).onacid = [];
 
-mTextBox0 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(1) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.075 0.8 0.1 0.05]);
-set(mTextBox0,'String','MOT.CORR.','FontSize',10,'foregroundcolor','k',...
+set(mTextBox(1),'String','MOT.CORR.','FontSize',10,'foregroundcolor','k',...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','Unique');
 
-mTextBox1 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(2) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.35 0.8 0.1 0.05]);
-set(mTextBox1,'String','MESCROI','FontSize',10,'foregroundcolor','k',...
+set(mTextBox(2),'String','ONACID FILES','FontSize',10,'foregroundcolor','k',...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','Unique');
 
-mTextBox2 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(3) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.675 0.8 0.1 0.05]);
-set(mTextBox2,'String','BEHAVIOR','FontSize',10,'foregroundcolor','k',...
+set(mTextBox(3),'String','BEHAVIOR','FontSize',10,'foregroundcolor','k',...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','Unique');
 
-mTextBox3 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(4) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.16 0.9334 0.032 0.028]);
-set(mTextBox3,'String','ID: ','FontSize',10,'foregroundcolor','k',...
+set(mTextBox(4),'String','ID: ','FontSize',10,'foregroundcolor','k',...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','Unique');
 ed = uicontrol(F,'Style', 'edit', 'String', 'none',...
     'tag','editbox0',...
@@ -38,25 +39,25 @@ ed = uicontrol(F,'Style', 'edit', 'String', 'none',...
     'Callback',@local_ID);
 
 
-mTextBox4 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(5) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.3122 0.9334 0.1104 0.028]);
-set(mTextBox4,'String','Stim. Protocol: ','FontSize',10,'foregroundcolor','k',...
+set(mTextBox(5),'String','Stim. Protocol: ','FontSize',10,'foregroundcolor','k',...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','Unique');
 
-mTextBox5 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(6) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.4222 0.928 0.1104 0.035]);
-set(mTextBox5,'String','No stimulus','FontSize',10,'foregroundcolor',[0 0.447 0.7412],...
+set(mTextBox(6),'String','No stimulus','FontSize',10,'foregroundcolor',[0 0.447 0.7412],...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','stimulus',...
     'ButtonDownFcn',@local_stimprot,'Enable', 'Inactive');
 
-mTextBox6 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(7) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.5322 0.9334 0.1104 0.028]);
-set(mTextBox6,'String','Stim. Pattern: ','FontSize',10,'foregroundcolor','k',...
+set(mTextBox(7),'String','Stim. Pattern: ','FontSize',10,'foregroundcolor','k',...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','Unique');
 
-mTextBox7 = uicontrol(F,'style','text','Units','Normalized',...
+mTextBox(8) = uicontrol(F,'style','text','Units','Normalized',...
     'Position',[0.6422 0.928 0.1104 0.035]);
-set(mTextBox7,'String','No pattern','FontSize',10,'foregroundcolor',[0 0.447 0.7412],...
+set(mTextBox(8),'String','No pattern','FontSize',10,'foregroundcolor',[0 0.447 0.7412],...
     'backgroundcolor',bgcol,'fontweight','bold','Tag','pattern',...
     'ButtonDownFcn',@local_stimpatt,'Enable', 'Inactive');
 
@@ -93,7 +94,9 @@ d.PAIRS = PAIRS;
 d.current = current;
 d.editfields = [];
 d.PBs = [];
+d.mtb = mTextBox;
 d.setup = 'RESO'; %default
+d.is_onacid = 0;
 guidata (F, d);
 [BTX, B] = add_row(F, B);
 
@@ -103,16 +106,19 @@ guidata (F, d);
 
 function [BTX, B] = add_row(f, B)
 d = guidata(f);
-
+enable_mescroi = 'On';
+if d.is_onacid
+    enable_mescroi = 'off';
+end
 ED(1) = uicontrol(f,'Style', 'edit', 'String', 'Add a motion correction file',...
     'tag','editbox1',...
     'Units','Normalized','Position', [0.005, B, 0.2,0.05],'FontSize',9);
 
-ED(2) = uicontrol(f,'Style', 'edit', 'String', 'Add corresponding mescroi file(s)',...
+ED(2) = uicontrol(f,'Style', 'edit', 'String', 'Add mescroi/onacid file(s)',...
     'tag','editbox2',...
     'Units','Normalized','Position', [0.3, B, 0.2,0.05],'FontSize',9);
 
-ED(3) = uicontrol(f,'Style', 'edit', 'String', 'Add corresponding behavior file(s)',...
+ED(3) = uicontrol(f,'Style', 'edit', 'String', 'Add behavior file(s)',...
     'tag','editbox2',...
     'Units','Normalized','Position', [0.6, B, 0.2,0.05],'FontSize',9);
 
@@ -124,7 +130,7 @@ PB_ADD_MOTCORR = uicontrol(f,'Style', 'Pushbutton', 'String', 'Browse',...
 PB_ADD_MESCROI = uicontrol(f,'Style', 'Pushbutton', 'String', 'Browse',...
     'Units','Normalized','Position', [0.501 B 0.075 0.05],...
     'background','w','ForegroundColor','k','FontSize',10,...
-    'Callback', @local_browse,'Tag','ROI','FontWeight','Bold');
+    'Callback', @local_browse,'Tag','ROI','FontWeight','Bold','Enable',enable_mescroi);
 
 PB_ADD_BEHAVE = uicontrol(f,'Style', 'Pushbutton', 'String', 'Browse',...
     'Units','Normalized','Position', [0.801 B 0.075 0.05],...
@@ -156,6 +162,7 @@ BTX = [];
 
 function local_browse(hO, eventdata)
 d = guidata(hO);
+trigger_on_acid = 0;
 switch hO.Tag
     case 'MC'
         ext = '*.mes*';
@@ -163,8 +170,15 @@ switch hO.Tag
         ed = 1;
         ms = 'off';
     case 'ROI'
-        ext = '*.mescroi';
-        field = 'mescroi';
+        switch lower(d.setup)
+            case 'ao'
+                ext = '*.mescroi';
+                field = 'mescroi';
+            case 'reso'
+                ext = {'*.mat; *.mescroi'};
+                field = 'onacid';
+                trigger_on_acid = 1;
+        end
         ed = 2;
         ms = 'on';
     case 'BEH'
@@ -174,6 +188,12 @@ switch hO.Tag
         ms = 'on';
 end
 [fl, path] = uigetfile(ext,'MultiSelect', ms);
+if isequal(fl, 0)
+    return
+end
+if trigger_on_acid
+    d.is_onacid = 1;
+end
 
 if iscell(fl)
     for ifl = 1:numel(fl)
@@ -191,7 +211,10 @@ guidata(d.F, d);
 
 function local_add(hO, eventdata)
 d = guidata(hO);
-if isempty(d.PAIRS(d.current).motcorr) | isempty(d.PAIRS(d.current).mescroi)
+if d.is_onacid
+    d.PAIRS(d.current+1).onacid = d.PAIRS(d.current).onacid;
+end
+if isempty(d.PAIRS(d.current).motcorr) | (isempty(d.PAIRS(d.current).mescroi) & isempty(d.PAIRS(d.current).onacid))
     msgbox('One of the two previous fields is not filled in!');
     return
 end
@@ -263,6 +286,13 @@ function setupselection(hObject, eventdata)
 d = guidata(hObject);
 setup = lower(eventdata.NewValue.String);
 d.setup = setup;
+switch setup
+    case 'ao'
+        str = 'MESCROI';
+    case 'reso'
+        str = 'ONACID FILES';
+end
+set(d.mtb(2), 'String', str);
 guidata(d.F,d);
 
 function local_ID(hO, ev)
@@ -276,6 +306,7 @@ setup = lower(d.setup);
 for ip = 1:numel(d.PAIRS)
     P(ip).motcorr = d.PAIRS(ip).motcorr;
     P(ip).mescroi = d.PAIRS(ip).mescroi;
+    P(ip).onacid = d.PAIRS(ip).onacid;
     try
         P(ip).behavior = d.PAIRS(ip).behavior;
     catch
@@ -292,13 +323,15 @@ while ishandle(F)
 end
 d = guidata(hO);
 %%%TEMP COMMENT OUT
-tic;
-disp('Creating data.mat files!');
 stimlist.list = d.stim_pattern;
 stimlist.order = {'999','0','45','90','135','180','225','270','315'};
-collectdata(setup, MC_ROI_PAIRS, stimlist); %creates data.mat files
-t = toc;
-disp(['data.mat files created! Running time: ',num2str(t),' s']);
+if ~d.is_onacid
+    tic;
+    disp('Creating data.mat files!');
+    collectdata(setup, MC_ROI_PAIRS, stimlist); %creates data.mat files
+    t = toc;
+    disp(['data.mat files created! Running time: ',num2str(t),' s']);
+end
 
 %creating h5
 %here we create dummy hrf struct since there is no hrf coming from this gui
@@ -309,8 +342,15 @@ for ip = 1:numel(P)
     loc = strsplit(loc,'\');
     loc = loc(1:end-1);
     loc = strjoin(loc,'\');
-    dataloc = [loc,'\data.mat'];
+    if ~d.is_onacid
+        dataloc = [loc,'\data.mat'];
+    else
+        dataloc = [];
+    end
     hrf.analysis.imaging.data(ip).file_path = dataloc;
+    if d.is_onacid
+        hrf.analysis.imaging.onacid.file_path = P(ip).onacid;
+    end
     if ~isempty(P(ip).behavior)
         for ib = 1:numel(P(ip).behavior)
             hrf.measurements.session(ip).behavior_data(ib).file_path = P(ip).behavior{ib};
@@ -322,6 +362,9 @@ end
 % pars.dffmethod = 'median';
 % pars.tostitch = 0;
 
+if d.is_onacid
+    d.info.dffmethod = 'onAcid';%Forceful way imposing onacid
+end
 loc = P(1).motcorr;
 loc = strsplit(loc,'\');
 loc = loc(1:end-2);
