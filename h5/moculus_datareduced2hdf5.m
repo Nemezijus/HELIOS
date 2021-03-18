@@ -41,7 +41,7 @@ disp('Conversion done');
 for iunit = 1:Nunits
     disp(['Current Unit: ',num2str(iunit)]);
     parentloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
-        ['UNIT_',num2str(iunit)]},'/');
+        ['UNIT_',num2str(data(iunit).MeasureNumber)]},'/');
     cloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
         ['UNIT_',num2str(data(iunit).MeasureNumber)],'IMAGING'},'/');
     %XDATA
