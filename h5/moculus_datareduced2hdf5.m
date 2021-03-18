@@ -41,7 +41,7 @@ disp('Conversion done');
 for iunit = 1:Nunits
     disp(['Current Unit: ',num2str(iunit)]);
     cloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
-        ['UNIT_',num2str(data(iunit).MeasureNumber)]},'/IMAGING/');
+        ['UNIT_',num2str(data(iunit).MeasureNumber)],'IMAGING'},'/');
     %XDATA
     loc = [cloc,'/XDATA'];
     d = data(iunit).CaTransient(1).event(1,:)';
@@ -69,7 +69,7 @@ for iunit = 1:Nunits
     tic
     for iroi = 1:Nroi
         cloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
-            ['UNIT_',num2str(data(iunit).MeasureNumber)],['IMAGING']...
+            ['UNIT_',num2str(data(iunit).MeasureNumber)],'IMAGING'...
             ['ROI_',num2str(iroi)]},'/');
         %YDATA
         loc = [cloc, '/YDATA'];
