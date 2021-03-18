@@ -59,6 +59,7 @@ try
     h5writeatt(hdf5loc,'/DATA', 'ANIMALID', hrf.ID);
     h5writeatt(hdf5loc,'/DATA', 'SETUP', hrf.setup);
 catch
+    disp('initial H5 creation failed!');
 end
 
 
