@@ -73,8 +73,10 @@ if ~do_onacid
 end
 
 try
-    cloc = strjoin({'','DATA',['STAGE_',num2str(istage)]},'/');
-    h5writeatt(hdf5loc,cloc,'STIMLIST',stimlist.order);
+    for idl = 1:Ndata
+        cloc = strjoin({'','DATA',['STAGE_',num2str(idl)]},'/');
+        h5writeatt(hdf5loc,cloc,'STIMLIST',stimlist.order);
+    end
 catch
     disp('Stim list was not embedded');
 end
