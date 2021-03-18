@@ -75,6 +75,9 @@ end
 try
     for idl = 1:Ndata
         cloc = strjoin({'','DATA',['STAGE_',num2str(idl)]},'/');
+        if do_onacid
+            allocatespace(hdf5loc, {[]}, {cloc});
+        end
         h5writeatt(hdf5loc,cloc,'STIMLIST',stimlist.order);
     end
 catch
