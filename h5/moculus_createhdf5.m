@@ -165,7 +165,49 @@ if do_onacid
     onacidloc = strsplit(onacidloc{1},'\');
     onacidloc = onacidloc(1:end-1);
     onacidloc = strjoin(onacidloc,'\');
-    out = moculus_embedonacid(hdf5loc, data_locations, onacidloc, stageids); 
+    out = moculus_embedonacid(hdf5loc, data_locations, onacidloc, stageids);
+    
+    EXP = experiment(hdf5loc);
+    
+    %%%%%%%%%%%%%%%%%
+    loc = hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'dff')};
+    disp('Loading OnAcid stored dff file');
+    S = load(loc);
+    disp('Loading done');
+    fns = fieldnames(S);
+    dff = S.(fns{:});
+    if numel(dff(:,1)) ~= EXP.N_roi
+        ROIseq = onacidroimatch(hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'pre')},...
+            hrf.analysis.imaging.onacid.file_path{contains(hrf.analysis.imaging.onacid.file_path,'after')});
+        dff = dff(ROIseq,:);
+    end
+    for istage = 1:EXP.N_stages
+        Nsamples(istage) = numel(h5read(EXP.file_loc,['/DATA/STAGE_',num2str(istage),'/UNIT_1/IMAGING/XDATA']));
+    end
+    disp('Reshaping OnAcid dff struct');
+        DFF = onaciddffreshape(dff, EXP.N_stages, EXP.N_stim.*EXP.N_reps, Nsamples, EXP.N_reps);
+        disp('Reshaping done');
+        
+        stimsequence = h5readatt(hdf5loc,'/DATA/STAGE_1','STIMLIST');
+        
+        for idata = 1:EXP.N_stim(1)*EXP.N_reps(1)
+            stimlist(idata) = stimsequence(h5readatt(EXP.file_loc,['/DATA/STAGE_1/UNIT_',num2str(idata)],'STIMID'));
+        end
+        stimlist = stimlist(1:18);%dirty fix, needs a better approach
+        
+        disp('Storing OnAcid dff information');
+        storeonaciddff(EXP, DFF, stimlist, stimsequence);
+        disp('Storing done');
+        
+        stitchstr = '';
+        if tostitch
+            stitchstr = '_stitched';
+        end
+        root = '/ANALYSIS';
+        h5writeatt(EXP.file_loc,root,'DFFTYPE',[lower(method), stitchstr]);
+        h5writeatt(EXP.file_loc,root,'DFFMODDATE',datenum(now));
+        h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 %%%
 h = waitbar(0,'Calculating Max Correlations');

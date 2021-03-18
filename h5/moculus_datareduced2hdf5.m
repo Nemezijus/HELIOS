@@ -40,6 +40,8 @@ R = mescroi2poly(data(1).roiSpec, data(1).geomTrans, setup, data(1));
 disp('Conversion done');
 for iunit = 1:Nunits
     disp(['Current Unit: ',num2str(iunit)]);
+    parentloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
+        ['UNIT_',num2str(iunit)]},'/');
     cloc = strjoin({'','DATA',['STAGE_',num2str(istage)],...
         ['UNIT_',num2str(data(iunit).MeasureNumber)],'IMAGING'},'/');
     %XDATA
@@ -59,9 +61,14 @@ for iunit = 1:Nunits
     storedata(file_loc, {d}, {loc});
     %attributes
     %REPID
-    h5writeatt(file_loc,cloc, 'REPID', data(iunit).PredictedSession);
+    h5writeatt(file_loc,parentloc, 'REPID', data(iunit).PredictedSession);
     %STIMID
-    h5writeatt(file_loc,cloc, 'STIMID', data(iunit).PredictedOrientationID);
+    h5writeatt(file_loc,parentloc, 'STIMID', data(iunit).PredictedOrientationID);
+    try
+        h5writeatt(file_loc,parentloc, 'STIM', data(iunit).ProtocolStim);
+    catch
+        h5writeatt(file_loc,parentloc, 'STIM', 'NaN');
+    end
     %TIMEUNITS
     h5writeatt(file_loc,cloc, 'TIMEUNITS', 'ms');
 
