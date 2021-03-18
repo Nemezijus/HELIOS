@@ -35,17 +35,6 @@ else
     method = pars.dffmethod;
     tostitch = pars.tostitch;
 end
-try
-    fid = H5F.create(hdf5loc);
-    plist = 'H5P_DEFAULT';
-    gid = H5G.create(fid,'DATA',plist,plist,plist);
-    H5G.close(gid);
-    H5F.close(fid);
-    h5writeatt(hdf5loc,'/DATA', 'ANIMALID', hrf.ID);
-    h5writeatt(hdf5loc,'/DATA', 'SETUP', hrf.setup);
-catch
-end
-
 
 data_locations = {hrf.analysis.imaging.data.file_path};
 if isempty(data_locations)
@@ -56,6 +45,24 @@ if isempty(data_locations)
 else
     Ndata = numel(data_locations);
 end
+
+try
+    fid = H5F.create(hdf5loc);
+    plist = 'H5P_DEFAULT';
+    gid = H5G.create(fid,'DATA',plist,plist,plist);
+    for idl = 1:Ndata
+        gid2 = H5G.create(gid,['STAGE_',num2str(idl)],plist,plist,plist);
+        H5G.close(gid2);
+    end
+    H5G.close(gid);
+    H5F.close(fid);
+    h5writeatt(hdf5loc,'/DATA', 'ANIMALID', hrf.ID);
+    h5writeatt(hdf5loc,'/DATA', 'SETUP', hrf.setup);
+catch
+end
+
+
+
 for idl = 1:Ndata
     stageids{idl} = num2str(idl);
     if ~isempty(hrf.measurements.session(idl).behavior_data)
@@ -75,9 +82,6 @@ end
 try
     for idl = 1:Ndata
         cloc = strjoin({'','DATA',['STAGE_',num2str(idl)]},'/');
-        if do_onacid
-            allocatespace(hdf5loc, {rand(10)}, {cloc});
-        end
         h5writeatt(hdf5loc,cloc,'STIMLIST',stimlist.order);
     end
 catch
