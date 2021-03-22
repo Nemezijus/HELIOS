@@ -208,6 +208,7 @@ if do_onacid
     h5writeatt(EXP.file_loc,root,'DFFMODDATE',datenum(now));
     h5writeatt(EXP.file_loc,root,'DFFMODUSER',getenv('username'));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    exp = experiment(hdf5loc);
 end
 %%%
 h = waitbar(0,'Calculating Max Correlations');
