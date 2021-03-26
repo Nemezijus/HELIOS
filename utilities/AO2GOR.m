@@ -69,11 +69,9 @@ if sum(ismember(allextensions, '.csv')) == 0
     msgbox('no csv files found!');
     return
 else
-    for icsv = 1:sum(ismember(allextensions, '.csv'))
-        csvfile{icsv} = fullfile(allfilepaths(ismember(allextensions, '.csv')),...
+        csvfile = fullfile(allfilepaths(ismember(allextensions, '.csv')),...
             allnames(ismember(allextensions, '.csv')));
-        csvfilename{icsv} = allnames(ismember(allextensions, '.csv'));
-    end
+        csvfilename = allnames(ismember(allextensions, '.csv'));
 end
 if sum(ismember(allextensions, '.txt')) == 0
     msgbox('no txt files found!')
