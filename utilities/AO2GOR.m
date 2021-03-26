@@ -35,7 +35,7 @@ guidata(d.F, d);
 
 function local_done(hO, ed)
 d = guidata(hO);
-vrlog2gor(d.mode,d.csvfile,d.root);
+vrlog2gor(d.mode,d.csvfilename,d.root);
 local_VRSync(d.roimode,d.mesfile, d.root, d.stimloc);
 msgbox('DONE! Gor file exported!');
 
@@ -72,6 +72,7 @@ else
     for icsv = 1:sum(ismember(allextensions, '.csv'))
         csvfile{icsv} = fullfile(allfilepaths(ismember(allextensions, '.csv')),...
             allnames(ismember(allextensions, '.csv')));
+        csvfilename{1} = allnames(ismember(allextensions, '.csv'));
     end
 end
 if sum(ismember(allextensions, '.txt')) == 0
