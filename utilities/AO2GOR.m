@@ -35,7 +35,7 @@ guidata(d.F, d);
 
 function local_done(hO, ed)
 d = guidata(hO);
-vrlog2gor(d.mode,d.root,d.csvfile);
+vrlog2gor(d.mode,d.csvfile,d.root);
 local_VRSync(d.roimode,d.mesfile, d.root, d.stimloc);
 msgbox('DONE! Gor file exported!');
 
