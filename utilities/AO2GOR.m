@@ -72,7 +72,7 @@ else
     for icsv = 1:sum(ismember(allextensions, '.csv'))
         csvfile{icsv} = fullfile(allfilepaths(ismember(allextensions, '.csv')),...
             allnames(ismember(allextensions, '.csv')));
-        csvfilename{1} = allnames(ismember(allextensions, '.csv'));
+        csvfilename{icsv} = allnames(ismember(allextensions, '.csv'));
     end
 end
 if sum(ismember(allextensions, '.txt')) == 0
@@ -89,6 +89,7 @@ else
 end
 d.mesfile = mesfile;
 d.csvfile = csvfile;
+d.csvfilename = csvfilename;
 d.infofile = infofile;
 guidata(d.F, d);
 
