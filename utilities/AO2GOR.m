@@ -71,7 +71,7 @@ if sum(ismember(allextensions, '.csv')) == 0
 else
         csvfile = fullfile(allfilepaths(ismember(allextensions, '.csv')),...
             allnames(ismember(allextensions, '.csv')));
-        csvfilename = allnames(ismember(allextensions, '.csv'));
+        csvfilename = append(allnames(ismember(allextensions, '.csv')),'.csv');
 end
 if sum(ismember(allextensions, '.txt')) == 0
     msgbox('no txt files found!')
