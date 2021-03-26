@@ -79,7 +79,8 @@ if sum(ismember(allextensions, '.txt')) == 0
 else
     txtnames = allnames{ismember(allextensions, '.txt')};
     if ismember('info',lower(txtnames))
-        infofile = fullfile(,);
+        infofile = fullfile(allfilepaths(ismember(allextensions, '.txt')),...
+            allnames(ismember(allextensions, '.txt')));
     else
         msgbox('info.txt not found!')
         return
@@ -87,6 +88,7 @@ else
 end
 d.mesfile = mesfile;
 d.csvfile = csvfile;
+d.infofile = infofile;
 guidata(d.F, d);
 
 function local_VRSync(mode, filelocation, folder, stimlocation)
