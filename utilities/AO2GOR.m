@@ -29,6 +29,7 @@ guidata(F,d);
 function local_select_directory(hO, ed)
 d = guidata(hO);
 directory = uigetdir('Please Select the Directory with all the Files!');
+directory = [directory,'\'];
 d = dir_contents(directory,d);
 d.root = directory;
 guidata(d.F, d);
