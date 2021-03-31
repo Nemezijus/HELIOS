@@ -97,6 +97,8 @@ d.PBs = [];
 d.mtb = mTextBox;
 d.setup = 'RESO'; %default
 d.is_onacid = 0;
+d.stim_present = 0;
+d.stim_pattern = [];
 guidata (F, d);
 [BTX, B] = add_row(F, B);
 
@@ -323,8 +325,12 @@ while ishandle(F)
 end
 d = guidata(hO);
 %%%TEMP COMMENT OUT
-stimlist.list = d.stim_pattern;
-stimlist.order = {'999','0','45','90','135','180','225','270','315'};
+if isempty(d.stim_pattern)
+    stimlist = [];
+else
+    stimlist.list = d.stim_pattern;
+    stimlist.order = {'999','0','45','90','135','180','225','270','315'};
+end
 if ~d.is_onacid
     tic;
     disp('Creating data.mat files!');
