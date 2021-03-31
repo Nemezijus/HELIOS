@@ -24,11 +24,17 @@ if ~nodata
     [MP,LUT] = maxProjection(data);
     %MAXPROJ
     loc = [cloc,'/MAXPROJ'];
-    allocatespace(file_loc, {MP}, {loc});
+    try
+        allocatespace(file_loc, {MP}, {loc});
+    catch
+    end
     storedata(file_loc, {MP}, {loc});
     %MAXPROJLUT
     loc = [cloc,'/MAXPROJLUT'];
-    allocatespace(file_loc, {LUT}, {loc});
+    try
+        allocatespace(file_loc, {LUT}, {loc});
+    catch
+    end
     storedata(file_loc, {LUT}, {loc});
     %DATAPATH
     try
@@ -60,36 +66,45 @@ for iunit = 1:Nunits
         %XDATA
         loc = [cloc,'/XDATA'];
         d = data([data.subindex]==iunit).CaTransient(1).event(1,:)';
-        allocatespace(file_loc, {d}, {loc});
+        try
+            allocatespace(file_loc, {d}, {loc});
+        catch
+        end
         storedata(file_loc, {d}, {loc});
         %MEANFRAME
         loc = [cloc,'/MEANFRAME'];
         d = data([data.subindex]==iunit).meanPic;
-        allocatespace(file_loc, {d}, {loc});
+        try
+            allocatespace(file_loc, {d}, {loc});
+        catch
+        end
         storedata(file_loc, {d}, {loc});
         %MEANFRAMELUT
         loc = [cloc,'/MEANFRAMELUT'];
         d = data([data.subindex]==iunit).gmap;
-        allocatespace(file_loc, {d}, {loc});
+        try
+            allocatespace(file_loc, {d}, {loc});
+        catch
+        end
         storedata(file_loc, {d}, {loc});
         %attributes
         %REPID
         try
             h5writeatt(file_loc,parentloc, 'REPID', data([data.subindex]==iunit).PredictedSession);
         catch
-            h5writeatt(file_loc,parentloc, 'REPID', 'NaN');
+            h5writeatt(file_loc,parentloc, 'REPID', []);
         end
         %STIMID
         try
             h5writeatt(file_loc,parentloc, 'STIMID', data([data.subindex]==iunit).PredictedOrientationID);
         catch
-            h5writeatt(file_loc,parentloc, 'STIMID', 'NaN');
+            h5writeatt(file_loc,parentloc, 'STIMID', []);
         end
         %STIM
         try
             h5writeatt(file_loc,parentloc, 'STIM', data([data.subindex]==iunit).ProtocolStim);
         catch
-            h5writeatt(file_loc,parentloc, 'STIM', 'NaN');
+            h5writeatt(file_loc,parentloc, 'STIM', []);
         end
         %TIMEUNITS
         h5writeatt(file_loc,cloc, 'TIMEUNITS', 'ms');
@@ -100,7 +115,10 @@ for iunit = 1:Nunits
             %YDATA
             loc = [cloc, '/YDATA'];
             d = data([data.subindex]==iunit).CaTransient(iroi).event(2,:)';
-            allocatespace(file_loc, {d}, {loc});
+            try
+                allocatespace(file_loc, {d}, {loc});
+            catch
+            end
             storedata(file_loc, {d}, {loc});
             %ROIMASK
             if iunit == 1
@@ -109,7 +127,10 @@ for iunit = 1:Nunits
                 logicalROI = zeros(size(image));
                 logicalROI(uint64(roi_indexed)) = 1;
                 maskpath = strjoin({'/ANALYSIS',['ROI_',num2str(iroi)],['STAGE_',num2str(istage)],'ROIMASK'},'/');
-                allocatespace(file_loc, {logicalROI}, {maskpath});
+                try
+                    allocatespace(file_loc, {logicalROI}, {maskpath});
+                catch
+                end
                 storedata(file_loc, {logicalROI}, {maskpath});
                 %DIMENSIONS FOR AO FF
                 setup = h5readatt(file_loc,'/DATA','SETUP');
@@ -187,7 +208,10 @@ for iunit = 1:Nunits
         if strcmp(cstring,'time')
             nsamples = numel(v);
         end
-        allocatespace(file_loc, {v}, {[clocbeh,upper(cstring)]});
+        try
+            allocatespace(file_loc, {v}, {[clocbeh,upper(cstring)]});
+        catch
+        end
         storedata(file_loc, {v}, {[clocbeh,upper(cstring)]});
     end
     
@@ -196,7 +220,10 @@ for iunit = 1:Nunits
     for ics = 1:numel(cstrings)
         cstring = cstrings{ics};
         v = getfromcsv(cstring, T_names, T, nsamples);
-        allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        try
+            allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        catch
+        end
         storedata(file_loc, {v}, {[cloc,upper(cstring)]});
     end
     
@@ -211,7 +238,10 @@ for iunit = 1:Nunits
     for ics = 1:numel(cstrings)
         cstring = cstrings{ics};
         v = getfromcsv(cstring, T_names, T, nsamples);
-        allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        try
+            allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        catch
+        end
         storedata(file_loc, {v}, {[cloc,upper(cstring)]});
     end
     
@@ -226,10 +256,16 @@ for iunit = 1:Nunits
         cstring = cstrings{ics};
         v = getfromcsv(cstring, T_names, T, nsamples);
         if strcmp(cstring,'left')
-            allocatespace(file_loc, {v}, {[cloc,'REWARD']});
+            try
+                allocatespace(file_loc, {v}, {[cloc,'REWARD']});
+            catch
+            end
             storedata(file_loc, {v}, {[cloc,'REWARD']});%THIS IS VERY CONFUSING MIGHT NEED TO CHANGE STUFF HERE
         else
-            allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+            try
+                allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+            catch
+            end
             storedata(file_loc, {v}, {[cloc,upper(cstring)]});
         end
     end
@@ -240,7 +276,10 @@ for iunit = 1:Nunits
     for ics = 1:numel(cstrings)
         cstring = cstrings{ics};
         v = getfromcsv(cstring, T_names, T, nsamples);
-        allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        try
+            allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        catch
+        end
         storedata(file_loc, {v}, {[cloc,upper(cstring)]});
     end
     
@@ -253,8 +292,10 @@ for iunit = 1:Nunits
             [idxs, ~] = find(v);
             trigger_idx = idxs(1);
         end
-        
-        allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        try
+            allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
+        catch
+        end
         storedata(file_loc, {v}, {[cloc,upper(cstring)]});
     end
     
