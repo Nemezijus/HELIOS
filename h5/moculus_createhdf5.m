@@ -90,7 +90,11 @@ catch
 end
 
 for idl = 1:Ndata
-    h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', pars.stimtype);
+    try
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', pars.stimtype);
+    catch
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', 'none');
+    end
 end
 
 for idl = 1:Ndata

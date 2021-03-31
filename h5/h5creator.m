@@ -4,7 +4,7 @@ bgcol = [0.4431 0.5608 0.4510];
 F = figure;
 set(F,'units', 'normalized', 'position', [0.257 0.342 0.49 0.448],...
     'color',bgcol,...
-    'MenuBar','Figure','Name','H5creator','NumberTitle','off','tag','h5creator');
+    'MenuBar','None','Name','H5creator','NumberTitle','off','tag','h5creator');
 
 PAIRS = struct;
 B = 0.75;
