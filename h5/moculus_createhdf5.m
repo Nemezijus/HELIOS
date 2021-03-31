@@ -93,7 +93,7 @@ for idl = 1:Ndata
     try
         h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', pars.stimtype);
     catch
-        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', 'none');
+        h5writeatt(hdf5loc,['/DATA/STAGE_',num2str(idl)], 'STIMTYPE', []);
     end
 end
 
