@@ -258,7 +258,7 @@ end
                             data(unitID).logicalROI(i).axisLength=s.MajorAxisLength;
                             data(unitID).logicalROI(i).dims=[ax ay];
                             cx=data(unitID).logicalROI(i).centroid(1);
-                            cy=data(unitID).logicalROI(i).centroid(2);t
+                            cy=data(unitID).logicalROI(i).centroid(2);
                             if ~hasstims
                                 [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info); %%% SWAPPED!!! 
                             end
