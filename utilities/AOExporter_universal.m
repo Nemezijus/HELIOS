@@ -216,13 +216,7 @@ end
                             
                             
                             
-                            % Finding centroid first
-                            rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
-                            centr = cat(1, rawmask.Centroid);
-                            cx=centr(1);
-                            cy=centr(2);
-                            [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
-                            maskBuffer=maskfilter(mask,AOSize,roiLoc);
+
                             
                             if ~hasstims %from AOExporterVR
                                 maxroinum=size(frameSet,1)/AOSize;
@@ -249,7 +243,13 @@ end
                                 %%
                                 maskBuffer=maskfilter(mask,AOSize,roiLoc);
                             else %from AOExporter
-                                
+                            % Finding centroid first
+                            rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
+                            centr = cat(1, rawmask.Centroid);
+                            cx=centr(1);
+                            cy=centr(2);
+                            [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
+                            maskBuffer=maskfilter(mask,AOSize,roiLoc);    
 
                             end
                             % ROI COMPRESSION - Normal coordinates
