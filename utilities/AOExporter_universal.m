@@ -91,28 +91,28 @@ end
     
     % LOAD folders Roiset
     %%%%%%%%%%%%%%%%%%%
-    if multiroi==1
+    if multiroi == 1
         outStruct = xml2struct2(roilocation);
-        for i=1:size(outStruct.MESconfig.ROIs.Polygon,2)
-            polysize=length(outStruct.MESconfig.ROIs.Polygon{1, i}.param);
-            for p=1:polysize
+        for i = 1:size(outStruct.MESconfig.ROIs.Polygon,2)
+            polysize = length(outStruct.MESconfig.ROIs.Polygon{1, i}.param);
+            for p = 1:polysize
                 outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value;
-                a=strsplit(outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
-                R(i).POLY(1,p)=str2num(a{1});
-                R(i).POLY(2,p)=str2num(a{2});
+                a = strsplit(outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
+                R(i).POLY(1,p) = str2num(a{1});
+                R(i).POLY(2,p) = str2num(a{2});
             end
         end
     end
     %%%%%%%%%%%%%%%%%%%
     % Datas
     disp('Data loading... Please wait!')
-    chaninput=1;
+    chaninput = 1;
     %
     clear data
 
 
         file_open([],filelocation);
-        mode='XYT';
+        mode = 'XYT';
         %
         %global mainsettings
         f = mestaghandle('isf');
@@ -137,30 +137,30 @@ end
         end
         %%% till here
         
-        todel=false(size(f));
-        for ID=1:numel(f)
-            typ=get(f(ID), 1, 'Type');
+        todel = false(size(f));
+        for ID = 1:numel(f)
+            typ = get(f(ID), 1, 'Type');
             switch mode
                 case 'XYZ'
                     if ~strcmp(typ, 'XY')
-                        todel(ID)=true;
+                        todel(ID) = true;
                     end
                 case 'XYT'
                     if ~strcmp(typ, 'FF')
-                        todel(ID)=true;
+                        todel(ID) = true;
                     end
                 otherwise
                     error('ezittnemkene 8362352')
             end
         end
-        f(todel)=[];
+        f(todel) = [];
         if isempty(f)
             warndlg('No appropriate measurement unit found!', 'Export all XYZ to tiff')
             return
         end
         
         %diri=uigetdir(mainsettings.dirDATA);
-        diri=exportlocation;
+        diri = exportlocation;
         if isnumeric(diri)
             return
         end
@@ -168,12 +168,12 @@ end
         h2 = waitbar(0,'Exporting measurement units...', 'Name', 'MES' );
         setp(h2, '+y', 90)
         clear AOCell
-        unitcount=1;
+        unitcount = 1;
         
-        for unitID=1:numel(f)  % unit level
-            typ=get(f(unitID), 1, 'Type');
-            mthnam=strrep(strrep(char(f(unitID)), '*', ''), ' ', '');
-            filenam=fullfile(diri, [mthnam, '.tiff']);
+        for unitID = 1:numel(f)  % unit level
+            typ = get(f(unitID), 1, 'Type');
+            mthnam = strrep(strrep(char(f(unitID)), '*', ''), ' ', '');
+            filenam = fullfile(diri, [mthnam, '.tiff']);
             switch typ
                 case 'XY'
                     %expmultitiff(f(i), filenam)
@@ -181,47 +181,43 @@ end
                     clear info frameSet
                     info = Line2getxypos(f(unitID));
                     %fout=foldedframe2xyz2(f(unitID));
-                    [subindex,prew,frameSet,lineInfo,attribs]=foldedframe2xyz2Own(f(unitID),chaninput);
+                    [subindex,prew,frameSet,lineInfo,attribs] = foldedframe2xyz2Own(f(unitID),chaninput);
                     
                     if preview
-                        prev(:,:,unitcount)=mean(frameSet,3,'omitnan');
-                        unitcount=unitcount+1;
+                        prev(:,:,unitcount) = mean(frameSet,3,'omitnan');
+                        unitcount = unitcount+1;
                     end
                    
-                    if unitID==1
+                    if unitID == 1
                         %save('rescueAttrib.mat','attribs')
                     end
                     
-                    AOSize=get(f(unitID), 1, 'AO_collection_usedpixels');
-                    comment=get(f(unitID), 1, 'Comment');
+                    AOSize = get(f(unitID), 1, 'AO_collection_usedpixels');
+                    comment = get(f(unitID), 1, 'Comment');
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     switch multiroi
                         case 1
                         % Fixating rois
                         
-                        ax=size(frameSet,2);  % Swapped!!!!
-                        ay=size(frameSet,1);   % Swapped!!!!
-                        convX=attribs(1).TransverseStep;
-                        convY=attribs(1).WidthStep;
+                        ax = size(frameSet,2);  % Swapped!!!!
+                        ay = size(frameSet,1);   % Swapped!!!!
+                        convX = attribs(1).TransverseStep;
+                        convY = attribs(1).WidthStep;
                         clear mask maskBuffer
-                        for i=1:size(R,2)
+                        for i = 1:size(R,2)
                             R(i).POLY2(1,:)=R(i).POLY(1,:)/convY;
                             R(i).POLY2(2,:)=R(i).POLY(2,:)/convX;
                         end
                         % PolyCore
-                        for i=1:size(R,2)  %% CELL LEVEL
+                        for i = 1:size(R,2)  %% CELL LEVEL
                             
-                            data(unitID).CaTransient(i).poly=[R(i).POLY2(1,:);R(i).POLY2(2,:)];
+                            data(unitID).CaTransient(i).poly = [R(i).POLY2(1,:);R(i).POLY2(2,:)];
                             mask = logical(poly2mask(R(i).POLY2(1,:),R(i).POLY2(2,:),ax,ay));
                             
-                            
-                            
-
-                            
                             if ~hasstims %from AOExporterVR
-                                maxroinum=size(frameSet,1)/AOSize;
-                                checker=flipud(mask)';
-                                maxleny=size(checker,1);
+                                maxroinum = size(frameSet,1)/AOSize;
+                                checker = flipud(mask)';
+                                maxleny = size(checker,1);
                                 maxlenx=size(checker,2);
                                 [x,y,z,section,roiLocMax]=Line2getxypos(round(maxleny),round(maxleny),info);
                                 if roiLocMax>maxroinum
@@ -229,7 +225,12 @@ end
                                 else
                                     doublecoord=0;
                                 end
-                                %% Reallocate roiLoc
+                                rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
+                                centr = cat(1, rawmask.Centroid);
+                                cx=centr(1);
+                                cy=centr(2);
+                                [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
+                                % Reallocate roiLoc
                                 if doublecoord==1
                                     if roiLoc==roiLocMax
                                         roiLocNew=(roiLoc/2)
@@ -240,16 +241,16 @@ end
                                     roiLoc=roiLoc; %old one
                                 end
                                 roiLoc=roiLocNew;
-                                %%
+                                %
                                 maskBuffer=maskfilter(mask,AOSize,roiLoc);
                             else %from AOExporter
-                            % Finding centroid first
-                            rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
-                            centr = cat(1, rawmask.Centroid);
-                            cx=centr(1);
-                            cy=centr(2);
-                            [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
-                            maskBuffer=maskfilter(mask,AOSize,roiLoc);    
+                                % Finding centroid first
+                                rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
+                                centr = cat(1, rawmask.Centroid);
+                                cx=centr(1);
+                                cy=centr(2);
+                                [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
+                                maskBuffer=maskfilter(mask,AOSize,roiLoc);
 
                             end
                             % ROI COMPRESSION - Normal coordinates
