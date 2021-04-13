@@ -80,26 +80,18 @@ switch mode
         motioncorr=false;   
 end
 
-
-
-
-%
-
     
-    %folder=strcat(dname,'\');
-   % roifilt=PathFilter(pathML,'.mescroi',1)';
-    
-    % LOAD folders Roiset
+    % if manually selected rois, read the coordinates from mescroi file
+    % into R struct
     %%%%%%%%%%%%%%%%%%%
     if multiroi == 1
         outStruct = xml2struct2(roilocation);
-        for i = 1:size(outStruct.MESconfig.ROIs.Polygon,2)
-            polysize = length(outStruct.MESconfig.ROIs.Polygon{1, i}.param);
+        for ipoly = 1:size(outStruct.MESconfig.ROIs.Polygon,2)
+            polysize = length(outStruct.MESconfig.ROIs.Polygon{1, ipoly}.param);
             for p = 1:polysize
-                outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value;
-                a = strsplit(outStruct.MESconfig.ROIs.Polygon{1, i}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
-                R(i).POLY(1,p) = str2num(a{1});
-                R(i).POLY(2,p) = str2num(a{2});
+                a = strsplit(outStruct.MESconfig.ROIs.Polygon{1, ipoly}.param{1, p}.Attributes.value,{' '},'CollapseDelimiters',true);
+                R(ipoly).POLY(1,p) = str2num(a{1});
+                R(ipoly).POLY(2,p) = str2num(a{2});
             end
         end
     end
@@ -128,7 +120,9 @@ end
         end
         
         %%%ADDED by ANDY
-        if allunits
+        %for when this function is run on all units and there are stimuli P stores the full
+        %sequence of stimuli order
+        if allunits & hasstims
             SZ = size(f);
             Nunits = SZ(2);
             full = floor(Nunits/numel(stimlist.list));
@@ -137,6 +131,8 @@ end
         end
         %%% till here
         
+        %define todel - variable which shows units that are not time-series
+        %or 'FF' and reduce f to only those units
         todel = false(size(f));
         for ID = 1:numel(f)
             typ = get(f(ID), 1, 'Type');
@@ -159,7 +155,6 @@ end
             return
         end
         
-        %diri=uigetdir(mainsettings.dirDATA);
         diri = exportlocation;
         if isnumeric(diri)
             return
@@ -180,16 +175,12 @@ end
                 case 'FF'
                     clear info frameSet
                     info = Line2getxypos(f(unitID));
-                    %fout=foldedframe2xyz2(f(unitID));
+                    
                     [subindex,prew,frameSet,lineInfo,attribs] = foldedframe2xyz2Own(f(unitID),chaninput);
                     
                     if preview
                         prev(:,:,unitcount) = mean(frameSet,3,'omitnan');
                         unitcount = unitcount+1;
-                    end
-                   
-                    if unitID == 1
-                        %save('rescueAttrib.mat','attribs')
                     end
                     
                     AOSize = get(f(unitID), 1, 'AO_collection_usedpixels');
@@ -260,7 +251,7 @@ end
                             data(unitID).logicalROI(i).dims=[ax ay];
                             cx=data(unitID).logicalROI(i).centroid(1);
                             cy=data(unitID).logicalROI(i).centroid(2);
-                            if ~hasstims
+                            if hasstims
                                 [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info); %%% SWAPPED!!! 
                             end
                             data(unitID).CaTransient(i).Realxyz=[x y z];
