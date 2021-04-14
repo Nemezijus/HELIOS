@@ -50,6 +50,7 @@ for ip = 1:numel(mrp)
                     data=[data d(i).data];
                 end
             else
+                data = AOExporter_HELIOS(mcfileloc,roifileloc,stimlist,saveloc,mode);
                 data = AOExporter_universal(mcfileloc,roifileloc,stimlist,saveloc,mode,[]);
             end
             
