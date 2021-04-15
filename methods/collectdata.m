@@ -41,8 +41,8 @@ for ip = 1:numel(mrp)
                         roiloc = roifileloc;
                     end
                     disp(['working on unit ',num2str(ic)]);
-                    data = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
-%                     data = AOExporter_universal(mcfileloc,roiloc,[],saveloc,mode,units(ic));
+%                     data = AOExporterVR(mcfileloc,roiloc,[],saveloc,mode,units(ic));
+                    data = AOExporter_universal(mcfileloc,roiloc,[],saveloc,mode,units(ic));
                     d(ic).data = data;
                 end
                 data=[];
@@ -50,7 +50,7 @@ for ip = 1:numel(mrp)
                     data=[data d(i).data];
                 end
             else
-                data = AOExporter_HELIOS(mcfileloc,roifileloc,stimlist,saveloc,mode);
+%                 data = AOExporter_HELIOS(mcfileloc,roifileloc,stimlist,saveloc,mode);
                 data = AOExporter_universal(mcfileloc,roifileloc,stimlist,saveloc,mode,[]);
             end
             
