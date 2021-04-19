@@ -167,7 +167,7 @@ end
         
         for unitID = 1:numel(f)  % unit level
             typ = get(f(unitID), 1, 'Type');
-            mthnam = strrep(strrep(char(f(unitID)), '*', ''), ' ', '');
+            mthnam = strrep(strrep(char(f(unitID)), '*', ''), ' ', ''); %unit name
             filenam = fullfile(diri, [mthnam, '.tiff']);
             switch typ
                 case 'XY'
@@ -177,13 +177,18 @@ end
                     info = Line2getxypos(f(unitID));
                     
                     [subindex,prew,frameSet,lineInfo,attribs] = foldedframe2xyz2Own(f(unitID),chaninput);
+                    %frameSet - W x H x T
+                    %W - frame width - one frame height in px times number
+                    %of ROIs
+                    %H - frame height in px
+                    %T - number of frames (time axis)
                     
                     if preview
                         prev(:,:,unitcount) = mean(frameSet,3,'omitnan');
                         unitcount = unitcount+1;
                     end
                     
-                    AOSize = get(f(unitID), 1, 'AO_collection_usedpixels');
+                    AOSize = get(f(unitID), 1, 'AO_collection_usedpixels');%one ROI/rectangle height in px
                     comment = get(f(unitID), 1, 'Comment');
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     switch multiroi
@@ -192,8 +197,8 @@ end
                         
                         ax = size(frameSet,2);  % Swapped!!!!
                         ay = size(frameSet,1);   % Swapped!!!!
-                        convX = attribs(1).TransverseStep;
-                        convY = attribs(1).WidthStep;
+                        convX = attribs(1).TransverseStep; %scaling factor
+                        convY = attribs(1).WidthStep; %scaling factor
                         clear mask maskBuffer
                         for i = 1:size(R,2)
                             R(i).POLY2(1,:)=R(i).POLY(1,:)/convY;
@@ -201,15 +206,16 @@ end
                         end
                         % PolyCore
                         for i = 1:size(R,2)  %% CELL LEVEL
-                            
+                            disp(['ROI: ', num2str(i)])
                             data(unitID).CaTransient(i).poly = [R(i).POLY2(1,:);R(i).POLY2(2,:)];
+                            %mask of the current ROI
                             mask = logical(poly2mask(R(i).POLY2(1,:),R(i).POLY2(2,:),ax,ay));
                             
                             if ~hasstims %from AOExporterVR
                                 maxroinum = size(frameSet,1)/AOSize;
                                 checker = flipud(mask)';
-                                maxleny = size(checker,1);
-                                maxlenx=size(checker,2);
+                                maxleny = size(checker,1); %same as ay
+                                maxlenx=size(checker,2); %same as ax
                                 [x,y,z,section,roiLocMax]=Line2getxypos(round(maxleny),round(maxleny),info);
                                 if roiLocMax>maxroinum
                                     doublecoord=1;
@@ -218,96 +224,110 @@ end
                                 end
                                 rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
                                 centr = cat(1, rawmask.Centroid);
-                                cx=centr(1);
-                                cy=centr(2);
-                                [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
+                                cx = centr(1);
+                                cy = centr(2);
+                                %cx, cy - centroid coordinates in
+                                %non-checkerboard configuration
+                                [x,y,z,section,roiLoc] = Line2getxypos(round(cy),round(cx),info);
+                                %x, y are coordinates in the full field of
+                                %view image [background]
+                                
                                 % Reallocate roiLoc
-                                if doublecoord==1
-                                    if roiLoc==roiLocMax
-                                        roiLocNew=(roiLoc/2)
+                                if doublecoord == 1
+                                    if roiLoc == roiLocMax
+                                        roiLocNew = (roiLoc/2);
                                     else
-                                        roiLocNew=(roiLoc+1)/2;
+                                        roiLocNew = (roiLoc+1)/2;
                                     end
                                 else
-                                    roiLoc=roiLoc; %old one
+                                    roiLoc = roiLoc; %old one
                                 end
-                                roiLoc=roiLocNew;
-                                %
-                                maskBuffer=maskfilter(mask,AOSize,roiLoc);
+                                roiLoc = roiLocNew;
+                                % roiLocNew - the index of the FF rectangle
+                                maskBuffer = maskfilter(mask,AOSize,roiLoc);
                             else %from AOExporter
                                 % Finding centroid first
                                 rawmask = regionprops(flipud(mask)','centroid','MajorAxisLength');
                                 centr = cat(1, rawmask.Centroid);
-                                cx=centr(1);
-                                cy=centr(2);
-                                [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info);
-                                maskBuffer=maskfilter(mask,AOSize,roiLoc);
-
+                                cx = centr(1);
+                                cy = centr(2);
+                                [x,y,z,section,roiLoc] = Line2getxypos(round(cy),round(cx),info);
+                                maskBuffer = maskfilter(mask,AOSize,roiLoc);
                             end
                             % ROI COMPRESSION - Normal coordinates
                             s = regionprops(flipud(maskBuffer)','centroid','MajorAxisLength');
                             data(unitID).logicalROI(i).centroid = cat(1, s.Centroid);
-                            data(unitID).logicalROI(i).axisLength=s.MajorAxisLength;
-                            data(unitID).logicalROI(i).dims=[ax ay];
-                            cx=data(unitID).logicalROI(i).centroid(1);
-                            cy=data(unitID).logicalROI(i).centroid(2);
+                            data(unitID).logicalROI(i).axisLength = s.MajorAxisLength;
+                            data(unitID).logicalROI(i).dims = [ax ay];
+                            cx = data(unitID).logicalROI(i).centroid(1);
+                            cy = data(unitID).logicalROI(i).centroid(2);
                             if hasstims
-                                [x,y,z,section,roiLoc]=Line2getxypos(round(cy),round(cx),info); %%% SWAPPED!!! 
+                                [x,y,z,section,roiLoc] = Line2getxypos(round(cy),round(cx),info); %%% SWAPPED!!! 
                             end
-                            data(unitID).CaTransient(i).Realxyz=[x y z];
-                            data(unitID).CaTransient(i).RealRoi=roiLoc;
-                            data(unitID).CaTransient(i).RealSection=section;
+                            data(unitID).CaTransient(i).Realxyz = [x y z];
+                            data(unitID).CaTransient(i).RealRoi = roiLoc;
+                            data(unitID).CaTransient(i).RealSection = section;
                             % Create chess ROIS
-                            maskfilter(maskBuffer,AOSize,roiLoc);
+%                             maskfilter(maskBuffer,AOSize,roiLoc);
                             %
-                            chessROI=transformROIToChess(flipud(maskBuffer),AOSize);
+                            chessROI = transformROIToChess(flipud(maskBuffer),AOSize);
+                            %chessROI - the ROI mask in chessboard view!
                             CC = bwconncomp(chessROI);
+                            %CC contains pixel indices for the current ROI
+                            %in chessboard view
                             data(unitID).logicalROI(i).roi=uint64(CC.PixelIdxList{1, 1});
-                            %data(unitID).logicalROI(i).roiRaw=maskBuffer;
+                            
                             
                             % NEW CENTROID
                             s2 = regionprops(chessROI,'centroid','MajorAxisLength');
+                            %s2 contains coordinates in chessboard view
                             data(unitID).logicalROI(i).centroidChess = cat(1, s2.Centroid);
                             %
-                            if i==1;clear framePool;framePool=uint32(zeros([size(frameSet,2) size(frameSet,1) 1]));
+                            if i == 1
+                                clear framePool;
+                                framePool = uint32(zeros([size(frameSet,2) size(frameSet,1) 1]));
                             end
                             
                             %%%%%% Indexing CORE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                            for j=1:size(frameSet,3) %% frame
-                                I=flipud(frameSet(:,:,j)');
-                                v=I(maskBuffer);
-                                intensityVector(j)=mean(v,'omitnan');
-                                if i==1;framePool=framePool+uint32(I);
+                            %collecting mean Ca signal inside ROI to
+                            %intensityVector
+                            for j = 1:size(frameSet,3) %% frame
+                                I = flipud(frameSet(:,:,j)');
+                                v = I(maskBuffer);
+                                intensityVector(j) = mean(v,'omitnan');
+                                if i == 1
+                                    framePool = framePool + uint32(I);
                                 end
                             end
                             
-                            if i==1;meanPic=uint16(framePool/(size(frameSet,3)));
+                            if i == 1
+                                meanPic = uint16(framePool/(size(frameSet,3)));
                             end
                             %%%%%%  Indexing CORE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                             %%%%%Correct sample time
                             
-                            st=attribs(1).FoldedFrameInfo.firstFrameStartTime;
-                            steps=attribs(1).FoldedFrameInfo.frameTimeLength;
-                            stframe=st/steps;
-                            AOSize=attribs(1).AO_collection_usedpixels;
-                            FFnum=size(frameSet,1)/AOSize;
-                            timeVect=(stframe:(size(frameSet,3)+stframe-1))*steps;
-                            ROI(i).event(1,:)=timeVect;
-                            ROI(i).event(2,:)=intensityVector;
-                            ROI(i).RoiID=i;
+                            st = attribs(1).FoldedFrameInfo.firstFrameStartTime;
+                            steps = attribs(1).FoldedFrameInfo.frameTimeLength;
+                            stframe = st/steps;
+                            AOSize = attribs(1).AO_collection_usedpixels;
+                            FFnum = size(frameSet,1)/AOSize;
+                            timeVect = (stframe:(size(frameSet,3) + stframe-1))*steps; %time axis
+                            ROI(i).event(1,:) = timeVect;
+                            ROI(i).event(2,:) = intensityVector;
+                            ROI(i).RoiID = i;
    
                             % Integrate data
-                            data(unitID).CaTransient(i).event(1,:)=timeVect;
-                            data(unitID).CaTransient(i).event(2,:)=intensityVector;
+                            data(unitID).CaTransient(i).event(1,:) = timeVect;
+                            data(unitID).CaTransient(i).event(2,:) = intensityVector;
                             clear intensityVector;
-                            data(unitID).CaTransient(i).RoiID=i;
-                            data(unitID).CaTransient(i).RoiIDReal=i;
+                            data(unitID).CaTransient(i).RoiID = i;
+                            data(unitID).CaTransient(i).RoiIDReal = i;
                             try
                                 attribs = rmfield(attribs, 'IMAGE');
                             catch
                               %  warning('rmerr');
                             end
-                            data(unitID).attribs=attribs;
+                            data(unitID).attribs = attribs;
                         end
                     %    disp ('G')
                         case 0 %% Scanfields
@@ -364,64 +384,60 @@ end
                     % Calculate meanpic, rois
                     if calc
                         
-                        if multiroi==1 %% Calc unit
-                            for cellID=1:size(frameSet,1)/AOSize
+                        if multiroi == 1 %% Calc unit
+                            for cellID = 1:size(frameSet,1)/AOSize
                                 clear start AOCell;
-                                for id=1:size(frameSet,3)
-                                    start=((cellID-1)*AOSize)+1;
-                                    stop=(start+AOSize)-1;
-                                    AOCell(:,:,id)=frameSet(start:stop,:,id);
+                                for id = 1:size(frameSet,3)
+                                    start = ((cellID-1)*AOSize)+1;
+                                    stop = (start+AOSize)-1;
+                                    AOCell(:,:,id) = frameSet(start:stop,:,id);
                                 end
-                                unit(cellID).mean=mean(AOCell,3,'omitnan');
+                                unit(cellID).mean = mean(AOCell,3,'omitnan');
                             end %% cell level
                             
                         end
+                        %AOCell - a multidimensional matrix with chessboard
+                        %frames stacked
                         
-                        
-                        [idArray,meanPic]=unit2shape(unit,'Mode','chessboard','Dataname','mean','ConvertMap',1);
+                        [idArray,meanPic] = unit2shape(unit,'Mode','chessboard','Dataname','mean','ConvertMap',1);
+                        %idArray - index of real/existing chessboard frames
+                        %meanPic - mean chessboard view image
                         meanPic = im2uint16(meanPic);
-                        greenVec=linspace(0,1,65535);
-                        gmap=[zeros(65535,1)';greenVec;zeros(65535,1)']';
-                        data(unitID).gmap=gmap;
-                        data(unitID).meanPic=meanPic;
-                        data(unitID).realSlice=prew;
-                        data(unitID).subindex=subindex;
-%                         Im=logical(zeros([414 240]))
-%                         for i=1:9
-%                             I=decompressROI(data(unitID).logicalROI(i).roi,[size(data(unitID).meanPic,1),size(data(unitID).meanPic,2)])
-%                             Im=Im|logical(I);
-%                         end
-%                         
-%                         figure,imagesc(imoverlay(data(unitID).meanPic,bwperim(Im),[1 0 0]))
-%                         %figure,imagesc(meanPic), colormap(gmap);
+                        greenVec = linspace(0,1,65535);
+                        gmap = [zeros(65535,1)';greenVec;zeros(65535,1)']';
+                        data(unitID).gmap = gmap;
+                        data(unitID).meanPic = meanPic;
+                        data(unitID).realSlice = prew;
+                        data(unitID).subindex  =subindex;
+
                         %
-                        if multiroi~=1
-                            blocksize=size(unit(1).mean);
-                            meanpicsize=size(meanPic);
-                            for idy=1:size(idArray,1)
-                                for idx=1:size(idArray,2)
-                                    meanpicMask=logical(zeros(meanpicsize));
+                        if multiroi ~= 1
+                            blocksize = size(unit(1).mean);
+                            meanpicsize = size(meanPic);
+                            for idy = 1:size(idArray,1)
+                                for idx = 1:size(idArray,2)
+                                    meanpicMask = logical(zeros(meanpicsize));
                                     idArray(idy,idx);
                                     
-                                    my=(1:blocksize(1))+(blocksize(1)*(idy-1));  %% 46
-                                    mx=(1:blocksize(2))+(blocksize(2)*(idx-1));  %% 20
-                                    if idArray(idy,idx)~=0
-                                        meanpicMask(my,mx)=1;
+                                    my = (1:blocksize(1))+(blocksize(1)*(idy-1));  %% 46
+                                    mx = (1:blocksize(2))+(blocksize(2)*(idx-1));  %% 20
+                                    if idArray(idy,idx) ~= 0
+                                        meanpicMask(my,mx) = 1;
                                         %%% ROI COMPRESSION
                                         CC = bwconncomp(meanpicMask);
-                                        data(unitID).logicalROI(idArray(idy,idx)).roi=CC.PixelIdxList{1, 1};
+                                        data(unitID).logicalROI(idArray(idy,idx)).roi = CC.PixelIdxList{1, 1};
                                         %%% ROI COMPRESSION
                                         s = regionprops(meanpicMask,'centroid','MajorAxisLength');
                                         data(unitID).logicalROI(idArray(idy,idx)).centroid = cat(1, s.Centroid);
-                                        data(unitID).logicalROI(idArray(idy,idx)).axisLength=s.MajorAxisLength;
+                                        data(unitID).logicalROI(idArray(idy,idx)).axisLength = s.MajorAxisLength;
                                         % Create poly roi
-                                        mxp=mx;
-                                        myp=my;
-                                        xd=mxp(end)-mxp(1);
-                                        yd=myp(end)-myp(1);
-                                        polyx=[mxp(1) mxp(1)+xd mxp(1)+xd   mxp(1)  mxp(1)];
-                                        polyy=[myp(1) myp(1)    myp(1)+yd   myp(1)+yd   myp(1)];
-                                        data(unitID).CaTransient(idArray(idy,idx)).poly=[polyx;polyy];
+                                        mxp = mx;
+                                        myp = my;
+                                        xd = mxp(end)-mxp(1);
+                                        yd = myp(end)-myp(1);
+                                        polyx = [mxp(1) mxp(1)+xd mxp(1)+xd   mxp(1)  mxp(1)];
+                                        polyy = [myp(1) myp(1)    myp(1)+yd   myp(1)+yd   myp(1)];
+                                        data(unitID).CaTransient(idArray(idy,idx)).poly = [polyx;polyy];
                                     end
                                 end
                             end
@@ -429,14 +445,14 @@ end
                         end % if multiroi OFF
                         % Simulate Attribs
                         % TODO IF Andy-s code is not working
-                        data(unitID).Attributes(1).Shortname='XAxisConversionConversionLinearScale';
-                        data(unitID).Attributes(1).Value=1;
+                        data(unitID).Attributes(1).Shortname = 'XAxisConversionConversionLinearScale';
+                        data(unitID).Attributes(1).Value = 1;
                         
-                        data(unitID).Attributes(2).Shortname='YAxisConversionConversionLinearScale';
-                        data(unitID).Attributes(2).Value=1;
+                        data(unitID).Attributes(2).Shortname = 'YAxisConversionConversionLinearScale';
+                        data(unitID).Attributes(2).Value = 1;
                         
-                        data(unitID).Attributes(3).Shortname='GeomTransTransl';
-                        data(unitID).Attributes(3).Value=[-300;-300;-6.663220000000000e+03];
+                        data(unitID).Attributes(3).Shortname = 'GeomTransTransl';
+                        data(unitID).Attributes(3).Value = [-300;-300;-6.663220000000000e+03];
                         
                         
                     end
@@ -444,9 +460,14 @@ end
                 otherwise
                     error('ezittnemkene 8362352')
             end
-            if ishandle(h2), waitbar(unitID/numel(f),h2); else disp('Export interrupted by user.'),break, end
+            if ishandle(h2) 
+                waitbar(unitID/numel(f),h2) 
+            else
+                disp('Export interrupted by user.')
+                break
+            end
             
-            data(unitID).MeasureNumber=unitID;
+            data(unitID).MeasureNumber = unitID;
 
             % unit(unitID).meta=attribs;
             disp(['Unit ready: ' num2str(unitID)]);
@@ -514,44 +535,16 @@ end
             stimsCode(iP,2) = uPidx(ismember(uP, P{iP}));
         end
         stims{:,1} = 1:numel(P); stims{:,2} = P;
-%         stims = dlmread(stimlocation,';',0,0);
-%         codes=[1 2 3  4  5   6   7   8   9; ...
-%             999 0 45 90 135 180 225 270 315]';
-%         
-% %         
-%         stimsCode=stims
-%         % for c=1:length(codes)
-%         %    stimsCode(stims==codes(c,2))=codes(c,1);
-%         % end
-%         %
-%         for sc=1:length(stimsCode)
-%             for c=1:length(codes)
-%                 if stimsCode(sc,2)==codes(c,2)
-%                     stimsCode(sc,2)=codes(c,1);
-%                 end
-%             end
-%         end
-        
-        
         
         disp('Stimd Data load: 100%');
         %
         try
             
             for globalID = 1:length(data)
-%                 data(globalID).subindexRead=stims(globalID,1);
-%                 if data(globalID).subindex~=data(globalID).subindexRead;
-%                     warning('Stim file incompatible!!!!!!!!!!!!!!!!!!!!!');
-%                     errorlog(end+1)=num2str(globalID)
-%                     save([exportlocation '\errorlog.mat'],'errorlog','-v7.3')
-%                 end
-%                 data(globalID).ProtocolOrientationID = stimsCode(globalID,2);
-%                 data(globalID).PredictedOrientationID = stimsCode(globalID,2);
-%                 data(globalID).ProtocolStim = stims(globalID,2);
-                data(globalID).subindexRead=stims{1}(globalID);
-                if data(globalID).subindex~=data(globalID).subindexRead;
+                data(globalID).subindexRead = stims{1}(globalID);
+                if data(globalID).subindex ~= data(globalID).subindexRead
                     warning('Stim file incompatible!!!!!!!!!!!!!!!!!!!!!');
-                    errorlog(end+1)=num2str(globalID)
+                    errorlog(end+1) = num2str(globalID);
                     save([exportlocation '\errorlog.mat'],'errorlog','-v7.3')
                 end
                 data(globalID).ProtocolOrientationID = stimsCode(globalID,2);
@@ -562,23 +555,23 @@ end
             [~,index] = sortrows([data.ProtocolOrientationID].'); data = data(index); clear index
             
             
-            orientNumber=max([data(:).PredictedOrientationID]);
-            sessionNumber=sum([data(:).PredictedOrientationID]==2);  %% check the 2. stim counts
+            orientNumber = max([data(:).PredictedOrientationID]);
+            sessionNumber = sum([data(:).PredictedOrientationID] == 2);  %% check the 2. stim counts
             
-            dataids=1:length(data);
-            for orid=1:orientNumber
-                num=numel(data([data.ProtocolOrientationID]==orid));
-                idvect=[data.ProtocolOrientationID]==orid;
-                dataids(idvect)=1:num;
+            dataids = 1:length(data);
+            for orid = 1:orientNumber
+                num = numel(data([data.ProtocolOrientationID] == orid));
+                idvect = [data.ProtocolOrientationID] == orid;
+                dataids(idvect) = 1:num;
             end
-            dataids(dataids>sessionNumber)=0;
+            dataids(dataids>sessionNumber) = 0;
             
-            for globalID=1:length(data)
-                data(globalID).Session=dataids(globalID);
-                data(globalID).PredictedSession=dataids(globalID);
+            for globalID = 1:length(data)
+                data(globalID).Session = dataids(globalID);
+                data(globalID).PredictedSession = dataids(globalID);
             end
             %
-            data([data(:).Session]==0)=[];
+            data([data(:).Session] == 0) = [];
             
             if strcmp(savemode,'multiMat')
                 if ~preview
@@ -597,6 +590,8 @@ end
     end
 %
 disp(unitID)
+
+
 function [subindex,prew,frameSet,lineInfo,attribs]=foldedframe2xyz2Own(in,chaninput)
 %usage foldedframe2xyz2 f21
 %xyt meresse konvertalja a foldedframe merest
