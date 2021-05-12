@@ -62,6 +62,7 @@ switch type
                     cutoff = 500;
                     N_cutoffsampl = ceil(cutoff/Ts);
                     trace(end-N_cutoffsampl:end) = deal(trace(end-N_cutoffsampl-1));
+                    trace(1) = trace(2); %a dirty fix for photostim/long recordings having first sample artifact [2021-05-12]
                 otherwise
                     trace(1) = trace(2);%the treatment of first sample, for AO we need different method
             end

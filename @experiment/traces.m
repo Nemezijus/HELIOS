@@ -3,7 +3,7 @@ function W = traces(OB,idxs,type)
 % stores them in waveform object W.
 % idxs - 4 element cell specifying the following:
 %
-% {ROIID, STAGEID, STIMID, REPID}. If one of them is indicated as 0, all
+% {ROIID, STAGEID, STIMID, REPID, UNITID}. If one of them is indicated as 0, all
 %
 % instances of that group will be extracted. No more than one 0 is allowed.
 %part of HELIOS
@@ -58,7 +58,11 @@ if isempty(UNITID)
 end
 %step 1 - time axis
 if STAGEID{:} ~= 0
-    idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:})};
+    if numel(idxs) < 5 || isempty(idxs{5}) || idxs{5} == 0
+        idx = {NaN,STAGEID{:},OB.restun{STAGEID{:}}(STIMID{:}, REPID{:})};
+    else
+        idx = {NaN,STAGEID{:},idxs{5}};
+    end
     %%added 2020-12-18
     if isempty(OB.restun{STAGEID{:}}(STIMID{:}, REPID{:}))%for no stim cases
         idx{end} = 1;
@@ -301,7 +305,6 @@ R = REPS{:};
 for iroi = 1:numel(roiid)-1
     REPS{iroi+1,:} = R;
 end
-a=1;
 
 function [ROIID,STAGEID,STIMID,REPID,UNITID] = local_idx_parse(ob, idxs)
 ROIID = idxs(1);
@@ -328,9 +331,17 @@ end
 if ~any(ob.N_stim)
     REPID = {};
     STIMID = {};
-    for istage = 1:numel(STAGEID)
-        if STAGEID{istage} ~= 0
-            UNITID{istage} = ob.restun{STAGEID{istage}};
+    if numel(idxs) == 5 & ~((idxs{5}==0) | isempty(idxs{5}))%if UNIT ID is specified manually/by user
+        for istage = 1:numel(STAGEID)
+            if STAGEID{istage} ~= 0
+                UNITID{istage} = idxs{5};
+            end
+        end
+    else
+        for istage = 1:numel(STAGEID)
+            if STAGEID{istage} ~= 0
+                UNITID{istage} = ob.restun{STAGEID{istage}};
+            end
         end
     end
 else
