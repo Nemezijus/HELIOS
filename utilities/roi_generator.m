@@ -66,6 +66,7 @@ switch hO.Tag
         inside = inside(~[inside.isdir]);
         d.rtmc_rois = collect_rois(inside);
         [d.z,d.root] = collect_z(inside);
+        set(d.PB(2), 'BackgroundColor',[0.3020 0.7451 0.9333]);
 end
 
 guidata(d.F, d)
@@ -86,7 +87,7 @@ for icont = 1:numel(cont)
 end
 
 function [z,a] = collect_z(cont)
-z = '';
+z = [];
 for icont = 1:numel(cont)
     fpath = [cont(icont).folder,'\',cont(icont).name];
     [a,b,c] = fileparts(fpath);
@@ -97,6 +98,11 @@ end
 
 function local_start(hO, ed)
 d = guidata(hO);
+if isempty(d.z)
+    msgbox('zcoord.txt file is missing! Terminating!')
+    return
+end
+disp('STARTING');
 A = importdata(d.z);
 eval(A{1})
 if numel(d.rtmc_rois) ~= numel(zcoord)
@@ -164,15 +170,22 @@ logme(logname, ['Contours on mean images saved ']);
 
 logme(logname,'');
 logme(logname,['DONE ',datestr(now)]);
+disp('FINISHED');
 
 function log_init(d,logname)
-try
     fid = fopen(logname , 'wt' );
+try
+
+    
+    string = ['USER: ',getenv('username'), ' COMPUTER: ', getenv('computername')];
+    fprintf( fid, '%s\n', string);
+    
+    fprintf( fid, '%s\n', '');
     
     string = ['MESc file: '];
     fprintf( fid, '%s\n', string);
     
-    string = [,d.mescloc];
+    string = [d.mescloc];
     fprintf( fid, '%s\n', string);
     
     fprintf( fid, '%s\n', '');
