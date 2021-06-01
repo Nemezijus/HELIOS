@@ -49,12 +49,36 @@ end
 for ist = 1:Nst
     units = ob.restun{ist};
     for unit = units
+        c_trace = ob.traces({roiid, ist, [], [], unit},'dff');
+        T(ist).time_samples(unit) = numel(c_trace.time);
         for ijz = 1:numel(jump_zones)
             SAMP.stage(ist).unit(unit).(jump_zones{ijz}) = ...
                 SAMP.stage(ist).unit(unit).samples(ismember(SAMP.stage(ist).unit(unit).zones_to,jump_zones{ijz}),:);
+%             if unit == 1
+%                 SAMP.stage(ist).(jump_zones{ijz}) = ...
+%                     SAMP.stage(ist).unit(unit).samples(ismember(SAMP.stage(ist).unit(unit).zones_to,jump_zones{ijz}),:);
+%             else
+%                 SAMP.stage(ist).(jump_zones{ijz}) = ...
+%                     SAMP.stage(ist).unit(unit).samples(ismember(SAMP.stage(ist).unit(unit).zones_to,jump_zones{ijz}),:) + ...
+%                     sum(T(ist).time_samples(1:unit));
+%             end
+        end
+    end
+    SAMP.stage(ist).time_samples = T(ist).time_samples;
+end
+
+for ist = 1:Nst
+    units = ob.restun{ist};
+    for ijz = 1:numel(jump_zones)
+        SAMP.stage(ist).(jump_zones{ijz}) = SAMP.stage(ist).unit(1).(jump_zones{ijz});
+        for unit = units(2:end)
+            jz = SAMP.stage(ist).unit(unit).(jump_zones{ijz});
+            jz = jz + sum(T(ist).time_samples(1:unit));
+            SAMP.stage(ist).(jump_zones{ijz}) = [SAMP.stage(ist).(jump_zones{ijz});jz];
         end
     end
 end
+a = 1;
 
 function z = next_sample_membership(idx, rew, clo, ave)
 idx = [idx+1:idx+3]; %next samples
