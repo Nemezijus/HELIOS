@@ -49,7 +49,7 @@ for ir = 1:numel(iroi)
                 return
         end
         data_st(count,:) = stitchrows(W.data, units,'data',OB.setup,Ts);
-        time_st(count,:) = stitchrows(W.time, units,'time',OB.setup,Ts);
+        time_st(count,:) = stitchrows(W.time-W.time(1), units,'time',OB.setup,Ts);
         tag{count} = W.tag;
 %         tag{count} = strjoin({'',['ROI_',num2str(iroi(ir))],['STAGE_',num2str(istage(is))]},'/');
         count = count+1;
@@ -111,6 +111,7 @@ for iunit = Nunits
     end
     if iunit == 1
         beh_time = cb.time(mask)';
+        beh_time = beh_time - beh_time(1);
         beh_data = cb.velocity(mask)';
     else
         cleaned_time = cb.time(mask)';
