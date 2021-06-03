@@ -15,8 +15,13 @@ M0 = info.Groups(ismember({info.Groups.Name},'/MSession_0'));
 U0 = M0.Groups(1);
 
 img = imrotate(flip(img,2),90);
-Xoff = h5readatt(mescloc,U0.Name, 'XAxisConversionConversionLinearOffset');
-Yoff = h5readatt(mescloc,U0.Name, 'YAxisConversionConversionLinearOffset');
+sz = size(img);
+Xpix_scale = h5readatt(mescloc,U0.Name,'XAxisConversionConversionLinearScale');
+Ypix_scale = h5readatt(mescloc,U0.Name,'YAxisConversionConversionLinearScale');
+Xoff = (sz(1)/2)*Xpix_scale;
+Yoff = (sz(2)/2)*Ypix_scale;
+% Xoff = h5readatt(mescloc,U0.Name, 'XAxisConversionConversionLinearOffset');
+% Yoff = h5readatt(mescloc,U0.Name, 'YAxisConversionConversionLinearOffset');
 % figure; imagesc(img); hold on
 for iroi = 1:numel(MR)
     M = [];
@@ -29,9 +34,14 @@ for iroi = 1:numel(MR)
     end
     BW2 = bwboundaries(logicalROI);
     bwperim1 = BW2{1};
+    temp = bwperim1(:,1);
+    bwperim1(:,1) = bwperim1(:,2); bwperim1(:,2) = temp;
 %     bwperim2 = BW2{2};
 %     plot(bwperim1(:,1),bwperim1(:,2),'Linestyle','-','Color','w');hold on;
 %     plot(bwperim2(:,1),bwperim2(:,2),'Linestyle','-','Color','w');
+    R(iroi).original(1,:) = MR(iroi).X;
+    R(iroi).original(2,:) = MR(iroi).Y;
+    R(iroi).original_adjusted = M;
     R(iroi).pseudo = bwperim1';
     R(iroi).pseudo_centroid = rawmask.Centroid;
     R(iroi).adjusted(1,:) = bwperim1(:,1) - abs(Xoff);

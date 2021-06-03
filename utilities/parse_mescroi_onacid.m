@@ -30,10 +30,10 @@ for it = 1:numel(T)
     if begin
         if ~isnan(str2double(ct))
             if isx
-                MR(counter).X = [MR(counter).X,str2double(ct)];
+                MR(counter).Y = [MR(counter).Y,str2double(ct)];
                 isx = 0;
             else
-                MR(counter).Y = [MR(counter).Y,str2double(ct)];
+                MR(counter).X = [MR(counter).X,str2double(ct)];
                 isx = 1;
             end
         end
