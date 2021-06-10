@@ -20,6 +20,7 @@ Xpix_scale = h5readatt(mescloc,U0.Name,'XAxisConversionConversionLinearScale');
 Ypix_scale = h5readatt(mescloc,U0.Name,'YAxisConversionConversionLinearScale');
 Xoff = (sz(1)/2)*Xpix_scale;
 Yoff = (sz(2)/2)*Ypix_scale;
+offset = h5readatt(mescloc,U0.Name, 'GeomTransTransl');
 % Xoff = h5readatt(mescloc,U0.Name, 'XAxisConversionConversionLinearOffset');
 % Yoff = h5readatt(mescloc,U0.Name, 'YAxisConversionConversionLinearOffset');
 % figure; imagesc(img); hold on
@@ -49,6 +50,9 @@ for iroi = 1:numel(MR)
     R(iroi).adjusted_centroid(1) = rawmask.Centroid(1)- abs(Xoff);
     R(iroi).adjusted_centroid(2) = rawmask.Centroid(2)- abs(Yoff);
     R(iroi).adjusted_centroid(3) = zcoord;
+    R(iroi).Xscale = Xpix_scale;
+    R(iroi).Yscale = Ypix_scale;
+    R(iroi).offset = offset;
 end
 logme(logname, ['R created successfuly']);
 
