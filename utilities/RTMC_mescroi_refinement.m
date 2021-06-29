@@ -76,7 +76,7 @@ fclose(fid);
 logme(logname, ['centroid mescroi saved successfuly']);
 
 type = 'centers';
-saveloc_loc = [saveloc,'\',b,'_centroids',c];
+saveloc_loc = [saveloc,'\',b,'_centers',c];
 fid = fopen(saveloc_loc, 'wt');
 local_text_write(fid, R, UNIDs, colors, type, zidx);
 fclose(fid);
