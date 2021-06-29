@@ -1,4 +1,4 @@
-function MR = parse_mescroi_onacid(floc, tosave)
+function MR = parse_mescroi_onacid(floc, tosave, z)
 % MR = parse_mescroi_onacid(floc) - collect onacid exported mescroi file
 % ROI contours to a struct MR
 if nargin < 2
@@ -47,17 +47,18 @@ if tosave
         end
     end
     
-    MM = zeros(ma,2*numel(MR)).*NaN;
+    MM = zeros(ma,3*numel(MR)).*NaN;
     
     counter = 1;
-    for iMR = 1:2:2*numel(MR)
+    for iMR = 1:3:3*numel(MR)
         MM(1:numel(MR(counter).X),iMR) = MR(counter).X;
         MM(1:numel(MR(counter).Y),iMR+1) = MR(counter).Y;
+        MM(1:numel(MR(counter).Y),iMR+2) = z;
         counter = counter+1;
     end
     
     [a,b,c] = fileparts(floc);
-    filename = ['N:\DATA\andrius.plauska\test\RTMC_test\',b,'.xlsx'];
+    filename = ['N:\DATA\andrius.plauska\test\RTMC_722\',b,'.xlsx'];
     writematrix(MM,filename,'Sheet',1,'Range','A2');
-    writecell(repmat({'X','Y'},1,numel(MR)),filename,'Sheet',1,'Range','A1');
+    writecell(repmat({'X','Y','Z'},1,numel(MR)),filename,'Sheet',1,'Range','A1');
 end

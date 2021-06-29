@@ -75,6 +75,13 @@ local_text_write(fid, R, UNIDs, colors, type, zidx);
 fclose(fid);
 logme(logname, ['centroid mescroi saved successfuly']);
 
+type = 'centers';
+saveloc_loc = [saveloc,'\',b,'_centroids',c];
+fid = fopen(saveloc_loc, 'wt');
+local_text_write(fid, R, UNIDs, colors, type, zidx);
+fclose(fid);
+logme(logname, ['center mescroi saved successfuly']);
+
 
 
 function [UNIDs, colors] = local_text_parse(floc)
@@ -154,6 +161,18 @@ try
             fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1)-1);
             fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2)+1);
 %             fprintf(fid, ['                    %f\n'],R.adjusted_centroid(3));
+            fprintf(fid, '                ]\n');
+            %                 if idx==4
+            %                     fprintf(fid, '                ]\n');
+            %                 else
+            %                     fprintf(fid, '                ],\n');
+            %                 end
+            %             end
+            case 'centers'
+            %             for idx = 1:4
+            fprintf(fid, '                [\n');
+            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1));
+            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2));
             fprintf(fid, '                ]\n');
             %                 if idx==4
             %                     fprintf(fid, '                ]\n');
