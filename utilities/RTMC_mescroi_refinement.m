@@ -52,6 +52,8 @@ for iroi = 1:numel(MR)
     R(iroi).adjusted_centroid(3) = zcoord;
     R(iroi).Xscale = Xpix_scale;
     R(iroi).Yscale = Ypix_scale;
+    R(iroi).Xoff = Xoff;
+    R(iroi).Yoff = Yoff;
     R(iroi).offset = offset;
 end
 logme(logname, ['R created successfuly']);
@@ -134,32 +136,32 @@ try
         case 'centroids'
             %             for idx = 1:4
             fprintf(fid, '                [\n');
-            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1)-1);
-            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2)+1);
+            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(2)-1);
+            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(1)+1);
 %             fprintf(fid, ['                    %f\n'],R.adjusted_centroid(3));
             fprintf(fid, '                ],\n');
             
             fprintf(fid, '                [\n');
-            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1)+1);
-            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2)+1);
+            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(2)+1);
+            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(1)+1);
 %             fprintf(fid, ['                    %f\n'],R.adjusted_centroid(3));
             fprintf(fid, '                ],\n');
             
             fprintf(fid, '                [\n');
-            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1)+1);
-            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2)-1);
+            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(2)+1);
+            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(1)-1);
 %             fprintf(fid, ['                    %f\n'],R.adjusted_centroid(3));
             fprintf(fid, '                ],\n');
             
             fprintf(fid, '                [\n');
-            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1)-1);
-            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2)-1);
+            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(2)-1);
+            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(1)-1);
 %             fprintf(fid, ['                    %f\n'],R.adjusted_centroid(3));
             fprintf(fid, '                ],\n');
             
             fprintf(fid, '                [\n');
-            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1)-1);
-            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2)+1);
+            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(2)-1);
+            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(1)+1);
 %             fprintf(fid, ['                    %f\n'],R.adjusted_centroid(3));
             fprintf(fid, '                ]\n');
             %                 if idx==4
@@ -171,8 +173,8 @@ try
             case 'centers'
             %             for idx = 1:4
             fprintf(fid, '                [\n');
-            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(1));
-            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(2));
+            fprintf(fid, ['                    %f,\n'],R.adjusted_centroid(2));
+            fprintf(fid, ['                    %f\n'],R.adjusted_centroid(1));
             fprintf(fid, '                ]\n');
             %                 if idx==4
             %                     fprintf(fid, '                ]\n');

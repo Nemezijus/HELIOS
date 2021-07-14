@@ -290,7 +290,12 @@ for iunit = 1:Nunits
         v = getfromcsv(cstring, T_names, T, nsamples);
         if strcmp(cstring, 'trigger')
             [idxs, ~] = find(v);
-            trigger_idx = idxs(1);
+            if ~isempty(idxs)
+                trigger_idx = idxs(1);
+            else
+                disp(['Trigger not present for unit ',num2str(iunit),' for stage ', stagetag.id]);
+                trigger_idx = NaN;
+            end
         end
         try
             allocatespace(file_loc, {v}, {[cloc,upper(cstring)]});
@@ -300,7 +305,7 @@ for iunit = 1:Nunits
     end
     
     %calculate TIME_OFFSET
-    if ~isempty(T)
+    if ~isempty(T) & ~isnan(trigger_idx)
         t = getfromcsv('time', T_names, T);
         TIME_OFFSET = t(trigger_idx);
     else

@@ -168,6 +168,12 @@ logme(logname, ['Visualizing contours on mean images ',datestr(now)]);
 multilayer_rois(PROJ, RR, dirname);
 logme(logname, ['Contours on mean images saved ']);
 
+logme(logname,[]);
+for ilayer = 1:numel(z)
+    MR = parse_mescroi_onacid(floc, d.mescloc, saveloc, z{ilayer});
+end
+logme(logname,[]);
+
 logme(logname,'');
 logme(logname,['DONE ',datestr(now)]);
 disp('FINISHED');

@@ -1,9 +1,20 @@
-function MR = parse_mescroi_onacid(floc, tosave, z)
+function MR = parse_mescroi_onacid(floc, mescloc, saveloc, z)
 % MR = parse_mescroi_onacid(floc) - collect onacid exported mescroi file
 % ROI contours to a struct MR
 if nargin < 2
-    tosave = 0;
+    saveloc = [];
 end
+
+if isempty(saveloc)
+    tosave = 0;
+else
+    tosave = 1;
+end
+info = h5info(mescloc);
+M0 = info.Groups(ismember({info.Groups.Name},'/MSession_0'));
+U0 = M0.Groups(1);
+translocation = h5readatt(mescloc,U0.Name,'GeomTransTransl');
+
 fid = fopen(floc);
 T = textscan(fid,'%s');
 T = T{1,1};
@@ -47,18 +58,19 @@ if tosave
         end
     end
     
-    MM = zeros(ma,3*numel(MR)).*NaN;
+    MM = zeros(numel(MR),3).*NaN;
     
     counter = 1;
-    for iMR = 1:3:3*numel(MR)
-        MM(1:numel(MR(counter).X),iMR) = MR(counter).X;
-        MM(1:numel(MR(counter).Y),iMR+1) = MR(counter).Y;
-        MM(1:numel(MR(counter).Y),iMR+2) = z;
+    for iMR = 1:numel(MR)
+        MM(iMR, 1) = MR(counter).X;
+        MM(iMR, 2) = MR(counter).Y;
+        MM(iMR, 3) = z;
         counter = counter+1;
     end
-    
+    rMM = rotation(MM(:,1:2),-135) + translocation(1:2)';
+    MM(:,1:2) = rMM;
     [a,b,c] = fileparts(floc);
-    filename = ['N:\DATA\andrius.plauska\test\RTMC_722\',b,'.xlsx'];
+    filename = [saveloc,'\',b,'.xlsx'];
     writematrix(MM,filename,'Sheet',1,'Range','A2');
-    writecell(repmat({'X','Y','Z'},1,numel(MR)),filename,'Sheet',1,'Range','A1');
+    writecell({'X','Y','Z'},filename,'Sheet',1,'Range','A1');
 end
