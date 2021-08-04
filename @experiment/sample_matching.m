@@ -38,6 +38,9 @@ function s = local_matching(b,t,flag)
 print_on_screen = 0;
 offset = b.time_offset;
 beh_time = b.time';%should be in seconds by default
+if isnan(offset)
+    offset = beh_time(1);
+end
 beh_data = local_beh_data(b,flag)';
 % beh_data = b.events.(flag)';%this needs to be made more flexible!!!
 

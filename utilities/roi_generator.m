@@ -168,11 +168,14 @@ logme(logname, ['Visualizing contours on mean images ',datestr(now)]);
 multilayer_rois(PROJ, RR, dirname);
 logme(logname, ['Contours on mean images saved ']);
 
-logme(logname,[]);
-for ilayer = 1:numel(z)
-    MR = parse_mescroi_onacid(floc, d.mescloc, saveloc, z{ilayer});
+logme(logname,['Creating centroid excel files!'],datestr(now));
+for ilayer = 1:numel(zcoord)
+    floc = d.rtmc_rois{ilayer};
+    [a,b,c] = fileparts(floc);
+    floc = [dirname,'\',b,'_centers',c];
+    MR = parse_mescroi_onacid(floc, d.mescloc, dirname, zcoord(ilayer));
 end
-logme(logname,[]);
+logme(logname,['Centroid excel files created!']);
 
 logme(logname,'');
 logme(logname,['DONE ',datestr(now)]);

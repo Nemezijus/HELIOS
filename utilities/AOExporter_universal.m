@@ -359,6 +359,8 @@ end
                                     data(unitID).CaTransient(cellID).event(2,:)=squeeze(mean(mean(AOCell,1,'omitnan'),2,'omitnan'));
                                     data(unitID).CaTransient(cellID).RoiID=cellID;
                                     data(unitID).CaTransient(cellID).RoiIDReal=cellID;
+                                    data(unitID).CaTransient(cellID).RealRoi = cellID;
+                                    data(unitID).CaTransient(cellID).RealSection = NaN;
                                     try
                                         attribs = rmfield(attribs, 'IMAGE');
                                     catch

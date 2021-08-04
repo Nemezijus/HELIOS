@@ -1,7 +1,7 @@
 function MR = parse_mescroi_onacid(floc, mescloc, saveloc, z)
 % MR = parse_mescroi_onacid(floc) - collect onacid exported mescroi file
 % ROI contours to a struct MR
-if nargin < 2
+if nargin < 3
     saveloc = [];
 end
 
@@ -10,10 +10,12 @@ if isempty(saveloc)
 else
     tosave = 1;
 end
-info = h5info(mescloc);
-M0 = info.Groups(ismember({info.Groups.Name},'/MSession_0'));
-U0 = M0.Groups(1);
-translocation = h5readatt(mescloc,U0.Name,'GeomTransTransl');
+if nargin > 1
+    info = h5info(mescloc);
+    M0 = info.Groups(ismember({info.Groups.Name},'/MSession_0'));
+    U0 = M0.Groups(1);
+    translocation = h5readatt(mescloc,U0.Name,'GeomTransTransl');
+end
 
 fid = fopen(floc);
 T = textscan(fid,'%s');
