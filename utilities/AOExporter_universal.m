@@ -331,7 +331,8 @@ end
                         end
                     %    disp ('G')
                         case 0 %% Scanfields
-                            
+                            %in this case there are no ROI contours so no
+                            %coordinates either
                             
                         %cell_level
                          for cellID=1:size(frameSet,1)/AOSize
@@ -361,6 +362,7 @@ end
                                     data(unitID).CaTransient(cellID).RoiIDReal=cellID;
                                     data(unitID).CaTransient(cellID).RealRoi = cellID;
                                     data(unitID).CaTransient(cellID).RealSection = NaN;
+                                    data(unitID).CaTransient(cellID).Realxyz = [0 0 0];
                                     try
                                         attribs = rmfield(attribs, 'IMAGE');
                                     catch
