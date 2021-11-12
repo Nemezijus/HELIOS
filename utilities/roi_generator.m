@@ -1,4 +1,8 @@
 function roi_generator(R_custom)
+%roi_generator(R_custom) - a GUI for reformatting .mescroi files produced
+%by OnAcid/RTMC algorithms. Also visualizes the ROIs on maximum projection
+%images (per layer).
+%R_custom is an optional 
 if nargin < 1
     R_custom = [];
 end
@@ -17,7 +21,7 @@ d.R_custom = R_custom;
 d.Nsources = 0;
 d.recursive = 0;
 
-C.BT1 = 'w';
+C.BT1 = [0.7 0.7 0.7];
 C.BTtxt1 = 'k';
 PB(1) = uicontrol(F,'Style', 'Pushbutton', 'String', '.mesc file',...
     'Units','Normalized','Position', [0.01 0.54 0.45 0.45],...
@@ -54,15 +58,17 @@ switch hO.Tag
             set(d.PB(1), 'BackgroundColor',[0.3020 0.7451 0.9333]);
         end
     case 'dir'
-        d.Nsources = d.Nsources+1;
         [di] = uigetdir('Please select the source directory');
-        inside = dir(di);
-        inside = inside(3:end);
-        inside = inside(~[inside.isdir]);
-        d.rtmc_rois{numel(d.rtmc_rois)+1} = collect_rois(inside);
-        [d.z{numel(d.z)+1},d.root{numel(d.root)+1}] = collect_z(inside);
-        set(d.PB(2), 'BackgroundColor',[0.3020 0.7451 0.9333]);
-        set(d.PB(2), 'String', ['source directory (', num2str(d.Nsources),')']);
+        if di ~= 0
+            d.Nsources = d.Nsources+1;
+            inside = dir(di);
+            inside = inside(3:end);
+            inside = inside(~[inside.isdir]);
+            d.rtmc_rois{numel(d.rtmc_rois)+1} = collect_rois(inside);
+            [d.z{numel(d.z)+1},d.root{numel(d.root)+1}] = collect_z(inside);
+            set(d.PB(2), 'BackgroundColor',[0.3020 0.7451 0.9333]);
+            set(d.PB(2), 'String', ['source directory (', num2str(d.Nsources),')']);
+        end
 end
 
 guidata(d.F, d)
@@ -102,6 +108,11 @@ for icycle = 1:d.Nsources
         d.rtmc_rois = d_copy.rtmc_rois{icycle};
         d.z = d_copy.z{icycle};
         d.root = d_copy.root{icycle};
+    else
+        thisroot = d_copy.root{icycle};
+        thisroot = strsplit(thisroot, '\');
+        thisroot = thisroot(1:end-1);
+        d.root = strjoin(thisroot,'\');
     end
     %z coordinate parse
     if isempty(d.z)
@@ -230,6 +241,7 @@ if numel(d_copy.rtmc_rois) > 1 & ~d.recursive
     
     local_start(d.F, []);
 end
+msgbox('ROI Generator finished the task!');
 
 function log_init(d,logname)
 fid = fopen(logname , 'wt' );
@@ -285,8 +297,8 @@ d.Nsources = 0;
 d.recursive = 0;
 d.original = [];
 
-set(d.PB(1), 'background', 'w');
-set(d.PB(2), 'background', 'w');
+set(d.PB(1), 'background', [0.7 0.7 0.7]);
+set(d.PB(2), 'background', [0.7 0.7 0.7]);
 set(d.PB(2),'String', ['source directory (', num2str(d.Nsources),')']);
 guidata(d.F, d);
 

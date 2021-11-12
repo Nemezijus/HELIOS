@@ -33,7 +33,7 @@ for ilayer = 1:Nlayers
     PROJ(ilayer).mean = uint16(imrotate(PROJ(ilayer).mean./Nunits,90));
     greenVec = linspace(0,1,65535);
     gmap = [zeros(65535,1)';greenVec;zeros(65535,1)']';
-    [newLUT, newIMG] = visc_reLUT(PROJ(ilayer).mean, gmap, 0);
+    [newLUT, newIMG] = reLUT(PROJ(ilayer).mean, gmap, 0);
     PROJ(ilayer).image = newIMG;
     PROJ(ilayer).LUT = newLUT;
 end
